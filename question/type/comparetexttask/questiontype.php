@@ -42,7 +42,6 @@ class qtype_comparetexttask extends question_type {
 	public function get_question_options($question) {
 		// TODO: load options from XML/XSD
 		return true;
-
 	}
 
 	public function save_question_options($question) {

@@ -32,18 +32,20 @@ defined('MOODLE_INTERNAL') || die();
 */
 class qtype_comparetexttask_edit_form extends question_edit_form {
 	protected function definition_inner($mform) {
+		global $CFG;
 		// TODO: Formularfelder definieren, testen!
-		$questionstoselect = array();
-		for ($i = 2; $i <= qtype_comparetexttask::MAX_SUBQUESTIONS; $i++) {
-			$questionstoselect[$i] = $i;
-		}
+		$jarfile = "compareTextTask.jar";
+		$path = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
+		$appletstr = "<applet archive=\"" . $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile . "\" "
+			. "code=\"". $path . "\" "
+			. "width=\"710\" height=\"540\">\n"
+			. "<param name=\"initialText\" value=\"" . '' . "\">\n"
+			. "<param name=\"xmlDef\" value=\"" . '' . "\">\n"
+			. "</applet>\n";
+		$mform->addElement('html', $appletstr);
 
-		$mform->addElement('select', 'choose',
-				get_string('comparetexttasknumber', 'quiz'), $questionstoselect);
-		$mform->setType('feedback', PARAM_RAW);
-
-		$mform->addElement('hidden', 'fraction', 0);
-		$mform->setType('fraction', PARAM_RAW);
+		$mform->addElement('editor', 'fieldname', "hooray");
+		$mform->setType('fieldname', PARAM_RAW);
 	}
 
 	protected function data_preprocessing($question) {
@@ -51,7 +53,6 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		if (empty($question->name)) {
 			$question->name = get_string('comparetexttask', 'quiz');
 		}
-
 		if (empty($question->questiontext)) {
 			$question->questiontext = get_string('comparetexttaskintro', 'quiz');
 		}
