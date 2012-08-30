@@ -33,7 +33,9 @@ defined('MOODLE_INTERNAL') || die();
 class qtype_comparetexttask_edit_form extends question_edit_form {
 	protected function definition_inner($mform) {
 		global $CFG;
-		// TODO: Formularfelder definieren, testen!
+		global $PAGE;
+		// Hier Formularfelder definieren
+		// a) Java Applet
 		$jarfile = "compareTextTask.jar";
 		$path = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
 		$appletstr = "<applet archive=\"" . $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile . "\" "
@@ -43,7 +45,14 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 			. "<param name=\"xmlDef\" value=\"" . '' . "\">\n"
 			. "</applet>\n";
 		$mform->addElement('html', $appletstr);
+		// b) Javascript to get Data from the Applet
+		// void js_init_call (string $function, [ $extraarguments = null], [bool $ondomready = false], [ $module = null]) 
+		$PAGE->requires->js_init_call('M.qtype_comparetexttask.init', null, false, array(
+				'name'     => 'qtype_comparetexttask',
+				'fullpath' => '/question/type/comparetexttask/module.js'
+		));
 
+		// c) Testing stuff
 		$mform->addElement('editor', 'fieldname', "hooray");
 		$mform->setType('fieldname', PARAM_RAW);
 	}
