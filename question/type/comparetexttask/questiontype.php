@@ -45,7 +45,16 @@ class qtype_comparetexttask extends question_type {
 	}
 
 	public function save_question_options($question) {
-		// TODO: store outcome somehow
+		global $PAGE;
+		// TODO: store outcome somehow, see 
+		//debugging("§question:".var_export($question));
+		//debugging("§question->applet_result:".$question->applet_result);
+		if(strpos($question->applet_result, "Error:") === 0) {
+			$result = new stdClass();
+			$result->error = $question->applet_result;
+			return $result;
+		}
+		$question->applet_result;
 		return true;
 	}
 

@@ -38,11 +38,13 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 
 		// a) Java Applet
 		$jarfile = "compareTextTask.jar";
-		$path = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
-		$appletstr = "\n\n<applet archive=\"" . $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile . "\" "
-			. "code=\"". $path . "\" "
-			. "id=\"appletField\" "
-			. "width=\"710\" height=\"440\">\n"
+		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile;
+		$innerpath = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
+
+		$mform->addElement('textarea', 'applet_result', "Error: Applet Content was not send!", "style=\"display:none;\"");
+		$appletstr = "\n\n<applet archive=\"" . $jarpath . "\" " . "code=\"". $innerpath . "\" "
+				. "id=\"appletField\" "
+				. "width=\"710\" height=\"440\">\n"
 			. "<param name=\"initialText\" value=\"" . $this->get_initial_text() . "\">\n"
 			. "<param name=\"xmlDef\" value=\"" . '' . "\">\n"
 			. "</applet>\n\n";
@@ -80,5 +82,9 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 				. "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis."
 				. "At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat."
 				. "Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.";
+	}
+
+	protected function get_xml_tags() {
+		return "<some><xml></xml></some>";
 	}
 }

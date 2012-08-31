@@ -8,7 +8,9 @@ $(document).ready(function() {
 	var applet = $("form.mform #appletField")[0];
 	//console.log(applet);
 	$("form.mform").click(function () {
-		console.log(applet.getResult());
+		//console.log(applet.getResult());
+		$("form.mform textarea[name=applet_result]").val(applet.getResult());
+		//console.log($("form.mform textarea[name=applet_result]").val());
 		return true;
 	});
 });
