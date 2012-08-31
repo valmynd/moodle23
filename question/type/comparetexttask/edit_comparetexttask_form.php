@@ -32,26 +32,29 @@ defined('MOODLE_INTERNAL') || die();
 */
 class qtype_comparetexttask_edit_form extends question_edit_form {
 	protected function definition_inner($mform) {
+		// Hier werden Formularfelder definiert
 		global $CFG;
 		global $PAGE;
-		// Hier Formularfelder definieren
+
 		// a) Java Applet
 		$jarfile = "compareTextTask.jar";
 		$path = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
-		$appletstr = "<applet archive=\"" . $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile . "\" "
+		$appletstr = "\n\n<applet archive=\"" . $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile . "\" "
 			. "code=\"". $path . "\" "
-			. "width=\"710\" height=\"540\">\n"
-			. "<param name=\"initialText\" value=\"" . '' . "\">\n"
+			. "id=\"appletField\" "
+			. "width=\"710\" height=\"440\">\n"
+			. "<param name=\"initialText\" value=\"" . $this->get_initial_text() . "\">\n"
 			. "<param name=\"xmlDef\" value=\"" . '' . "\">\n"
-			. "</applet>\n";
+			. "</applet>\n\n";
 		$mform->addElement('html', $appletstr);
+
 		// b) Javascript to get Data from the Applet
 		$PAGE->requires->js("/question/type/" . $this->qtype() . "/jquery-1.8.0.min.js");
 		$PAGE->requires->js("/question/type/" . $this->qtype() . "/module.js");
 
-		// c) Testing stuff
-		$mform->addElement('editor', 'fieldname', "hooray");
-		$mform->setType('fieldname', PARAM_RAW);
+		// c) Playground for other stuff
+		//$mform->addElement('editor', 'fieldname', "hooray");
+		//$mform->setType('fieldname', PARAM_RAW);
 	}
 
 	protected function data_preprocessing($question) {
@@ -67,5 +70,15 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 
 	public function qtype() {
 		return 'comparetexttask';
+	}
+
+	protected function get_initial_text() {
+		return "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+				. "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat."
+				. "Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi."
+				. "Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat."
+				. "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis."
+				. "At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat."
+				. "Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.";
 	}
 }
