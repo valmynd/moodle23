@@ -1,7 +1,7 @@
-In der Zip-Datei qtemplate.zip befinden sich alle Daten, die
-für die Erstellung eines neuen Fragetyps nötig sind.
+In diesem Ordner befinden sich alle Daten, die für die Erstellung
+eines neuen Fragetyps erforderlich sind.
 
-Für neuen Fragetyp einfach sämptliche Vorkommnisse von "qtemplate"
+Für neuen Fragetyp einfach sämptliche Vorkommnisse von "comparetexttask"
 durch die gewünschte Bezeichnung ersetzen, und das sowohl in den
 Dateien als auch den Dateinamen!!
 

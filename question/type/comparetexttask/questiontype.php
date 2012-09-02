@@ -41,20 +41,31 @@ class qtype_comparetexttask extends question_type {
 
 	public function get_question_options($question) {
 		// TODO: load options from XML/XSD
+		global $DB;
+		$question->options = $DB->get_record('question_comparetexttask', array('id' => $question->id), '*', MUST_EXIST);
+		//debugging("§question:".var_export($question));
 		return true;
 	}
 
 	public function save_question_options($question) {
-		global $PAGE;
-		// TODO: store outcome somehow, see 
-		//debugging("§question:".var_export($question));
+		global $DB;
+		// TODO: store outcome somehow, see implementations in other question types
+		//debugging("save_question_options(): §question:".var_export($question));
 		//debugging("§question->applet_result:".$question->applet_result);
 		if(strpos($question->applet_result, "Error:") === 0) {
 			$result = new stdClass();
 			$result->error = $question->applet_result;
 			return $result;
 		}
-		$question->applet_result;
+		$existing = $DB->get_record('question_comparetexttask', array('id' => $question->id));
+		$options = new stdClass(); // such an object is required by update_record() / insert_record()
+		$options->initialtext = $question->applet_result;
+		if ($existing) {
+			$options->id = $existing->id;
+			$DB->update_record('question_comparetexttask', $options);
+		} else {
+			$DB->insert_record('question_comparetexttask', $options);
+		}
 		return true;
 	}
 
