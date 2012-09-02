@@ -60,25 +60,15 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		//$mform->setType('fieldname', PARAM_RAW);
 	}
 
-	protected function data_preprocessing($question) {
-		// TODO: predefine stuff?
-		/*if (empty($question->name)) {
-			$question->name = get_string('comparetexttask', 'quiz');
-		}*/
-		//debugging($question->options->initialtext);
-		//debugging("§question->options:".$question->options);
-		return $question;
-	}
-
 	public function qtype() {
 		return 'comparetexttask';
 	}
 
 	protected function get_initial_text() {
 		//debugging("get_initial_text(): §question:".var_export($this->question));
-		if (property_exists($this->question, "options"))
+		if (property_exists($this->question, "options")) // when updating
 			return $this->question->options->initialtext;
-		return "";
+		return ""; // when inserting
 	}
 
 	protected function get_xml_tags() {
