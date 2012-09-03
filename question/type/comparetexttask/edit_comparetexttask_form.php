@@ -39,13 +39,13 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// a) Java Applet
 		$jarfile = "compareTextTask.jar";
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile;
-		$innerpath = "com/spiru/dev/compareTextTask_addon/CompareTextApplet.class";
+		$innerpath = "com/spiru/dev/ChangeArgsApplet/CompareTextApplet.class";
 
 		$mform->addElement('textarea', 'applet_result', '', 'style="display:none;"'); // initial value should be: "Error: Applet Content was not send!"
 		$appletstr = "\n\n<applet "
 				. 'archive="' . $jarpath . '" ' . 'code="'. $innerpath . '" '
 				. 'id="appletField" '
-				. 'width="710" height="440">\n'
+				. 'width="500" height="320">\n'
 			. '<param name="initialText" value="' . $this->get_initial_text() . '">\n'
 			. '<param name="xmlDef" value="' . '' . '">\n'
 			. "</applet>\n\n";

@@ -9,7 +9,7 @@ $(document).ready(function() {
 	//console.log(applet);
 	$("form.mform").click(function () {
 		//console.log(applet.getResult());
-		$("form.mform textarea[name=applet_result]").val(applet.getResult());
+		$("form.mform textarea[name=applet_result]").val(applet.getInitialText());
 		//console.log($("form.mform textarea[name=applet_result]").val());
 		return true;
 	});
