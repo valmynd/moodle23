@@ -39,16 +39,23 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// a) Java Applet
 		$jarfile = "compareTextTask.jar";
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile;
-		$innerpath = "com/spiru/dev/ChangeArgsApplet/CompareTextApplet.class";
+		$innerpath = "com/spiru/dev/compareTextTask_addon/CompareTextProfessorApplet.class";
 
-		$mform->addElement('textarea', 'applet_result', '', 'style="display:none;"'); // initial value should be: "Error: Applet Content was not send!"
+		// initial value should be: "Error: Applet Content was not send!"
+		$mform->addElement('textarea', 'initial_text', '', 'style="display:none;"');
+		$mform->addElement('textarea', 'avaiable_tags', '', 'style="display:none;"');
+		$mform->addElement('textarea', 'sample', '', 'style="display:none;"');
 		$appletstr = "\n\n<applet "
 				. 'archive="' . $jarpath . '" ' . 'code="'. $innerpath . '" '
-				. 'id="appletField" '
+				. 'id="appletField"'
 				. 'width="500" height="320">\n'
 			. '<param name="initialText" value="' . $this->get_initial_text() . '">\n'
-			. '<param name="xmlDef" value="' . '' . '">\n'
+			. '<param name="xmlDef" value="' . $this->get_avaiable_tags() . '">\n'
+			. '<param name="sampleSolution" value="' . $this->get_sample() . '">\n'
 			. "</applet>\n\n";
+
+		// ENTER QUIRKS
+		$appletstr = '<div class="fitem fitem_feditor" id="fitem_id_questiontext"><div class="fitemtitle"><label for="appletField">Settings for CompareTextTask</label></div><div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
 		$mform->addElement('html', $appletstr);
 
 		// b) Javascript to get Data from the Applet
@@ -65,9 +72,20 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 	}
 
 	protected function get_initial_text() {
-		//debugging("get_initial_text(): §question:".var_export($this->question));
 		if (property_exists($this->question, "options")) // when updating
 			return $this->question->options->initialtext;
+		return ""; // when inserting
+	}
+
+	protected function get_avaiable_tags() {
+		if (property_exists($this->question, "options")) // when updating
+			return $this->question->options->avaiabletags;
+		return ""; // when inserting
+	}
+
+	protected function get_sample() {
+		if (property_exists($this->question, "options")) // when updating
+			return $this->question->options->sample;
 		return ""; // when inserting
 	}
 

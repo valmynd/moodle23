@@ -35,31 +35,33 @@ defined('MOODLE_INTERNAL') || die();
 class qtype_comparetexttask extends question_type {
 	const MAX_SUBQUESTIONS = 10;
 
-	public function is_usable_by_random() {
-		return false;
+	public function extra_question_fields() {
+		return array('question_comparetexttask', 'initialtext', 'avaiabletags', 'sample');
 	}
 
 	public function get_question_options($question) {
-		// TODO: load options from XML/XSD
 		global $DB;
 		$question->options = $DB->get_record('question_comparetexttask', array('id' => $question->id), '*', MUST_EXIST);
+		$question->options->answers = array();
 		//debugging("§question:".var_export($question));
 		return true;
 	}
 
 	public function save_question_options($question) {
 		global $DB;
-		// TODO: store outcome somehow, see implementations in other question types
-		//debugging("save_question_options(): §question:".var_export($question));
-		//debugging("§question->applet_result:".$question->applet_result);
-		if(strpos($question->applet_result, "Error:") === 0) {
+		//$question->options->answers = array();
+		debugging("save_question_options(): §question:".var_export($question));
+		//debugging("§question->initial_text:".$question->initial_text);
+		if(strpos($question->initial_text, "Error:") === 0) {
 			$result = new stdClass();
-			$result->error = $question->applet_result;
+			$result->error = $question->initial_text;
 			return $result;
 		}
 		$existing = $DB->get_record('question_comparetexttask', array('id' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
-		$options->initialtext = $question->applet_result;
+		$options->initialtext = $question->initial_text;
+		$options->avaiabletags = $question->avaiable_tags;
+		$options->sample = $question->sample;
 		if ($existing) {
 			$options->id = $existing->id;
 			$DB->update_record('question_comparetexttask', $options);
