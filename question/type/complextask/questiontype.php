@@ -42,6 +42,7 @@ class qtype_complextask extends question_type {
 	public function get_question_options($question) {
 		global $DB;
 		$question->options = $DB->get_record('question_complextask', array('id' => $question->id), '*', MUST_EXIST);
+		$question->options->memento = base64_encode($question->options->memento);
 		$question->options->answers = array();
 		debugging("§question:".var_export($question));
 		return true;
@@ -59,7 +60,7 @@ class qtype_complextask extends question_type {
 		$existing = $DB->get_record('question_complextask', array('id' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
 		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treatment in moodle formslib
-		$options->memento = $question->memento;
+		$options->memento = base64_decode($question->memento);
 		if ($existing) {
 			$options->id = $existing->id;
 			$DB->update_record('question_complextask', $options);
