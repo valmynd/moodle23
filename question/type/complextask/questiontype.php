@@ -15,33 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Question type class for the comparetexttask question type.
+ * Question type class for the complextask question type.
  *
  * @package    qtype
- * @subpackage comparetexttask
+ * @subpackage complextask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The comparetexttask question type class.
+ * The complextask question type class.
  *
- * TODO: Make sure short answer questions chosen by a comparetexttask question
+ * TODO: Make sure short answer questions chosen by a complextask question
  * can not also be used by a random question
  *
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-class qtype_comparetexttask extends question_type {
+class qtype_complextask extends question_type {
 	const MAX_SUBQUESTIONS = 10;
 
 	public function extra_question_fields() {
-		return array('question_comparetexttask', 'correctorfeedback', 'initialtext', 'avaiabletags', 'sample');
+		return array('question_complextask', 'correctorfeedback', 'memento');
 	}
 
 	public function get_question_options($question) {
 		global $DB;
-		$question->options = $DB->get_record('question_comparetexttask', array('id' => $question->id), '*', MUST_EXIST);
+		$question->options = $DB->get_record('question_complextask', array('id' => $question->id), '*', MUST_EXIST);
 		$question->options->answers = array();
 		debugging("§question:".var_export($question));
 		return true;
@@ -51,23 +51,20 @@ class qtype_comparetexttask extends question_type {
 		global $DB;
 		//$question->options->answers = array();
 		debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
-		//debugging("§question->initial_text:".$question->initial_text);
-		if(strpos($question->initial_text, "Error:") === 0) {
+		if(strpos($question->memento, "Error:") === 0) {
 			$result = new stdClass();
-			$result->error = $question->initial_text;
+			$result->error = $question->memento;
 			return $result;
 		}
-		$existing = $DB->get_record('question_comparetexttask', array('id' => $question->id));
+		$existing = $DB->get_record('question_complextask', array('id' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
-		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treetment in moodle formslib
-		$options->initialtext = $question->initial_text;
-		$options->avaiabletags = $question->avaiable_tags;
-		$options->sample = $question->sample;
+		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treatment in moodle formslib
+		$options->memento = $question->memento;
 		if ($existing) {
 			$options->id = $existing->id;
-			$DB->update_record('question_comparetexttask', $options);
+			$DB->update_record('question_complextask', $options);
 		} else {
-			$DB->insert_record('question_comparetexttask', $options);
+			$DB->insert_record('question_complextask', $options);
 		}
 		return true;
 	}
