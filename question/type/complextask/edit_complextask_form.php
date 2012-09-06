@@ -82,7 +82,7 @@ class qtype_complextask_edit_form extends question_edit_form {
 
 	protected function get_memento() {
 		if (property_exists($this->question, "options")) // when updating
-			return $this->question->options->memento;
+			return base64_encode($this->question->options->memento);
 		return ""; // when inserting
 	}
 }

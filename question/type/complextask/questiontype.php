@@ -42,16 +42,16 @@ class qtype_complextask extends question_type {
 	public function get_question_options($question) {
 		global $DB;
 		$question->options = $DB->get_record('question_complextask', array('id' => $question->id), '*', MUST_EXIST);
-		$question->options->memento = base64_encode($question->options->memento);
+		$question->options->memento = $question->options->memento;
 		$question->options->answers = array();
-		debugging("§question:".var_export($question));
+		//debugging("§question:".var_export($question));
 		return true;
 	}
 
 	public function save_question_options($question) {
 		global $DB;
 		//$question->options->answers = array();
-		debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
+		//debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
 		if(strpos($question->memento, "Error:") === 0) {
 			$result = new stdClass();
 			$result->error = $question->memento;
