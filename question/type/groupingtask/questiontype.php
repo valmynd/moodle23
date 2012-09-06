@@ -41,7 +41,7 @@ class qtype_groupingtask extends question_type {
 
 	public function get_question_options($question) {
 		global $DB;
-		$question->options = $DB->get_record('question_groupingtask', array('id' => $question->id), '*', MUST_EXIST);
+		$question->options = $DB->get_record('question_groupingtask', array('questionid' => $question->id), '*', MUST_EXIST);
 		$question->options->memento = $question->options->memento;
 		$question->options->answers = array();
 		//debugging("§question:".var_export($question));
@@ -57,12 +57,12 @@ class qtype_groupingtask extends question_type {
 			$result->error = $question->memento;
 			return $result;
 		}
-		$existing = $DB->get_record('question_groupingtask', array('id' => $question->id));
+		$existing = $DB->get_record('question_groupingtask', array('questionid' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
 		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treatment in moodle formslib
-		$options->memento = base64_decode($question->memento);
+		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
+		$options->questionid = $question->id; // set foreign key question_groupingtask.questionid to questions.id
 		if ($existing) {
-			$options->id = $existing->id;
 			$DB->update_record('question_groupingtask', $options);
 		} else {
 			$DB->insert_record('question_groupingtask', $options);
@@ -71,7 +71,6 @@ class qtype_groupingtask extends question_type {
 	}
 
 	public function delete_question($questionid, $contextid) {
-		// TODO: delete question-specific data, if needed
 		parent::delete_question($questionid, $contextid);
 	}
 

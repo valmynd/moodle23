@@ -41,30 +41,30 @@ class qtype_comparetexttask extends question_type {
 
 	public function get_question_options($question) {
 		global $DB;
-		$question->options = $DB->get_record('question_comparetexttask', array('id' => $question->id), '*', MUST_EXIST);
+		$question->options = $DB->get_record('question_comparetexttask', array('questionid' => $question->id), '*', MUST_EXIST);
 		$question->options->answers = array();
-		debugging("§question:".var_export($question));
+		//debugging("§question:".var_export($question));
 		return true;
 	}
 
 	public function save_question_options($question) {
 		global $DB;
 		//$question->options->answers = array();
-		debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
+		//debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
 		//debugging("§question->initial_text:".$question->initial_text);
 		if(strpos($question->initial_text, "Error:") === 0) {
 			$result = new stdClass();
 			$result->error = $question->initial_text;
 			return $result;
 		}
-		$existing = $DB->get_record('question_comparetexttask', array('id' => $question->id));
+		$existing = $DB->get_record('question_comparetexttask', array('questionid' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
+		$options->questionid = $question->id; // set foreign key question_complextask.questionid to questions.id
 		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treetment in moodle formslib
 		$options->initialtext = $question->initial_text;
 		$options->avaiabletags = $question->avaiable_tags;
 		$options->sample = $question->sample;
 		if ($existing) {
-			$options->id = $existing->id;
 			$DB->update_record('question_comparetexttask', $options);
 		} else {
 			$DB->insert_record('question_comparetexttask', $options);
