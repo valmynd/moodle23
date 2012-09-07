@@ -65,6 +65,7 @@ class qtype_comparetexttask extends question_type {
 		$options->avaiabletags = $question->avaiable_tags;
 		$options->sample = $question->sample;
 		if ($existing) {
+			$options->id = $question->id;
 			$DB->update_record('question_comparetexttask', $options);
 		} else {
 			$DB->insert_record('question_comparetexttask', $options);

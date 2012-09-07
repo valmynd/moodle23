@@ -63,6 +63,7 @@ class qtype_complextask extends question_type {
 		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
 		$options->questionid = $question->id; // set foreign key question_complextask.questionid to questions.id
 		if ($existing) {
+			$options->id = $question->id;
 			$DB->update_record('question_complextask', $options);
 		} else {
 			$DB->insert_record('question_complextask', $options);
