@@ -51,7 +51,7 @@ class qtype_groupingtask extends question_type {
 	public function save_question_options($question) {
 		global $DB;
 		//$question->options->answers = array();
-		//debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
+		//debugging("save_question_options(): §question:".var_export($question));
 		if(strpos($question->memento, "Error:") === 0) {
 			$result = new stdClass();
 			$result->error = $question->memento;
