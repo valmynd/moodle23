@@ -63,7 +63,7 @@ class qtype_groupingtask extends question_type {
 		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
 		$options->questionid = $question->id; // set foreign key question_groupingtask.questionid to questions.id
 		if ($existing) {
-			$options->id = $question->id;
+			$options->id = $existing->id;
 			$DB->update_record('question_groupingtask', $options);
 		} else {
 			$DB->insert_record('question_groupingtask', $options);
