@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the qtemplate question type.
+ * Version information for the timetask question type.
  *
  * @package    qtype
- * @subpackage qtemplate
+ * @subpackage timetask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,4 +26,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version  = 2012061700;
 $plugin->requires = 2012061700;
-$plugin->component = 'qtype_qtemplate';
+$plugin->component = 'qtype_timetask';

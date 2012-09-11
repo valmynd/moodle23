@@ -15,33 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Question type class for the complextask question type.
+ * Question type class for the timetask question type.
  *
  * @package    qtype
- * @subpackage complextask
+ * @subpackage timetask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The complextask question type class.
+ * The timetask question type class.
  *
- * TODO: Make sure short answer questions chosen by a complextask question
+ * TODO: Make sure short answer questions chosen by a timetask question
  * can not also be used by a random question
  *
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-class qtype_complextask extends question_type {
+class qtype_timetask extends question_type {
 	const MAX_SUBQUESTIONS = 10;
 
 	public function extra_question_fields() {
-		return array('question_complextask', 'correctorfeedback', 'memento');
+		return array('question_timetask', 'correctorfeedback', 'memento');
 	}
 
 	public function get_question_options($question) {
 		global $DB;
-		$question->options = $DB->get_record('question_complextask', array('questionid' => $question->id), '*', MUST_EXIST);
+		$question->options = $DB->get_record('question_timetask', array('questionid' => $question->id), '*', MUST_EXIST);
 		$question->options->memento = $question->options->memento;
 		$question->options->answers = array();
 		//debugging("§question:".var_export($question));
@@ -57,16 +57,16 @@ class qtype_complextask extends question_type {
 			$result->error = $question->memento;
 			return $result;
 		}
-		$existing = $DB->get_record('question_complextask', array('questionid' => $question->id));
+		$existing = $DB->get_record('question_timetask', array('questionid' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
 		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treatment in moodle formslib
 		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
-		$options->questionid = $question->id; // set foreign key question_complextask.questionid to questions.id
+		$options->questionid = $question->id; // set foreign key question_timetask.questionid to questions.id
 		if ($existing) {
 			$options->id = $question->id;
-			$DB->update_record('question_complextask', $options);
+			$DB->update_record('question_timetask', $options);
 		} else {
-			$DB->insert_record('question_complextask', $options);
+			$DB->insert_record('question_timetask', $options);
 		}
 		return true;
 	}

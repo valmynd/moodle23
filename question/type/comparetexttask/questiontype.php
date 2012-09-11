@@ -36,12 +36,13 @@ class qtype_comparetexttask extends question_type {
 	const MAX_SUBQUESTIONS = 10;
 
 	public function extra_question_fields() {
-		return array('question_comparetexttask', 'correctorfeedback', 'initialtext', 'avaiabletags', 'sample');
+		return array('question_comparetexttask', 'correctorfeedback', 'memento');
 	}
 
 	public function get_question_options($question) {
 		global $DB;
 		$question->options = $DB->get_record('question_comparetexttask', array('questionid' => $question->id), '*', MUST_EXIST);
+		$question->options->memento = $question->options->memento;
 		$question->options->answers = array();
 		//debugging("§question:".var_export($question));
 		return true;
@@ -50,20 +51,17 @@ class qtype_comparetexttask extends question_type {
 	public function save_question_options($question) {
 		global $DB;
 		//$question->options->answers = array();
-		//debugging("save_question_options(): §question:".var_export($question->correctorfeedback['text']));
-		//debugging("§question->initial_text:".$question->initial_text);
-		if(strpos($question->initial_text, "Error:") === 0) {
+		//debugging("save_question_options(): §question:".var_export($question));
+		if(strpos($question->memento, "Error:") === 0) {
 			$result = new stdClass();
-			$result->error = $question->initial_text;
+			$result->error = $question->memento;
 			return $result;
 		}
 		$existing = $DB->get_record('question_comparetexttask', array('questionid' => $question->id));
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
-		$options->questionid = $question->id; // set foreign key question_complextask.questionid to questions.id
-		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treetment in moodle formslib
-		$options->initialtext = $question->initial_text;
-		$options->avaiabletags = $question->avaiable_tags;
-		$options->sample = $question->sample;
+		$options->correctorfeedback = $question->correctorfeedback['text']; // "editor" fields need extra treatment in moodle formslib
+		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
+		$options->questionid = $question->id; // set foreign key question_comparetexttask.questionid to questions.id
 		if ($existing) {
 			$options->id = $question->id;
 			$DB->update_record('question_comparetexttask', $options);
@@ -74,7 +72,6 @@ class qtype_comparetexttask extends question_type {
 	}
 
 	public function delete_question($questionid, $contextid) {
-		// TODO: delete question-specific data, if needed
 		parent::delete_question($questionid, $contextid);
 	}
 

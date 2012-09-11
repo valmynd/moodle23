@@ -3,7 +3,7 @@
 In diesem Ordner befinden sich alle Daten, die für die Erstellung
 einer Professorensicht für eine ComplexTask Aufgabe erforderlich sind.
 
-Für neuen Fragetyp einfach sämptliche Vorkommnisse von "complextask"
+Für neuen Fragetyp einfach sämptliche Vorkommnisse von "timetask"
 durch die gewünschte Bezeichnung ersetzen, und das sowohl in den
 Dateien als auch den Dateinamen!!
 

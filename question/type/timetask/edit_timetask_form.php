@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the editing form for the complextask question type.
+ * Defines the editing form for the timetask question type.
  *
  * @package    qtype
- * @subpackage complextask
+ * @subpackage timetask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
@@ -26,16 +26,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * complextask editing form definition.
+ * timetask editing form definition.
  *
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
 */
-class qtype_complextask_edit_form extends question_edit_form {
+class qtype_timetask_edit_form extends question_edit_form {
 	protected function definition_inner($mform) {
 		// this method is called by question_edit_form.definition() 
 		global $CFG;
 		global $PAGE;
-		// a) We need a Corrector Feedback Field for all ComplexTask questions, see question_edit_form.definition()
+		// a) We need a Corrector Feedback Field for all TimeTask questions, see question_edit_form.definition()
 		$element = $mform->addElement('editor', 'correctorfeedback', "Feedback for the Corrector", array('rows' => 10), $this->editoroptions);
 		//$mform->setDefault('correctorfeedback', ...); // doesn't work for "editor" fields (blame moodle for this)
 		$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
@@ -44,7 +44,7 @@ class qtype_complextask_edit_form extends question_edit_form {
 		// b) Java Applet
 		$jarfile = "complexTask.jar";
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile;
-		$innerpath = "com/spiru/dev/groupingTaskProfessor_addon/GroupingTaskAddOnApplet.class"; // TODO: Configurable!
+		$innerpath = "com/spiru/dev/timeTaskProfessor_addon/TimeTaskAddOnApplet.class"; // TODO: Configurable!
 		$appletstr = "\n\n<applet "
 				. 'archive="' . $jarpath . '" ' . 'code="'. $innerpath . '" '
 				. 'id="appletField"'
@@ -54,7 +54,7 @@ class qtype_complextask_edit_form extends question_edit_form {
 
 		// Trick to place it at the same position as the <input> elements above it (+ nice label)
 		$appletstr = '<div class="fitem fitem_feditor" id="fitem_id_questiontext"><div class="fitemtitle">'
-				.'<label for="appletField">Settings for '. "ComplexTask" .'</label></div>'
+				.'<label for="appletField">Settings for '. "TimeTask" .'</label></div>'
 				.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
 
 		// Hidden Elements to put in the Applet output via module.js
@@ -71,7 +71,7 @@ class qtype_complextask_edit_form extends question_edit_form {
 	}
 
 	public function qtype() {
-		return 'complextask';
+		return 'timetask';
 	}
 
 	protected function get_correctorfeedback() {

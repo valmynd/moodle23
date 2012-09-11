@@ -8,10 +8,8 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references question.id." PREVIOUS="id" NEXT="correctorfeedback"/>
-        <FIELD NAME="correctorfeedback" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Feedback for the corrector." PREVIOUS="questionid" NEXT="initialtext"/>
-        <FIELD NAME="initialtext" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Initial Text defined by the Professor." PREVIOUS="correctorfeedback" NEXT="avaiabletags"/>
-        <FIELD NAME="avaiabletags" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Avaiable Tags defined by the Professor." PREVIOUS="initialtext" NEXT="sample"/>
-        <FIELD NAME="sample" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Sample Solution." PREVIOUS="avaiabletags"/>
+        <FIELD NAME="correctorfeedback" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Feedback for the corrector." PREVIOUS="questionid" NEXT="memento"/>
+        <FIELD NAME="memento" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Memento Part of the ComplexTask Addon." PREVIOUS="correctorfeedback"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>

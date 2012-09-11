@@ -24,7 +24,7 @@
 
 $string['nosaincategory'] = 'There are no short answer questions in the category that you chose \'{$a->catname}\'. Choose a different category, make some questions in this category.';
 $string['notenoughsaincategory'] = 'There is/are only {$a->nosaquestions} short answer questions in the category that you chose \'{$a->catname}\'. Choose a different category, make some more questions in this category or reduce the amount of questions you\'ve selected.';
-$string['pluginname'] = 'CompareTextTask';
+$string['pluginname'] = 'CompareTextTask'; // TODO: Configure
 $string['pluginname_help'] = 'From the student perspective, this looks just like a matching question. The difference is that the list of names or statements (questions) for matching are drawn randomly from the short answer questions in the current category. There should be sufficient unused short answer questions in the category, otherwise an error message will be displayed.';
 $string['pluginname_link'] = 'question/type/comparetexttask';
 $string['pluginnameadding'] = 'Adding a CompareTextTask question';

@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'qtype_complextask', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'qtype_timetask', language 'en', branch 'MOODLE_20_STABLE'
  *
  * @package    qtype
- * @subpackage complextask
+ * @subpackage timetask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['nosaincategory'] = 'There are no short answer questions in the category that you chose \'{$a->catname}\'. Choose a different category, make some questions in this category.';
 $string['notenoughsaincategory'] = 'There is/are only {$a->nosaquestions} short answer questions in the category that you chose \'{$a->catname}\'. Choose a different category, make some more questions in this category or reduce the amount of questions you\'ve selected.';
-$string['pluginname'] = 'ComplexTask'; // TODO: Configure
+$string['pluginname'] = 'TimeTask'; // TODO: Configure
 $string['pluginname_help'] = 'From the student perspective, this looks just like a matching question. The difference is that the list of names or statements (questions) for matching are drawn randomly from the short answer questions in the current category. There should be sufficient unused short answer questions in the category, otherwise an error message will be displayed.';
-$string['pluginname_link'] = 'question/type/complextask';
-$string['pluginnameadding'] = 'Adding a ComplexTask question';
-$string['pluginnameediting'] = 'Editing a ComplexTask question';
+$string['pluginname_link'] = 'question/type/timetask';
+$string['pluginnameadding'] = 'Adding a TimeTask question';
+$string['pluginnameediting'] = 'Editing a TimeTask question';
 $string['pluginnamesummary'] = 'Like a Matching question, but created randomly from the short answer questions in a particular category.';
