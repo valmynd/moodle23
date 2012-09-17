@@ -10,32 +10,23 @@ class question_bank_tagcloud_column extends question_bank_column_base {
 	public function get_name() {
 		return 'tagcloud';
 	}
-
 	protected function get_title() {
-		return "Tags";//get_string('createdby', 'question');
+		return "Tags";//get_string('tagcloud', 'question');
 	}
-
+	protected function display_start($question, $rowclasses) {
+		echo '<td class="' . $this->get_classes() . '" style="width:300px;white-space:normal;word-wrap:break-word;">';
+	}
 	protected function display_content($question, $rowclasses) {
-		/*if (!empty($question->creatorfirstname) && !empty($question->creatorlastname)) {
-			$u = new stdClass();
-			$u->firstname = $question->creatorfirstname;
-			$u->lastname = $question->creatorlastname;
-			echo fullname($u);
-		}*/
-		echo $question->tagname;
+		global $DB;
+		$out = '';
+		// SELECT rawname FROM mdl_tag as tg JOIN mdl_tag_instance ti ON ti.itemid = 45 and tg.id = ti.tagid and ti.itemtype = 'question'
+		$tags = $DB->get_records_sql(
+			"SELECT tg.rawname FROM {tag} as tg JOIN {tag_instance} ti ON ti.itemid = ? and tg.id = ti.tagid and ti.itemtype = 'question'",
+			array($question->id));
+		foreach ($tags as $key => $val)
+			$out .= $key . ", ";
+		echo rtrim($out, ", ");
 	}
-
-	public function get_extra_joins() {
-		return array(
-			'ti' => "JOIN {tag_instance} ti ON ti.itemid = q.id and ti.itemtype = 'question'",
-			'tg' => "JOIN {tag} tg ON tg.id = ti.tagid",
-		);
-	}
-
-	public function get_required_fields() {
-		return array('tg.rawname AS tagname',);
-	}
-
 	public function is_sortable() {
 		return false;
 	}
@@ -44,7 +35,7 @@ class question_bank_tagcloud_column extends question_bank_column_base {
 /**
  * This class extends the question bank view with a column containing
  * the Tags assigned to each question.
- * 
+ *
  * @author C.Wilhelm
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -59,9 +50,5 @@ class elate_question_bank_view extends question_bank_view {
 		return array_merge($basetypes, array(
 			new question_bank_tagcloud_column($this),
 		));
-	}
-	protected function build_query_sql($category, $recurse, $showhidden) {
-		parent::build_query_sql($category, $recurse, $showhidden);
-		debugging($this->loadsql);
 	}
 }
