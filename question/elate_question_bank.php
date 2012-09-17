@@ -13,8 +13,10 @@ class question_bank_tagcloud_column extends question_bank_column_base {
 	protected function get_title() {
 		return "Tags";//get_string('tagcloud', 'question');
 	}
-	protected function display_start($question, $rowclasses) {
-		echo '<td class="' . $this->get_classes() . '" style="width:300px;white-space:normal;word-wrap:break-word;">';
+	public function display_header() {
+		echo '<th class="header ' . $this->get_classes() . '" scope="col">';
+		echo '<div class="title">' . $this->get_title() . '</div>';
+		echo '<div class="sorters"><input name="filter" type="text" style="width:96%;"></div>';
 	}
 	protected function display_content($question, $rowclasses) {
 		global $DB;
@@ -27,9 +29,6 @@ class question_bank_tagcloud_column extends question_bank_column_base {
 			$out .= $key . ", ";
 		echo rtrim($out, ", ");
 	}
-	public function is_sortable() {
-		return false;
-	}
 }
 
 /**
@@ -41,6 +40,12 @@ class question_bank_tagcloud_column extends question_bank_column_base {
  */
 
 class elate_question_bank_view extends question_bank_view {
+	public function __construct($contexts, $pageurl, $course, $cm = null) {
+		global $PAGE, $OUTPUT, $CFG;
+		$PAGE->requires->css("/question/elate_question_bank.css");
+		$PAGE->requires->js("/question/elate_question_bank.js");
+		return parent::__construct($contexts, $pageurl, $course, $cm);
+	}
 	protected function wanted_columns() {
 		$basetypes = parent::wanted_columns();
 		return array_merge($basetypes, array('tagcloud'));
