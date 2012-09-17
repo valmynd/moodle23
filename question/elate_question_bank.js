@@ -21,12 +21,31 @@ var remove_doublettes = function(arr) {
 }
 
 var handle_filter_input = function(a1, a2) {
+	$("tbody tr").hide(); // hide all first
 	var value = $("input[name=filter]").val();
 	// handle OR, |, ||
+	var alternatives = value.split(/ or | \| | \|\| /);
+	if (alternatives.length > 1) {
+		for (var i = 0; i < alternatives.length; i++)
+			process_filter(alternatives[i]);
+	} else {
+		process_filter(value);
+	}
+}
+
+var process_filter = function(value) {
 	// handle AND, &, &&, whitespace
-	console.log(value);
-	$("tbody tr:icontains('" + value + "')").show();
-	$("tbody tr").not(":icontains('" + value + "')").hide();
+	value = value.replace(/and|\&/g, " ");
+	var conditions = value.split(/\W+/);
+	console.log(conditions);
+	//var selector_tmpl = ':icontains('" + value + "')'
+	//$("tbody tr:icontains('" + value + "')").show();
+	var selectorstr = "tbody tr";
+	for (var i = 0; i < conditions.length; i++)
+		if (conditions[i].length > 0)
+			selectorstr += ":icontains('" + conditions[i] + "')";
+	console.log(selectorstr);
+	$(selectorstr).show();
 }
 
 // Note you should disable Javascript Caching during Development!
