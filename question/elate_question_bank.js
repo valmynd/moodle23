@@ -21,7 +21,7 @@ var remove_doublettes = function(arr) {
 }
 
 var handle_filter_input = function(a1, a2) {
-	$("tbody tr").hide(); // hide all first
+	$("tbody tr").hide(); // hide all rows first
 	var value = $("input[name=filter]").val();
 	// handle OR, |, ||
 	var alternatives = value.split(/ or | \|\| | \| /);
@@ -39,18 +39,21 @@ var process_filter = function(value) {
 	value = value.replace(/and|\&/g, " ");
 	var conditions = value.split(/\W+/);
 	//console.log(conditions);
-	//var selector_tmpl = ':icontains('" + value + "')'
-	//$("tbody tr:icontains('" + value + "')").show();
-	var selectorstr = "tbody tr";
+	var selectorstr = "tbody tr td";
+	switch($("#searchbox_option").find('option:selected').val()) {
+		case "tagcloud":
+			selectorstr += ".tagcloud"
+			break;
+	}
 	for (var i = 0; i < conditions.length; i++)
 		if (conditions[i].length > 0)
 			selectorstr += ":icontains('" + conditions[i] + "')";
 	//console.log(selectorstr);
-	$(selectorstr).show();
+	$(selectorstr).parent().show();
 }
 
 $(document).ready(function() {
-	var lookup_list = new Array();
+	var lookup_list = [];
 	$("td.tagcloud").each(function(index) {
 		$.merge(lookup_list, $(this).text().split(", "));
 	});
@@ -72,4 +75,6 @@ $(document).ready(function() {
 		stop: handle_filter_input,
 		delay: 400
 	});
+	$("#searchbox_option").change(
+		handle_filter_input);
 });

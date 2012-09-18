@@ -6,6 +6,25 @@
 	white-space:normal;
 	word-wrap:break-word;
 }
+/*.categorypagingbarcontainer {
+	visibility:hidden;
+}*/
+.addbtn_and_searchbox {
+	width: 100%;
+}
+.addbtn_and_searchbox .singlebutton {
+	float:left;
+}
+.addbtn_and_searchbox .searchbox {
+	float:right;
+}
+.addbtn_and_searchbox:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
 
 /* Autocomplete dropdown styles */
 .autocomplete-w1 {
