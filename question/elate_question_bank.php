@@ -1,6 +1,46 @@
 <?php
 
 /**
+ * This function should be considered private to the question bank, it is called from
+ * question/editlib.php question/contextmoveq.php and a few similar places to to the
+ * work of acutally moving questions and associated data. However, callers of this
+ * function also have to do other work, which is why you should not call this method
+ * directly from outside the questionbank.
+ *
+ * @param array $questionids of question ids.
+ * @param integer $newcategoryid the id of the category to move to.
+ */
+function question_copy_questions_to_category($questionids, $newcategoryid) {
+	global $DB;
+	$newcontextid = $DB->get_field('question_categories', 'contextid',
+			array('id' => $newcategoryid));
+	list($questionidcondition, $params) = $DB->get_in_or_equal($questionids);
+	$questions = $DB->get_records_sql("
+			SELECT q.id, q.qtype, qc.contextid
+			FROM {question} q
+			JOIN {question_categories} qc ON q.category = qc.id
+			WHERE  q.id $questionidcondition", $params);
+	foreach ($questions as $question) {
+		if ($newcontextid != $question->contextid) {
+			/*question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
+			// DUPLICATE ROWS OF ALL RELEVANT TABLES
+			// a) Table 'question'
+			$existing = $DB->get_record('question', array('id' => $question->id));
+			unset($existing->id);
+			$id_of_dublicate = $DB->insert_record('question', $existing);
+			// b) 
+			debugging("hello" . $id_of_dublicate);*/
+		}
+	}
+
+	// Move the questions themselves.
+	//$DB->set_field_select('question', 'category', $newcategoryid, "id $questionidcondition", $params);
+	// Move any subquestions belonging to them.
+	//$DB->set_field_select('question', 'category', $newcategoryid, "parent $questionidcondition", $params);
+	return true;
+}
+
+/**
  * A column type showing the tags for the question.
  *
  * @author C.Wilhelm
@@ -41,8 +81,18 @@ class elate_question_bank_view extends question_bank_view {
 		$PAGE->requires->js("/question/elate_question_bank.js");
 		return parent::__construct($contexts, $pageurl, $course, $cm);
 	}
+	protected function wanted_columns() {
+		$basetypes = parent::wanted_columns();
+		return array_merge($basetypes, array('tagcloud'));
+	}
+	protected function known_field_types() {
+		$basetypes = parent::known_field_types();
+		return array_merge($basetypes, array(
+				new question_bank_tagcloud_column($this),
+		));
+	}
 	public function display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext) {
-		$perpage = 10000; // disable pagination
+		//! $perpage = 10000; // disable pagination
 		// suppress echoes to be sent to the client, see http://www.tuxradar.com/practicalphp/13/3/0
 		ob_start();
 		parent::display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext);
@@ -55,15 +105,17 @@ class elate_question_bank_view extends question_bank_view {
 		// add button "Copy To..." -> compare to original when upgrading moodle!
 		$nodes = $XPath->query("//input[@name='move']");
 		$movebtn_node = $nodes->item(0);
-		$copybtn_node = $dom->createElement("input", "hello");
-		$copybtn_node->setAttribute("type", "submit");
-		$copybtn_node->setAttribute("name", "copy");
-		$copybtn_node->setAttribute("value", "Copy to >>");
-		$movebtn_node->parentNode->insertBefore($copybtn_node, $movebtn_node);
+		if($movebtn_node) {
+			$copybtn_node = $dom->createElement("input", "hello");
+			$copybtn_node->setAttribute("type", "submit");
+			$copybtn_node->setAttribute("name", "copy");
+			$copybtn_node->setAttribute("value", "Copy to >>");
+			$movebtn_node->parentNode->insertBefore($copybtn_node, $movebtn_node);
+		}
 		// remove pagination options
-		$nodes = $XPath->query("//*[contains(@class, 'categorypagingbarcontainer')]");
-		foreach($nodes as $node)
-			$node->parentNode->removeChild($node);
+		//! $nodes = $XPath->query("//*[contains(@class, 'categorypagingbarcontainer')]");
+		//! foreach($nodes as $node)
+		//!	$node->parentNode->removeChild($node);
 		echo $dom->saveHTML();
 	}
 	protected function create_new_question_form($category, $canadd) {
@@ -84,14 +136,41 @@ class elate_question_bank_view extends question_bank_view {
 		echo '<option value="all">All</option>';
 		echo "</select></span></span>\n\n";
 	}
-	protected function wanted_columns() {
-		$basetypes = parent::wanted_columns();
-		return array_merge($basetypes, array('tagcloud'));
-	}
-	protected function known_field_types() {
-		$basetypes = parent::known_field_types();
-		return array_merge($basetypes, array(
-			new question_bank_tagcloud_column($this),
-		));
+	public function process_actions() {
+		global $CFG, $DB;
+		/// The following is handled very much the same as the 'move' part of parent::process_actions() in
+		// Moodle 2.3 (EXCEPT FOR ONE LINE!), so compare to original when upgrading moodle!
+		if (optional_param('copy', false, PARAM_BOOL) and confirm_sesskey()) {
+			$category = required_param('category', PARAM_SEQUENCE);
+			list($tocategoryid, $contextid) = explode(',', $category);
+			if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid)))
+				print_error('cannotfindcate', 'question');
+			$tocontext = get_context_instance_by_id($contextid);
+			require_capability('moodle/question:add', $tocontext);
+			$rawdata = (array) data_submitted();
+			$questionids = array();
+			foreach ($rawdata as $key => $value) {
+				if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+					$key = $matches[1];
+					$questionids[] = $key;
+				}
+			}
+			if ($questionids) {
+				list($usql, $params) = $DB->get_in_or_equal($questionids);
+				$sql = "";
+				$questions = $DB->get_records_sql("
+						SELECT q.*, c.contextid
+						FROM {question} q
+						JOIN {question_categories} c ON c.id = q.category
+						WHERE q.id $usql", $params);
+				foreach ($questions as $question){
+					question_require_capability_on($question, 'move');
+				}
+				// THIS IS THE LINE THAT WAS CHANGED: (original: question_move_questions_to_category($questionids, $tocategory->id);)
+				question_copy_questions_to_category($questionids, $tocategory->id);
+				redirect($this->baseurl->out(false, array('category' => "$tocategoryid,$contextid")));
+			}
+		}
+		parent::process_actions();
 	}
 }
