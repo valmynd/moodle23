@@ -1,17 +1,13 @@
 <?php
 
 /**
- * This function should be considered private to the question bank, it is called from
- * question/editlib.php question/contextmoveq.php and a few similar places to to the
- * work of acutally moving questions and associated data. However, callers of this
- * function also have to do other work, which is why you should not call this method
- * directly from outside the questionbank.
+ * @see question_move_questions_to_category
  *
  * @param array $questionids of question ids.
  * @param integer $newcategoryid the id of the category to move to.
  */
 function question_copy_questions_to_category($questionids, $newcategoryid) {
-	global $DB;
+	global $DB, $CFG;
 	$newcontextid = $DB->get_field('question_categories', 'contextid',
 			array('id' => $newcategoryid));
 	list($questionidcondition, $params) = $DB->get_in_or_equal($questionids);
@@ -22,14 +18,43 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			WHERE  q.id $questionidcondition", $params);
 	foreach ($questions as $question) {
 		if ($newcontextid != $question->contextid) {
-			/*question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
-			// DUPLICATE ROWS OF ALL RELEVANT TABLES
+			question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
+			// DUPLICATE ROWS OF ALL RELEVANT TABLES (until here nothing was changed)
 			// a) Table 'question'
 			$existing = $DB->get_record('question', array('id' => $question->id));
 			unset($existing->id);
+			$existing->category = $newcategoryid;
 			$id_of_dublicate = $DB->insert_record('question', $existing);
-			// b) 
-			debugging("hello" . $id_of_dublicate);*/
+			// b) get Tables for this qtype and dublicate them
+			$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
+			if (file_exists($xml_path)) try {
+				// gather information on the table we want to copy
+				$dom = new DomDocument();
+				$dom->load($xml_path);
+				$XPath = new DOMXPath($dom);
+				$elements = $dom->getElementsByTagName("TABLE");
+				foreach($elements as $el) {
+					$tablename = $el->getAttribute("NAME");
+					$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='foreign']/@NAME");
+					$foreignkey_name = $nodes->item(0)->value;
+					$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@NAME");
+					$primarykey_name = $nodes->item(0)->value;
+					// now we can use this information to dublicate this subtable
+					$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
+					unset($existing->{$primarykey_name});
+					$existing->{$foreignkey_name} = $id_of_dublicate;
+					$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
+				}
+			} catch(Exception $e) {
+				echo "WARNING: ", $e->getMessage(), "\n";
+			}
+			// c) dublicate other Tables that are affected: Tags, ..., ???
+			$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
+			foreach($records as $existing) {
+				unset($existing->id);
+				$existing->itemid = $id_of_dublicate;
+				$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
+			}
 		}
 	}
 
@@ -100,6 +125,7 @@ class elate_question_bank_view extends question_bank_view {
 		ob_end_clean();
 		// Prepare XPath object
 		$dom = new DomDocument();
+		$htmlstr = utf8_decode($htmlstr); // utf-8 bug in PHP
 		$dom->loadHTML($htmlstr);
 		$XPath = new DOMXPath($dom);
 		// add button "Copy To..." -> compare to original when upgrading moodle!
@@ -116,7 +142,7 @@ class elate_question_bank_view extends question_bank_view {
 		//! $nodes = $XPath->query("//*[contains(@class, 'categorypagingbarcontainer')]");
 		//! foreach($nodes as $node)
 		//!	$node->parentNode->removeChild($node);
-		echo $dom->saveHTML();
+		echo utf8_encode($dom->saveHTML()); // utf-8 bug in PHP
 	}
 	protected function create_new_question_form($category, $canadd) {
 		// idea was to add row with create question button and searchbox via
