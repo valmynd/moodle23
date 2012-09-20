@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="question/type/comparetexttask/db" VERSION="20120920" COMMENT="XMLDB file for Moodle question/type/comparetexttask"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="question_meta" COMMENT="Meta Data for Exam">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references question.id." PREVIOUS="id" NEXT="time"/>
+        <FIELD NAME="time" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Available time in minutes to solve the task." PREVIOUS="questionid" NEXT="kindnessextensiontime"/>
+        <FIELD NAME="kindnessextensiontime" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Additional Time invisible to the Student." PREVIOUS="time" NEXT="tasksperpage"/>
+        <FIELD NAME="tasksperpage" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="How many Questions should the Student see per page?" PREVIOUS="kindnessextensiontime" NEXT="tries"/>
+        <FIELD NAME="tries" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Number of possible tries to solve the task." PREVIOUS="tasksperpage" NEXT="showhandlinghintsbeforestart"/>
+        <FIELD NAME="showhandlinghintsbeforestart" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Whether to Show Introduction (there is no boolean type in XMLDB)" PREVIOUS="tries" NEXT="numberofcorrectors"/>
+        <FIELD NAME="numberofcorrectors" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Number of (human) correctors to proceed the correction of the Tasklet." PREVIOUS="showhandlinghintsbeforestart"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
