@@ -17,51 +17,45 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			JOIN {question_categories} qc ON q.category = qc.id
 			WHERE  q.id $questionidcondition", $params);
 	foreach ($questions as $question) {
-		if ($newcontextid != $question->contextid) {
+		if ($newcontextid != $question->contextid) // FIXME: there is no copy_files???
 			question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
-			// DUPLICATE ROWS OF ALL RELEVANT TABLES (until here nothing was changed)
-			// a) Table 'question'
-			$existing = $DB->get_record('question', array('id' => $question->id));
+		// DUPLICATE ROWS OF ALL RELEVANT TABLES (the ABOVE should look like in question_move_questions_to_category())
+		// a) Table 'question'
+		$existing = $DB->get_record('question', array('id' => $question->id));
+		unset($existing->id);
+		$existing->category = $newcategoryid;
+		$id_of_dublicate = $DB->insert_record('question', $existing);
+		// b) get Tables for this qtype and dublicate them
+		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
+		if (file_exists($xml_path)) try {
+			// gather information on the table we want to copy
+			$dom = new DomDocument();
+			$dom->load($xml_path);
+			$XPath = new DOMXPath($dom);
+			$elements = $dom->getElementsByTagName("TABLE");
+			foreach($elements as $el) {
+				$tablename = $el->getAttribute("NAME");
+				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='foreign']/@NAME");
+				$foreignkey_name = $nodes->item(0)->value;
+				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@NAME");
+				$primarykey_name = $nodes->item(0)->value;
+				// now we can use this information to dublicate this subtable
+				$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
+				unset($existing->{$primarykey_name});
+				$existing->{$foreignkey_name} = $id_of_dublicate;
+				$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
+			}
+		} catch(Exception $e) {
+			echo "WARNING: ", $e->getMessage(), "\n";
+		}
+		// c) dublicate other rows in tables that are affected: Tags, ..., ???
+		$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
+		foreach($records as $existing) {
 			unset($existing->id);
-			$existing->category = $newcategoryid;
-			$id_of_dublicate = $DB->insert_record('question', $existing);
-			// b) get Tables for this qtype and dublicate them
-			$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
-			if (file_exists($xml_path)) try {
-				// gather information on the table we want to copy
-				$dom = new DomDocument();
-				$dom->load($xml_path);
-				$XPath = new DOMXPath($dom);
-				$elements = $dom->getElementsByTagName("TABLE");
-				foreach($elements as $el) {
-					$tablename = $el->getAttribute("NAME");
-					$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='foreign']/@NAME");
-					$foreignkey_name = $nodes->item(0)->value;
-					$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@NAME");
-					$primarykey_name = $nodes->item(0)->value;
-					// now we can use this information to dublicate this subtable
-					$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
-					unset($existing->{$primarykey_name});
-					$existing->{$foreignkey_name} = $id_of_dublicate;
-					$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
-				}
-			} catch(Exception $e) {
-				echo "WARNING: ", $e->getMessage(), "\n";
-			}
-			// c) dublicate other Tables that are affected: Tags, ..., ???
-			$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
-			foreach($records as $existing) {
-				unset($existing->id);
-				$existing->itemid = $id_of_dublicate;
-				$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
-			}
+			$existing->itemid = $id_of_dublicate;
+			$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
 		}
 	}
-
-	// Move the questions themselves.
-	//$DB->set_field_select('question', 'category', $newcategoryid, "id $questionidcondition", $params);
-	// Move any subquestions belonging to them.
-	//$DB->set_field_select('question', 'category', $newcategoryid, "parent $questionidcondition", $params);
 	return true;
 }
 
