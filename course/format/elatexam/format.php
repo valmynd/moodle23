@@ -23,15 +23,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// compare the following to /question/edit.php
-require_once($CFG->dirroot . '/course/format/elatexam/elate_exam_bank.php');
-$_GET["courseid"] = $_GET["id"];
-list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) = exam_bank_setup('editq', '/course/view.php');
-$questionbank = new elate_exam_bank_view($contexts, $thispageurl, $COURSE, $cm);
-$questionbank->process_actions();
-$questionbank->display('editq', $pagevars['qpage'], $pagevars['qperpage'], $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'], $pagevars['qbshowtext']);
-
-// ... question bank not possible on this page: problem with require_login() called by question_edit_setup()
-/*echo '<ul class="topics"><li id="section-0" class="section main clearfix">';
-echo 'Test';
-echo '</li></ul>';*/
+$fw = $CFG->wwwroot . '/course/format/elatexam/edit.php?courseid=' . required_param('id', PARAM_INT);
+echo '<script type="text/javascript">
+<!--
+window.location = "' . $fw . '"
+//-->
+</script>
+Um diesen Kurs zu benutzen, muss Javascript aktiviert sein,';

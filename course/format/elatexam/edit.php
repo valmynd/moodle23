@@ -16,33 +16,25 @@
 
 /**
  * Page to edit the question bank
+ * @see /questions/edit.php
  *
  * @package    moodlecore
  * @subpackage questionbank
- * @copyright  1999 onwards Martin Dougiamas {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-require_once(dirname(__FILE__) . '/../config.php');
+require_once('../../../config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
+require_once($CFG->dirroot . '/course/format/elatexam/elate_exam_bank.php');
 
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-        question_edit_setup('questions', '/question/edit.php');
+        question_edit_setup('editq', '/course/format/elatexam/edit.php');
 
 $url = new moodle_url($thispageurl);
-if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
-    $url->param('lastchanged', $lastchanged);
-}
 $PAGE->set_url($url);
 
-//$questionbank = new question_bank_view($contexts, $thispageurl, $COURSE, $cm);
-//require_once($CFG->dirroot . '/question/elate_question_bank.php');
-require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
 $questionbank = new elate_question_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
-
-// TODO log this page view.
 
 $context = $contexts->lowest();
 $streditingquestions = get_string('editquestions', 'question');
