@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @see question_move_questions_to_category
+ * @see question_move_questions_to_category (questionlib.php)
  *
  * @param array $questionids of question ids.
  * @param integer $newcategoryid the id of the category to move to.
@@ -19,16 +19,16 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 	foreach ($questions as $question) {
 		if ($newcontextid != $question->contextid) // FIXME: there is no copy_files???
 			question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
-		// DUPLICATE ROWS OF ALL RELEVANT TABLES (the ABOVE should look like in question_move_questions_to_category())
+		// DUPLICATE ROWS IN ALL RELEVANT TABLES (the ABOVE should look like in question_move_questions_to_category())
 		// a) Table 'question'
 		$existing = $DB->get_record('question', array('id' => $question->id));
 		unset($existing->id);
 		$existing->category = $newcategoryid;
 		$id_of_dublicate = $DB->insert_record('question', $existing);
-		// b) get Tables for this qtype and dublicate them
+		// b) get Tables for this qtype and dublicate the relevant rows in them
 		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
 		if (file_exists($xml_path)) try {
-			// gather information on the table we want to copy
+			// gather information on the table we want to copy from
 			$dom = new DomDocument();
 			$dom->load($xml_path);
 			$XPath = new DOMXPath($dom);
@@ -46,7 +46,7 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 				$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
 			}
 		} catch(Exception $e) {
-			echo "WARNING: ", $e->getMessage(), "\n";
+			echo "WARNING: ", $e->getMessage(), "<br/>\n";
 		}
 		// c) dublicate other rows in tables that are affected: Tags, ..., ???
 		$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));

@@ -37,7 +37,8 @@ if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
 $PAGE->set_url($url);
 
 //$questionbank = new question_bank_view($contexts, $thispageurl, $COURSE, $cm);
-require_once($CFG->dirroot . '/question/elate_question_bank.php');
+//require_once($CFG->dirroot . '/question/elate_question_bank.php');
+require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
 $questionbank = new elate_question_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
 
