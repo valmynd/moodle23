@@ -1,5 +1,7 @@
 <?php
 
+require_once($CFG->dirroot . '/question/editlib.php');
+
 /**
  * @see question_move_questions_to_category (questionlib.php)
  *

@@ -75,31 +75,6 @@ class qtype_meta_edit_form extends question_edit_form {
 		$mform->setType('numberofcorrectors', PARAM_INT);
 		$mform->setDefault('numberofcorrectors', 2);
 		$mform->addHelpButton('numberofcorrectors', 'numberofcorrectors', 'qtype_meta');
-		
-		/* OLD VARIANT, MAYBE WANT THAT LATER:
-		$radioarray = array();
-		$radioarray[] =& $mform->createElement('radio', 'corrmode', '', get_string('multipleCorrectors', 'qtype_meta'), 'multipleCorrectors');
-		$radioarray[] =& $mform->createElement('radio', 'corrmode', '', get_string('regular', 'qtype_meta'), 'regular');
-		$radioarray[] =& $mform->createElement('radio', 'corrmode', '', get_string('correctOnlyProcessedTasks', 'qtype_meta'), 'correctOnlyProcessedTasks');
-		$mform->addGroup($radioarray, 'radioar', get_string('correctionMode', 'qtype_meta'), '', true);
-		$mform->addHelpButton('correctionMode', 'correctionMode', 'qtype_meta');
-		// construct from template based on the output from above
-		$rbtn_html = <<<EOT
-		<div class="fitem fitem_fgroup" id="fgroup_id_radioar">
-		<div class="fitemtitle"><div class="fgrouplabel"><label>%s</label></div></div>
-		<fieldset class="felement fgroup">
-		<div><input id="id_radioar_corrmode_multipleCorrectors" name="radioar[corrmode]" type="radio" value="multipleCorrectors"/><label for="id_radioar_corrmode_multipleCorrectors">%s</label></div>
-		<div><input id="id_radioar_corrmode_regular" name="radioar[corrmode]" type="radio" value="regular"/><label for="id_radioar_corrmode_regular">%s</label></div>
-		<div><input id="id_radioar_corrmode_correctOnlyProcessedTasks" name="radioar[corrmode]" type="radio" value="correctOnlyProcessedTasks"/><label for="id_radioar_corrmode_correctOnlyProcessedTasks">%s</label></div>
-		</fieldset>
-		</div>
-		EOT;
-		$rbtn_html = sprintf($rbtn_html,
-				get_string('correctionMode', 'qtype_meta'),
-				get_string('multipleCorrectors', 'qtype_meta'),
-				get_string('regular', 'qtype_meta'),
-				get_string('correctOnlyProcessedTasks', 'qtype_meta'));
-		$mform->addElement('html', $rbtn_html);*/
 
 		////// Set Fields which are required to fill out //////////
 		$mform->addRule('questiontext', null, 'required', null, 'client');

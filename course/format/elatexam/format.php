@@ -44,6 +44,7 @@ $PAGE->requires->js('/course/format/elatexam/format.js');
 
 //$questionbank = new question_bank_view($contexts, $thispageurl, $COURSE, $cm);
 // compare the following to /question/edit.php
+require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) = question_edit_setup('questions', '/course/view.php');
 $questionbank = new elate_question_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
