@@ -32,6 +32,9 @@ class qtype_meta_edit_form extends question_edit_form {
 		$mform->removeElement('defaultmark');
 		$mform->addElement('hidden', 'defaultmark', 0);
 		$mform->setType('defaultmark', PARAM_RAW);
+		// remove Tags for Meta??
+		//$mform->removeElement('tags');
+		//$mform->removeElement('tagsheader');
 
 		////// Change some Titles of existing Fields //////////
 

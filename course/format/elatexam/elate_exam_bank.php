@@ -1,6 +1,7 @@
 <?php
 
 require_once($CFG->dirroot . '/question/editlib.php');
+require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
 
 /**
  * @see question_edit_setup() in editlib.php
@@ -85,7 +86,8 @@ function exam_bank_setup($edittab, $baseurl, $requirecmid = false, $requirecours
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class elate_exam_bank_view extends question_bank_view {
+class elate_exam_bank_view extends elate_question_bank_view {
+//class elate_exam_bank_view extends question_bank_view {
 	public function __construct($contexts, $pageurl, $course, $cm = null) {
 		global $PAGE, $OUTPUT, $CFG;
 		//$PAGE->requires->css("/course/format/elatexam/styles.css");

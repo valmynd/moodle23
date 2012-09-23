@@ -23,3 +23,5 @@
  */
 
 $string['pluginname'] = 'ElateXam format';
+
+$string['copyto'] = "Copy to >>";

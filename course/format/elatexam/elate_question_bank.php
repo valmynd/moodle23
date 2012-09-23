@@ -112,33 +112,92 @@ class elate_question_bank_view extends question_bank_view {
 				new question_bank_tagcloud_column($this),
 		));
 	}
-	public function display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext) {
-		//! $perpage = 10000; // disable pagination
-		// suppress echoes to be sent to the client, see http://www.tuxradar.com/practicalphp/13/3/0
-		ob_start();
-		parent::display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext);
-		$htmlstr = ob_get_contents();
-		ob_end_clean();
-		// Prepare XPath object
-		$dom = new DomDocument();
-		$htmlstr = utf8_decode($htmlstr); // utf-8 bug in PHP
-		$dom->loadHTML($htmlstr);
-		$XPath = new DOMXPath($dom);
-		// add button "Copy To..." -> compare to original when upgrading moodle!
-		$nodes = $XPath->query("//input[@name='move']");
-		$movebtn_node = $nodes->item(0);
-		if($movebtn_node) {
-			$copybtn_node = $dom->createElement("input", "hello");
-			$copybtn_node->setAttribute("type", "submit");
-			$copybtn_node->setAttribute("name", "copy");
-			$copybtn_node->setAttribute("value", "Copy to >>");
-			$movebtn_node->parentNode->insertBefore($copybtn_node, $movebtn_node);
+	/**
+	 * only changed one line in this method (Added Copy Button)
+	 * so sync the rest when updating moodle!
+	 * hopefully this method will be split in future moodle versions :-/
+	 * @see question_bank_view::display_question_list()
+	 */
+	protected function display_question_list($contexts, $pageurl, $categoryandcontext, $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false, $showquestiontext = false, $addcontexts = array()) {
+		global $CFG, $DB, $OUTPUT;
+		$category = $this->get_current_category($categoryandcontext);
+		$cmoptions = new stdClass();
+		$cmoptions->hasattempts = !empty($this->quizhasattempts);
+		$strselectall = get_string('selectall');
+		$strselectnone = get_string('deselectall');
+		$strdelete = get_string('delete');
+		list($categoryid, $contextid) = explode(',', $categoryandcontext);
+		$catcontext = get_context_instance_by_id($contextid);
+		$canadd = has_capability('moodle/question:add', $catcontext);
+		$caneditall =has_capability('moodle/question:editall', $catcontext);
+		$canuseall =has_capability('moodle/question:useall', $catcontext);
+		$canmoveall =has_capability('moodle/question:moveall', $catcontext);
+		$this->create_new_question_form($category, $canadd);
+		$this->build_query_sql($category, $recurse, $showhidden);
+		$totalnumber = $this->get_question_count();
+		if ($totalnumber == 0) {
+			return;
 		}
-		// remove pagination options
-		//! $nodes = $XPath->query("//*[contains(@class, 'categorypagingbarcontainer')]");
-		//! foreach($nodes as $node)
-		//!	$node->parentNode->removeChild($node);
-		echo utf8_encode($dom->saveHTML()); // utf-8 bug in PHP
+		$questions = $this->load_page_questions($page, $perpage);
+		echo '<div class="categorypagingbarcontainer">';
+		$pageing_url = new moodle_url('edit.php');
+		$r = $pageing_url->params($pageurl->params());
+		$pagingbar = new paging_bar($totalnumber, $page, $perpage, $pageing_url);
+		$pagingbar->pagevar = 'qpage';
+		echo $OUTPUT->render($pagingbar);
+		echo '</div>';
+		echo '<form method="post" action="edit.php">';
+		echo '<fieldset class="invisiblefieldset" style="display: block;">';
+		echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+		echo html_writer::input_hidden_params($pageurl);
+		echo '<div class="categoryquestionscontainer">';
+		$this->start_table();
+		$rowcount = 0;
+		foreach ($questions as $question) {
+			$this->print_table_row($question, $rowcount);
+			$rowcount += 1;
+		}
+		$this->end_table();
+		echo "</div>\n";
+		echo '<div class="categorypagingbarcontainer pagingbottom">';
+		echo $OUTPUT->render($pagingbar);
+		if ($totalnumber > DEFAULT_QUESTIONS_PER_PAGE) {
+			if ($perpage == DEFAULT_QUESTIONS_PER_PAGE) {
+				$url = new moodle_url('edit.php', array_merge($pageurl->params(), array('qperpage'=>1000)));
+				$showall = '<a href="'.$url.'">'.get_string('showall', 'moodle', $totalnumber).'</a>';
+			} else {
+				$url = new moodle_url('edit.php', array_merge($pageurl->params(), array('qperpage'=>DEFAULT_QUESTIONS_PER_PAGE)));
+				$showall = '<a href="'.$url.'">'.get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE).'</a>';
+			}
+			echo "<div class='paging'>$showall</div>";
+		}
+		echo '</div>';
+		echo '<div class="modulespecificbuttonscontainer">';
+		if ($caneditall || $canmoveall || $canuseall){
+			echo '<strong>&nbsp;'.get_string('withselected', 'question').':</strong><br />';
+			if (function_exists('module_specific_buttons')) {
+				echo module_specific_buttons($this->cm->id,$cmoptions);
+			}
+			// print delete and move selected question
+			if ($caneditall) {
+				echo '<input type="submit" name="deleteselected" value="' . $strdelete . "\" />\n";
+			}
+			if ($canmoveall && count($addcontexts)) {
+				// ADD OUR BUTTON HERE (Other Things Did Not Change!!)
+				echo '<input type="submit" name="copy" value="'.get_string('copyto', 'format_elatexam')."\" />\n";
+				echo '<input type="submit" name="move" value="'.get_string('moveto', 'question')."\" />\n";
+				question_category_select_menu($addcontexts, false, 0, "$category->id,$category->contextid");
+			}
+			if (function_exists('module_specific_controls') && $canuseall) {
+				$modulespecific = module_specific_controls($totalnumber, $recurse, $category, $this->cm->id,$cmoptions);
+				if(!empty($modulespecific)){
+					echo "<hr />$modulespecific";
+				}
+			}
+		}
+		echo "</div>\n";
+		echo '</fieldset>';
+		echo "</form>\n";
 	}
 	protected function create_new_question_form($category, $canadd) {
 		// idea was to add row with create question button and searchbox via
