@@ -48,7 +48,7 @@ class qtype_meta_edit_form extends question_edit_form {
 
 		$mform->insertElementBefore($mform->createElement('text', 'time', get_string('time', 'qtype_meta'), ' style="width:35px;"'), 'questiontext');
 		$mform->setType('time', PARAM_INT);
-		$mform->setDefault('time', 0);
+		//$mform->setDefault('time', 0);
 		$mform->addHelpButton('time', 'time', 'qtype_meta');
 
 		$mform->insertElementBefore($mform->createElement('text', 'kindnessextensiontime', get_string('kindnessextensiontime', 'qtype_meta'), ' style="width:35px;"'), 'questiontext');
@@ -58,12 +58,12 @@ class qtype_meta_edit_form extends question_edit_form {
 
 		$mform->insertElementBefore($mform->createElement('text', 'tasksperpage', get_string('tasksperpage', 'qtype_meta'), ' style="width:35px;"'), 'questiontext');
 		$mform->setType('tasksperpage', PARAM_INT);
-		$mform->setDefault('tasksperpage', 0);
+		$mform->setDefault('tasksperpage', 2);
 		$mform->addHelpButton('tasksperpage', 'tasksperpage', 'qtype_meta');
 		
 		$mform->insertElementBefore($mform->createElement('text', 'tries', get_string('tries', 'qtype_meta'), ' style="width:35px;"'), 'questiontext');
 		$mform->setType('tries', PARAM_INT);
-		$mform->setDefault('tries', 0);
+		$mform->setDefault('tries', 1);
 		$mform->addHelpButton('tries', 'tries', 'qtype_meta');
 
 		$mform->insertElementBefore($mform->createElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), ""), 'generalfeedback');
@@ -77,7 +77,8 @@ class qtype_meta_edit_form extends question_edit_form {
 		$mform->addHelpButton('numberofcorrectors', 'numberofcorrectors', 'qtype_meta');
 
 		////// Set Fields which are required to fill out //////////
-		$mform->addRule('questiontext', null, 'required', null, 'client');
+		//$mform->addRule('questiontext', null, 'required', null, 'client');
+		$mform->addRule('time', null, 'required', null, 'client');
 	}
 
 	public function qtype() {

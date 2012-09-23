@@ -23,4 +23,3 @@
  */
 
 $string['pluginname'] = 'ElateXam format';
-$string['sectionname'] = 'ElateXam';

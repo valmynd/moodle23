@@ -98,8 +98,8 @@ class question_bank_tagcloud_column extends question_bank_column_base {
 class elate_question_bank_view extends question_bank_view {
 	public function __construct($contexts, $pageurl, $course, $cm = null) {
 		global $PAGE, $OUTPUT, $CFG;
-		$PAGE->requires->css("/question/elate_question_bank.css");
-		$PAGE->requires->js("/question/elate_question_bank.js");
+		$PAGE->requires->css("/course/format/elatexam/styles.css");
+		$PAGE->requires->js("/course/format/elatexam/banklib.js");
 		return parent::__construct($contexts, $pageurl, $course, $cm);
 	}
 	protected function wanted_columns() {

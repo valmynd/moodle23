@@ -1,6 +1,55 @@
-.course-content ul.topics {margin:0;}
-.course-content ul.topics li.section {list-style: none;margin:5px 0 0 0;padding:0;}
-.course-content ul.topics li.section .content {margin:0 40px;}
-.course-content ul.topics li.section .left {width:40px;float:left;text-align:center;}
-.course-content ul.topics li.section .right {width:40px;float:right;text-align:center;}
-.jumpmenu {text-align:center;}
+#categoryquestions .questionname {
+	width: 35%;
+}
+#categoryquestions .tagcloud {
+	width: 15%;
+	white-space:normal;
+	word-wrap:break-word;
+}
+/*.categorypagingbarcontainer {
+	visibility:hidden;
+}*/
+.addbtn_and_searchbox {
+	width: 100%;
+}
+.addbtn_and_searchbox .singlebutton {
+	float:left;
+}
+.addbtn_and_searchbox .searchbox {
+	float:right;
+}
+.addbtn_and_searchbox:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+/* Autocomplete dropdown styles */
+.autocomplete-w1 {
+	position: absolute;
+	top: 5px; left: 0px;
+	margin: 6px 0 0 6px;
+}
+.autocomplete {
+	border: 1px solid #999;
+	background: #FFF;
+	cursor: default;
+	text-align: left;
+	max-height: 350px;
+	overflow: auto;
+	margin: -6px 6px 6px -6px;
+}
+.autocomplete .selected {
+	background: lightgray;
+}
+.autocomplete div {
+	padding: 5px 10px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.autocomplete strong {
+	font-weight: normal;
+	color: cornflowerblue;
+}

@@ -22,32 +22,16 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-/*
-$context = context_course::instance($course->id);
 
-if (($marker >=0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
-    $course->marker = $marker;
-    course_set_marker($course->id, $marker);
-}
-
-$renderer = $PAGE->get_renderer('format_elatexam');
-
-if (!empty($displaysection)) {
-    $renderer->print_single_section_page($course, $sections, $mods, $modnames, $modnamesused, $displaysection);
-} else {
-    $renderer->print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused);
-}
-
-// Include course format js module
-$PAGE->requires->js('/course/format/elatexam/format.js');
-*/
-
-//$questionbank = new question_bank_view($contexts, $thispageurl, $COURSE, $cm);
 // compare the following to /question/edit.php
-require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
-list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) = question_edit_setup('questions', '/course/view.php');
-$questionbank = new elate_question_bank_view($contexts, $thispageurl, $COURSE, $cm);
+require_once($CFG->dirroot . '/course/format/elatexam/elate_exam_bank.php');
+$_GET["courseid"] = $_GET["id"];
+list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) = exam_bank_setup('editq', '/course/view.php');
+$questionbank = new elate_exam_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
 $questionbank->display('editq', $pagevars['qpage'], $pagevars['qperpage'], $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'], $pagevars['qbshowtext']);
 
-echo "KJS";
+// ... question bank not possible on this page: problem with require_login() called by question_edit_setup()
+/*echo '<ul class="topics"><li id="section-0" class="section main clearfix">';
+echo 'Test';
+echo '</li></ul>';*/
