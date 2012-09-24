@@ -26,6 +26,7 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		$existing = $DB->get_record('question', array('id' => $question->id));
 		unset($existing->id);
 		$existing->category = $newcategoryid;
+		//debugging("id: ".$existing->id);
 		$id_of_dublicate = $DB->insert_record('question', $existing);
 		// b) get Tables for this qtype and dublicate the relevant rows in them
 		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
@@ -37,12 +38,12 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			$elements = $dom->getElementsByTagName("TABLE");
 			foreach($elements as $el) {
 				$tablename = $el->getAttribute("NAME");
-				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[contains(@TYPE,'foreign')]/@FIELDS");
-				$foreignkey_name = $nodes->item(0)->value;
 				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@FIELDS");
 				$primarykey_name = $nodes->item(0)->value;
+				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[contains(@TYPE,'foreign')]/@FIELDS");
+				$foreignkey_name = $nodes->item(0)->value;
 				// now we can use this information to dublicate this subtable
-				debugging("trying to copy: " . $tablename . " , " . $foreignkey_name . " , " . $primarykey_name);
+				//debugging("trying to copy: " . $tablename . " , " . $foreignkey_name . " , " . $primarykey_name);
 				$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
 				unset($existing->{$primarykey_name});
 				$existing->{$foreignkey_name} = $id_of_dublicate;

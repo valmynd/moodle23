@@ -42,10 +42,7 @@ class qtype_timetask extends question_type {
 	public function get_question_options($question) {
 		global $DB;
 		$question->options = $DB->get_record('question_timetask', array('questionid' => $question->id), '*', MUST_EXIST);
-		$question->options->memento = $question->options->memento;
-		$question->options->answers = array();
-		//debugging("§question:".var_export($question));
-		return true;
+		return parent::get_question_options($question);
 	}
 
 	public function save_question_options($question) {
@@ -71,17 +68,24 @@ class qtype_timetask extends question_type {
 		return true;
 	}
 
-	public function delete_question($questionid, $contextid) {
-		parent::delete_question($questionid, $contextid);
+	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
+	public function is_real_question_type() {
+		return false;
 	}
-
-	/**
-	 * @param object $question
-	 * @return mixed either a integer score out of 1 that the average random
-	 * guess by a student might give or an empty string which means will not
-	 * calculate.
-	 */
-	public function get_random_guess_score($question) {
-		return 1/$question->options->choose;
+	public function is_usable_by_random() {
+		return false;
+	}
+	public function can_analyse_responses() {
+		return false;
+	}
+	public function save_question($question, $form) {
+		$form->defaultmark = 0;
+		return parent::save_question($question, $form);
+	}
+	public function actual_number_of_questions($question) {
+		return 0;
+	}
+	public function get_random_guess_score($questiondata) {
+		return null;
 	}
 }

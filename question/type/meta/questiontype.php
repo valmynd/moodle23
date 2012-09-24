@@ -43,7 +43,6 @@ class qtype_meta extends question_type {
 	public function save_question_options($question) {
 		global $DB;
 		$existing = $DB->get_record('question_meta', array('questionid' => $question->id));
-
 		$options = new stdClass(); // such an object is required by update_record() / insert_record()
 		$options->time = $question->time;
 		$options->kindnessextensiontime = $question->kindnessextensiontime;
@@ -54,7 +53,6 @@ class qtype_meta extends question_type {
 
 		// set foreign key question_meta.questionid to question.id
 		$options->questionid = $question->id;
-
 		if ($existing) {
 			$options->id = $existing->id;
 			$DB->update_record('question_meta', $options);
@@ -63,35 +61,6 @@ class qtype_meta extends question_type {
 		}
 		return true;
 	}
-
-	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
-	public function is_real_question_type() {
-		return false;
-	}
-	public function is_usable_by_random() {
-		return false;
-	}
-	public function can_analyse_responses() {
-		return false;
-	}
-	public function save_question($question, $form) {
-		// Make very sure that metas can'e be created with a grade of
-		// anything other than 0.
-		$form->defaultmark = 0;
-		return parent::save_question($question, $form);
-	}
-	public function actual_number_of_questions($question) {
-		/// Used for the feature number-of-questions-per-page
-		/// to determine the actual number of questions wrapped
-		/// by this question.
-		/// The question type meta is not even a question
-		/// in itself so it will return ZERO!
-		return 0;
-	}
-	public function get_random_guess_score($questiondata) {
-		return null;
-	}
-
 
 	/// IMPORT/EXPORT FUNCTIONS /////////////////
 	
@@ -107,5 +76,26 @@ class qtype_meta extends question_type {
 	*/
 	public function export_to_xml($question, qformat_xml $format, $extra=null) {
 		return parent::export_to_xml($question, $format, $extra);
+	}
+
+	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
+	public function is_real_question_type() {
+		return false;
+	}
+	public function is_usable_by_random() {
+		return false;
+	}
+	public function can_analyse_responses() {
+		return false;
+	}
+	public function save_question($question, $form) {
+		$form->defaultmark = 0;
+		return parent::save_question($question, $form);
+	}
+	public function actual_number_of_questions($question) {
+		return 0;
+	}
+	public function get_random_guess_score($questiondata) {
+		return null;
 	}
 }
