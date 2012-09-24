@@ -36,13 +36,13 @@ class qtype_timetask extends question_type {
 	public function extra_question_fields() {
 		return array('question_timetask', 'correctorfeedback', 'memento');
 	}
-	public function save_question_options($question) {
+	public function save_question_options($formdata) {
 		// database should contain readable xml, no base64 encoded things
-		$question->memento = base64_decode($question->memento);
+		$formdata->memento = base64_decode($formdata->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
-		if (is_array($question->correctorfeedback))
-			$question->correctorfeedback = $question->correctorfeedback['text'];
-		return parent::save_question_options($question);
+		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
+				$formdata->context, 'qtype_comparetexttask', 'correctorfeedback', $formdata->id);
+		return parent::save_question_options($formdata);
 	}
 
 	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////

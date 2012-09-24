@@ -38,7 +38,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// a) We need a Corrector Feedback Field for all CompareTextTask questions, see question_edit_form.definition()
 		$element = $mform->addElement('editor', 'correctorfeedback', "Feedback for the Corrector", array('rows' => 10), $this->editoroptions);
 		//$mform->setDefault('correctorfeedback', ...); // doesn't work for "editor" fields (blame moodle for this)
-		$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
+		//$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
 		$mform->setType('correctorfeedback', PARAM_RAW);
 
 		// b) Java Applet
@@ -74,10 +74,24 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		return 'comparetexttask';
 	}
 
-	protected function get_correctorfeedback() {
-		if (property_exists($this->question, "options")) // when updating
-			return $this->question->options->correctorfeedback;
-		return ""; // when inserting
+	protected function data_preprocessing($question) {
+		// @see qtype_essay_edit_form.data_preprocessing()
+		$question = parent::data_preprocessing($question);
+		if (empty($question->options)) return $question;
+		$draftid = file_get_submitted_draft_itemid('correctorfeedback');
+		$question->correctorfeedback = array();
+		$question->correctorfeedback['text'] = file_prepare_draft_area(
+				$draftid,           // draftid
+				$this->context->id, // context
+				'qtype_comparetexttask',   // component
+				'correctorfeedback',       // filarea
+				!empty($question->id) ? (int) $question->id : null, // itemid
+				$this->fileoptions, // options
+				$question->options->correctorfeedback // text
+		);
+		//$question->correctorfeedback['format'] = FORMAT_MOODLE;
+		$question->correctorfeedback['itemid'] = $draftid;
+		return $question;
 	}
 
 	protected function get_memento() {

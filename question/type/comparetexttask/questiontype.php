@@ -36,13 +36,43 @@ class qtype_comparetexttask extends question_type {
 	public function extra_question_fields() {
 		return array('question_comparetexttask', 'correctorfeedback', 'memento');
 	}
-	public function save_question_options($question) {
+	public function save_question_options($formdata) {
+		debugging(var_export($formdata));
 		// database should contain readable xml, no base64 encoded things
-		$question->memento = base64_decode($question->memento);
+		$formdata->memento = base64_decode($formdata->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
-		if (is_array($question->correctorfeedback))
-			$question->correctorfeedback = $question->correctorfeedback['text'];
-		return parent::save_question_options($question);
+		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
+				$formdata->context, 'qtype_comparetexttask', 'correctorfeedback', $formdata->id);
+		return parent::save_question_options($formdata);
+	}
+
+	////// IMPORT/EXPORT FUNCTIONS /////////////////
+	/** Imports question from the Moodle XML format */
+	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+		debugging(var_export($data));
+		// compare to parent::import_from_xml($data, $question, $format, $extra);
+		$question_type = $data['@']['type'];
+		if ($question_type != $this->name()) return false;
+		$qo = $format->import_headers($data);
+		$qo->qtype = $question_type;
+		$qo->memento = $format->getpath($data, array('#', 'memento', 0, '#'), '');
+		// compare to import_essay() in /question/format/xml/format.php
+		$qo->correctorfeedback['text'] = $format->getpath($question, array('#', 'correctorfeedback', 0, '#', 'text', 0, '#'), '', true);
+		$qo->correctorfeedback['format'] = $format->trans_format($format->getpath($question, array('#', 'correctorfeedback', 0, '@', 'format'), 'html'));
+		$qo->correctorfeedback['files'] = $format->import_files($format->getpath($question, array('#', 'correctorfeedback', '0', '#', 'file'), array()));
+		return $qo;
+	}
+
+	/** Export question to the Moodle XML format */
+	public function export_to_xml($question, qformat_xml $format, $extra=null) {
+		$expout = parent::export_to_xml($question, $format, $extra);
+		$fs = get_file_storage();
+		$replacement = "<correctorfeedback format=\"html\">\n";
+		$replacement .= $format->writetext($question->options->correctorfeedback, 3) . "      ";
+		$replacement .= $format->write_files($fs->get_area_files($question->contextid, 'qtype_comparetexttask', 'correctorfeedback', $question->id));
+		$replacement .= "\n    </correctorfeedback>";
+		$expout = preg_replace('/<correctorfeedback.*<\/correctorfeedback>/', $replacement, $expout);
+		return $expout;
 	}
 
 	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
