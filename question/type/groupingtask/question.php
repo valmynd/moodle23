@@ -26,4 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_meta_question extends question_information_item {
+	public $memento;
+	public $correctorfeedback;
+	public $correctorfeedbackformat;
 }

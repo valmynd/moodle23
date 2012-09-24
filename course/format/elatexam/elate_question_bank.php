@@ -26,7 +26,6 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		$existing = $DB->get_record('question', array('id' => $question->id));
 		unset($existing->id);
 		$existing->category = $newcategoryid;
-		//debugging("id: ".$existing->id);
 		$id_of_dublicate = $DB->insert_record('question', $existing);
 		// b) get Tables for this qtype and dublicate the relevant rows in them
 		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
@@ -38,7 +37,7 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			$elements = $dom->getElementsByTagName("TABLE");
 			foreach($elements as $el) {
 				$tablename = $el->getAttribute("NAME");
-				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@FIELDS");
+				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@FIELDS"); // [@REFTABLE='question']
 				$primarykey_name = $nodes->item(0)->value;
 				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[contains(@TYPE,'foreign')]/@FIELDS");
 				$foreignkey_name = $nodes->item(0)->value;
@@ -55,12 +54,12 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			echo "WARNING: ", $e->getMessage(), "<br/>\n";
 		}
 		// c) dublicate other rows in tables that are affected: Tags, ..., ???
-		/*$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
+		$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
 		foreach($records as $existing) {
 			unset($existing->id);
 			$existing->itemid = $id_of_dublicate;
 			$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
-		}*/
+		}
 	}
 	return true;
 }
