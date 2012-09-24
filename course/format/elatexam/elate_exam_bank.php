@@ -10,11 +10,6 @@ require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
  */
 
 class elate_exam_bank_view extends elate_question_bank_view {
-//class elate_exam_bank_view extends question_bank_view {
-	public function __construct($contexts, $pageurl, $course, $cm = null) {
-		global $PAGE, $OUTPUT, $CFG;
-		//$PAGE->requires->css("/course/format/elatexam/styles.css");
-		$PAGE->requires->js("/course/format/elatexam/banklib.js");
-		return question_bank_view::__construct($contexts, $pageurl, $course, $cm);
-	}
+	// TODO: alle klausuren kommen in bestimmte kategorie, welche angelegt wird, wenn es sie noch nicht gibt
+	// TODO: Link (Button?) um Question Bank (in neuem Fenster?) zu öffnen
 }

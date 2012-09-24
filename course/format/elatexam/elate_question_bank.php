@@ -23,10 +23,11 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
 		// DUPLICATE ROWS IN ALL RELEVANT TABLES (the ABOVE should look like in question_move_questions_to_category())
 		// a) Table 'question'
-		$existing = $DB->get_record('question', array('id' => $question->id));
+		/*$existing = $DB->get_record('question', array('id' => $question->id));
 		unset($existing->id);
 		$existing->category = $newcategoryid;
 		$id_of_dublicate = $DB->insert_record('question', $existing);
+		*/
 		// b) get Tables for this qtype and dublicate the relevant rows in them
 		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
 		if (file_exists($xml_path)) try {
@@ -42,21 +43,23 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 				$nodes = $XPath->query("//TABLE[@NAME='$tablename']/KEYS/KEY[@TYPE='primary']/@NAME");
 				$primarykey_name = $nodes->item(0)->value;
 				// now we can use this information to dublicate this subtable
-				$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
+				debugging("trying to copy: " . $tablename . " , " . $foreignkey_name . " , " . $primarykey_name);
+				/*$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
 				unset($existing->{$primarykey_name});
 				$existing->{$foreignkey_name} = $id_of_dublicate;
 				$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
+				*/
 			}
 		} catch(Exception $e) {
 			echo "WARNING: ", $e->getMessage(), "<br/>\n";
 		}
 		// c) dublicate other rows in tables that are affected: Tags, ..., ???
-		$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
+		/*$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
 		foreach($records as $existing) {
 			unset($existing->id);
 			$existing->itemid = $id_of_dublicate;
 			$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
-		}
+		}*/
 	}
 	return true;
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="course/format/elatexam/db" VERSION="20120924" COMMENT="XMLDB file for Moodle course/format/elatexam"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="exam" COMMENT="Overview of ElateXam exams managed by the elatexam course format." NEXT="exam_question">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="exam_question" COMMENT="This table maps questions to exams" PREVIOUS="exam">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="examid"/>
+        <FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references exam.id" PREVIOUS="id" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references question.id" PREVIOUS="examid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="examid"/>
+        <KEY NAME="examid" TYPE="foreign" FIELDS="examid" REFTABLE="exam" REFFIELDS="id" COMMENT="Foreign Key references exam.id" PREVIOUS="primary" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" COMMENT="Foreign Key references question.id" PREVIOUS="examid"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

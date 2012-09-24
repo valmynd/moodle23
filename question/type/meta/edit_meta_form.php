@@ -26,15 +26,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_meta_edit_form extends question_edit_form {
-
+	
 	protected function definition_inner($mform) {
 		// the same procedure as in description plugin: "We don't need this default element."
 		$mform->removeElement('defaultmark');
 		$mform->addElement('hidden', 'defaultmark', 0);
 		$mform->setType('defaultmark', PARAM_RAW);
-		// remove Tags for Meta??
-		//$mform->removeElement('tags');
-		//$mform->removeElement('tagsheader');
 
 		////// Change some Titles of existing Fields //////////
 
@@ -82,6 +79,20 @@ class qtype_meta_edit_form extends question_edit_form {
 		////// Set Fields which are required to fill out //////////
 		//$mform->addRule('questiontext', null, 'required', null, 'client');
 		$mform->addRule('time', null, 'required', null, 'client');
+		$this->define_question_selection();
+	}
+	
+	public function define_question_selection() {
+		$this->_form->addElement('header', 'qheader', get_string('qheader', 'qtype_meta'));
+		//$select = &$this->_form->addElement('select', 'colors', get_string('colors'), array('red', 'blue', 'green'), array('size', 3));
+		
+	}
+
+	protected function definition() {
+		parent::definition();
+		// Tags etc. would need to be removed here
+		//$this->_form->removeElement('tags');
+		//$this->_form->removeElement('tagsheader');
 	}
 
 	public function qtype() {

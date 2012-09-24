@@ -22,6 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'ElateXam format';
+$string['pluginname'] = 'ElateXam Format';
 
 $string['copyto'] = "Kopieren nach >>";

@@ -57,3 +57,7 @@ $string['showhandlinghintsbeforestart'] = 'Einleitungstext anzeigen';
 
 $string['numberofcorrectors'] = 'Anzahl Korrektoren';
 $string['numberofcorrectors_help'] = 'Anzahl (menschlicher) Korrektoren, deren Bewertung in das Gesamtergebnis einfließt. Standardwert ist 2 (Bologna), 0 bedeutet unendlich viele Korrektoren.';
+
+////////// Strings for the Question Selection Form //////////////////////
+
+$string['qheader'] = 'Fragenauswahl';

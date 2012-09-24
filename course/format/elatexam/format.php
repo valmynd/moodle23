@@ -23,10 +23,20 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/*
+Forwarding is needed, because
+ - question_bank_view uses "question.php" as target for all forms
+ - the way /course/view.php works limits us e.g. to change anything in the headers
+ 	-> exam_bank_setup() would try change those headers
+ - question_bank_view renders the hole site, everything inbetween <html>*</html>
+... it would be very hard to overwrite all this behaviour
+*/
+
 $fw = $CFG->wwwroot . '/course/format/elatexam/edit.php?courseid=' . required_param('id', PARAM_INT);
 echo '<script type="text/javascript">
 <!--
 window.location = "' . $fw . '"
 //-->
 </script>
-Um diesen Kurs zu benutzen, muss Javascript aktiviert sein,';
+Um diesen Kurs zu benutzen, muss Javascript aktiviert sein.
+Für eine manuelle Weiterleitung klicken Sie <a href="' .$fw. '">hier</a>.';

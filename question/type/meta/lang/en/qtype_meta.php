@@ -71,3 +71,7 @@ $string['regular_help'] = 'One Corrector';
 */
 $string['numberofcorrectors'] = 'Number of Correctors';
 $string['numberofcorrectors_help'] = 'Number of (human) correctors to proceed the correction of the Tasklet, in order to determine the overall result. Default is 2 (Bologna), 0 for unlimited.';
+
+////////// Strings for the Question Selection Form //////////////////////
+
+$string['qheader'] = 'Question Selection';
