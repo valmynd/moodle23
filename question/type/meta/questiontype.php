@@ -34,6 +34,7 @@ class qtype_meta extends question_type {
 		return array('question_meta', 'time', 'kindnessextensiontime', 'tasksperpage', 'tries', 'showhandlinghintsbeforestart', 'numberofcorrectors');
 	}
 
+	/* SEEMS LIE MOST OF THIS IS HANDLED BY PARENT CLASS ALREADY! (at least in moodle 2.x)
 	public function get_question_options($question) {
 		global $DB;
 		$question->options = $DB->get_record('question_meta', array('questionid' => $question->id), '*', MUST_EXIST);
@@ -60,7 +61,7 @@ class qtype_meta extends question_type {
 			$DB->insert_record('question_meta', $options);
 		}
 		return true;
-	}
+	}*/
 
 	/// IMPORT/EXPORT FUNCTIONS /////////////////
 	

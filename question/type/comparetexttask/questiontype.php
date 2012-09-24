@@ -33,47 +33,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 class qtype_comparetexttask extends question_type {
-	const MAX_SUBQUESTIONS = 10;
-
 	public function extra_question_fields() {
 		return array('question_comparetexttask', 'correctorfeedback', 'memento');
 	}
 	public function save_question_options($question) {
-		
-	}
-
-	/* SEEMS LIE MOST OF THIS IS HANDLED BY PARENT CLASS ALREADY!
-	public function get_question_options($question) {
-		global $DB;
-		$question->options = $DB->get_record('question_comparetexttask', array('questionid' => $question->id), '*', MUST_EXIST);
-		return parent::get_question_options($question);
-	}
-
-	public function save_question_options($question) {
-		global $DB;
-		//$question->options->answers = array();
-		//debugging("save_question_options(): §question:".var_export($question));
-		if(strpos($question->memento, "Error:") === 0) {
-			$result = new stdClass();
-			$result->error = $question->memento;
-			return $result;
-		}
-		$existing = $DB->get_record('question_comparetexttask', array('questionid' => $question->id));
-		$options = new stdClass(); // such an object is required by update_record() / insert_record()
-		$options->memento = base64_decode($question->memento); // database should contain readable xml, no base64 encoded things
-		$options->questionid = $question->id; // set foreign key question_comparetexttask.questionid to questions.id
+		// database should contain readable xml, no base64 encoded things
+		$question->memento = base64_decode($question->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
 		if (is_array($question->correctorfeedback))
-			$options->correctorfeedback = $question->correctorfeedback['text'];
-		else $options->correctorfeedback = $question->correctorfeedback;
-		if ($existing) {
-			$options->id = $existing->id;
-			$DB->update_record('question_comparetexttask', $options);
-		} else {
-			$DB->insert_record('question_comparetexttask', $options);
-		}
-		return true;
-	}*/
+			$question->correctorfeedback = $question->correctorfeedback['text'];
+		return parent::save_question_options($question);
+	}
 
 	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
 	public function is_real_question_type() {

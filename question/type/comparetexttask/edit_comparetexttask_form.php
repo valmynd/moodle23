@@ -38,7 +38,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// a) We need a Corrector Feedback Field for all CompareTextTask questions, see question_edit_form.definition()
 		$element = $mform->addElement('editor', 'correctorfeedback', "Feedback for the Corrector", array('rows' => 10), $this->editoroptions);
 		//$mform->setDefault('correctorfeedback', ...); // doesn't work for "editor" fields (blame moodle for this)
-		//$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
+		$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
 		$mform->setType('correctorfeedback', PARAM_RAW);
 
 		// b) Java Applet
@@ -72,6 +72,12 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 
 	public function qtype() {
 		return 'comparetexttask';
+	}
+
+	protected function get_correctorfeedback() {
+		if (property_exists($this->question, "options")) // when updating
+			return $this->question->options->correctorfeedback;
+		return ""; // when inserting
 	}
 
 	protected function get_memento() {

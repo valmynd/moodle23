@@ -44,10 +44,12 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 				$foreignkey_name = $nodes->item(0)->value;
 				// now we can use this information to dublicate this subtable
 				//debugging("trying to copy: " . $tablename . " , " . $foreignkey_name . " , " . $primarykey_name);
-				$existing = $DB->get_record($tablename, array($foreignkey_name => $question->id));
-				unset($existing->{$primarykey_name});
-				$existing->{$foreignkey_name} = $id_of_dublicate;
-				$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
+				$records = $DB->get_records($tablename, array($foreignkey_name => $question->id));
+				foreach($records as $existing) {
+					unset($existing->{$primarykey_name});
+					$existing->{$foreignkey_name} = $id_of_dublicate;
+					$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
+				}
 			}
 		} catch(Exception $e) {
 			echo "WARNING: ", $e->getMessage(), "<br/>\n";
