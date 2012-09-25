@@ -15,13 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Meta Hook 'question' definition class.
+ * Pseudo question definition class (shall do nothing (yet)).
  *
  * @package	qtype
- * @subpackage meta
+ * @subpackage comparetexttask
  * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 defined('MOODLE_INTERNAL') || die();
 

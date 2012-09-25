@@ -15,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Meta Hook 'question' renderer class.
+ * Pseudo renderer class (shall do nothing).
  *
  * @package	qtype
- * @subpackage meta
+ * @subpackage comparetexttask
  * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_meta_renderer extends qtype_renderer {
-	public function formulation_and_controls(question_attempt $qa,
-			question_display_options $options) {
-		return html_writer::tag('div', $qa->get_question()->format_questiontext($qa),
-				array('class' => 'qtext'));
+	public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
+		return html_writer::tag('div', $qa->get_question()->format_questiontext($qa), array('class' => 'qtext'));
 	}
 }
