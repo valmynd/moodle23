@@ -23,46 +23,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/question/type/comparetexttask/questiontype.php');
 
-/**
- * The groupingtask question type class.
- *
- * TODO: Make sure short answer questions chosen by a groupingtask question
- * can not also be used by a random question
- *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-class qtype_groupingtask extends question_type {
+class qtype_groupingtask extends qtype_comparetexttask {
 	public function extra_question_fields() {
 		return array('question_groupingtask', 'correctorfeedback', 'memento');
-	}
-	public function save_question_options($formdata) {
-		// database should contain readable xml, no base64 encoded things
-		$formdata->memento = base64_decode($formdata->memento);
-		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
-		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
-				$formdata->context, 'qtype_comparetexttask', 'correctorfeedback', $formdata->id);
-		return parent::save_question_options($formdata);
-	}
-
-	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
-	public function is_real_question_type() {
-		return false;
-	}
-	public function is_usable_by_random() {
-		return false;
-	}
-	public function can_analyse_responses() {
-		return false;
-	}
-	public function save_question($question, $form) {
-		$form->defaultmark = 0;
-		return parent::save_question($question, $form);
-	}
-	public function actual_number_of_questions($question) {
-		return 0;
-	}
-	public function get_random_guess_score($questiondata) {
-		return null;
 	}
 }

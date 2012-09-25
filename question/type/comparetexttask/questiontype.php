@@ -27,22 +27,30 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The comparetexttask question type class.
  *
- * TODO: Make sure short answer questions chosen by a comparetexttask question
- * can not also be used by a random questionor 
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author	C.Wilhelm
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 class qtype_comparetexttask extends question_type {
+	/**
+	 * this method needs to be overridden in subtypes
+	 * @see question_type::extra_question_fields()
+	 */
 	public function extra_question_fields() {
 		return array('question_comparetexttask', 'correctorfeedback', 'memento');
 	}
+
+	/**
+	 * will store input (which can be from a web formular or from an XML import)
+	 * @see question_type::save_question_options()
+	 */
 	public function save_question_options($formdata) {
-		debugging(var_export($formdata));
+		//debugging(var_export($formdata));
 		// database (and exported XML) should contain readable xml, no base64 encoded things
 		if(substr($formdata->memento, 0, 5) !== "<?xml") // won't be base64-encoded on import!
 			$formdata->memento = base64_decode($formdata->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
 		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
-				$formdata->context, 'qtype_comparetexttask', 'correctorfeedback', $formdata->id);
+				$formdata->context, get_class($this), 'correctorfeedback', $formdata->id);
 		return parent::save_question_options($formdata);
 	}
 

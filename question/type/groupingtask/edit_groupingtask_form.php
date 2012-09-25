@@ -22,67 +22,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
-
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/question/type/comparetexttask/edit_comparetexttask_form.php');
 
-/**
- * groupingtask editing form definition.
- *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
-*/
-class qtype_groupingtask_edit_form extends question_edit_form {
-	protected function definition_inner($mform) {
-		// this method is called by question_edit_form.definition() 
-		global $CFG;
-		global $PAGE;
-		// a) We need a Corrector Feedback Field for all GroupingTask questions, see question_edit_form.definition()
-		$element = $mform->addElement('editor', 'correctorfeedback', "Feedback for the Corrector", array('rows' => 10), $this->editoroptions);
-		//$mform->setDefault('correctorfeedback', ...); // doesn't work for "editor" fields (blame moodle for this)
-		$element->setValue(array('text'=>$this->get_correctorfeedback())); // see https://github.com/colchambers/moodle/commit/MDL-31726
-		$mform->setType('correctorfeedback', PARAM_RAW);
-
-		// b) Java Applet
-		$jarfile = "complexTask.jar";
-		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $jarfile;
-		$innerpath = "com/spiru/dev/groupingTaskProfessor_addon/GroupingTaskAddOnApplet.class"; // TODO: Configurable!
-		$appletstr = "\n\n<applet "
-				. 'archive="' . $jarpath . '" ' . 'code="'. $innerpath . '" '
-				. 'id="appletField"'
-				. 'width="600" height="400">\n'
-			. '<param name="memento" value="' . $this->get_memento() . '">\n'
-			. "</applet>\n\n";
-
-		// Trick to place it at the same position as the <input> elements above it (+ nice label)
-		$appletstr = '<div class="fitem fitem_feditor" id="fitem_id_questiontext"><div class="fitemtitle">'
-				.'<label for="appletField">Settings for '. "GroupingTask" .'</label></div>'
-				.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
-
-		// Hidden Elements to put in the Applet output via module.js
-		$failstr = "Error: Applet Content was not send!"; // result when javascript didn't execute properly 
-		$mform->addElement('textarea', 'memento', '', 'style="display:none;"');
-		$mform->setDefault('memento', $failstr);
-
-		// Finaly add Applet to form
-		$mform->addElement('html', $appletstr);
-
-		// c) Add Module.js
-		$PAGE->requires->js("/question/type/" . $this->qtype() . "/jquery-1.8.0.min.js");
-		$PAGE->requires->js("/question/type/" . $this->qtype() . "/module.js");
-	}
+class qtype_groupingtask_edit_form extends qtype_comparetexttask_edit_form {
 
 	public function qtype() {
 		return 'groupingtask';
 	}
 
-	protected function get_correctorfeedback() {
-		if (property_exists($this->question, "options")) // when updating
-			return $this->question->options->correctorfeedback;
-		return ""; // when inserting
-	}
-
-	protected function get_memento() {
-		if (property_exists($this->question, "options")) // when updating
-			return base64_encode($this->question->options->memento);
-		return ""; // when inserting
+	protected function get_innerpath() {
+		return "com/spiru/dev/groupingTaskProfessor_addon/GroupingTaskAddOnApplet.class";
 	}
 }
