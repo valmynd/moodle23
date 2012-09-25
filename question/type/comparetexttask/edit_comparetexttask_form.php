@@ -72,7 +72,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $this->get_jarname();
 		$appletstr = "\n\n<applet "
 				. 'archive="' . $jarpath . '" ' . 'code="'. $this->get_innerpath() . '" '
-				. 'id="appletField"'
+				. 'id="appletField" '
 				. 'width="600" height="400">\n'
 			. '<param name="memento" value="' . $this->get_memento() . '">\n'
 			. "</applet>\n\n";
@@ -91,8 +91,8 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		$mform->addElement('html', $appletstr);
 
 		// c) Add Module.js
-		$PAGE->requires->js("/question/type/" . $this->qtype() . "/jquery-1.8.0.min.js");
-		$PAGE->requires->js("/question/type/" . $this->qtype() . "/module.js");
+		$PAGE->requires->js("/question/type/comparetexttask/jquery-1.8.0.min.js");
+		$PAGE->requires->js("/question/type/comparetexttask/module.js");
 	}
 
 	protected function data_preprocessing($question) {
