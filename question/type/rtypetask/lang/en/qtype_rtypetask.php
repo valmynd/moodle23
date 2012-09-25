@@ -15,20 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'qtype_comparetexttask', language 'en', branch 'MOODLE_20_STABLE'
+ * Strings for component 'qtype_rtypetask', language 'en', branch 'MOODLE_20_STABLE'
  *
  * @package    qtype
- * @subpackage comparetexttask
+ * @subpackage rtypetask
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'CompareTextTask';
+$string['pluginname'] = 'RType';
 $string['pluginname_help'] = 'TODO:Summary';
-$string['pluginname_link'] = 'question/type/comparetexttask';
-$string['pluginnameadding'] = 'Adding a CompareTextTask question';
-$string['pluginnameediting'] = 'Editing a CompareTextTask question';
+$string['pluginname_link'] = 'question/type/rtypetask';
+$string['pluginnameadding'] = 'Adding a RType question';
+$string['pluginnameediting'] = 'Editing a RType question';
 $string['pluginnamesummary'] = 'TODO:Summary';
 
-////////// Strings for the Form //////////////////////
+////////// Strings for the Question Selection Form //////////////////////
 
-$string['correctorfeedback'] = 'Feedback for the Corrector';
+$string['qheader'] = 'Question {$a}';
+$string['correct'] = 'is correct';
+$string['addquestionbtn'] = 'Add another Question Block';
+$string['addanswerbtn'] = 'Add another possible Answer';

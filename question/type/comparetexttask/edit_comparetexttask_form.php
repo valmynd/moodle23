@@ -52,7 +52,8 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 	}
 
 	/**
-	 * this method needs to be overridden if the name of the JAR-file is not "complexTask.jar"
+	 * this method may be needed to be overridden
+	 * when the name of the JAR-file is not "complexTask.jar"
 	 *
 	 * @return string containing the name of the JAR-file (which should be inside the ./lib folder)
 	 */
@@ -64,9 +65,8 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// this method is called by question_edit_form.definition()
 		global $CFG;
 		global $PAGE;
-		// a) We need a Corrector Feedback Field for all CompareTextTask questions, see question_edit_form.definition()
-		$element = $mform->addElement('editor', 'correctorfeedback', "Feedback for the Corrector", array('rows' => 10), $this->editoroptions);
-		$mform->setType('correctorfeedback', PARAM_RAW);
+		// a) We need a Corrector Feedback Field for all CompareTextTask questions
+		$this->add_corrector_feedback();
 
 		// b) Java Applet
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $this->get_jarname();
@@ -79,7 +79,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 
 		// Trick to place it at the same position as the <input> elements above it (+ nice label)
 		$appletstr = '<div class="fitem fitem_feditor" id="fitem_id_questiontext"><div class="fitemtitle">'
-				.'<label for="appletField">Settings for '. "CompareTextTask" .'</label></div>'
+				.'<label for="appletField">Settings for '. get_string('pluginname', 'qtype_'.$this->qtype()) .'</label></div>'
 				.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
 
 		// Hidden Elements to put in the Applet output via module.js
@@ -93,6 +93,14 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		// c) Add Module.js
 		$PAGE->requires->js("/question/type/comparetexttask/jquery-1.8.0.min.js");
 		$PAGE->requires->js("/question/type/comparetexttask/module.js");
+	}
+
+	protected function add_corrector_feedback() {
+		// we won't use any applets
+		$element = $this->_form->addElement('editor', 'correctorfeedback',
+				get_string('correctorfeedback', 'qtype_comparetexttask'),
+				array('rows' => 10), $this->editoroptions);
+		$this->_form->setType('correctorfeedback', PARAM_RAW);
 	}
 
 	protected function data_preprocessing($question) {
