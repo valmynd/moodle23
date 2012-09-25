@@ -31,7 +31,7 @@ $string['pluginnamesummary'] = 'TODO:Summary';
 
 ////////// Strings for the Question Selection Form //////////////////////
 
-$string['qheader'] = 'Question {$a}';
+$string['qheader'] = 'Question';
 $string['correct'] = 'is correct';
 $string['addquestionbtn'] = 'Add another Question Block';
 $string['addanswerbtn'] = 'Add another possible Answer';
