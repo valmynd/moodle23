@@ -50,7 +50,7 @@ class qtype_comparetexttask extends question_type {
 			$formdata->memento = base64_decode($formdata->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
 		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
-				$formdata->context, get_class($this), 'correctorfeedback', $formdata->id);
+				$formdata->context, $this->plugin_name(), 'correctorfeedback', $formdata->id);
 		return parent::save_question_options($formdata);
 	}
 
@@ -80,7 +80,7 @@ class qtype_comparetexttask extends question_type {
 		// compare to writequestion() in /question/format/xml/format.php (lousy documentation for new question types :()
 		$expout .= "\n    <correctorfeedback format=\"html\">\n";
 		$expout .= $format->writetext($question->options->correctorfeedback, 3) . "      ";
-		$expout .= $format->write_files($fs->get_area_files($question->contextid, 'qtype_comparetexttask', 'correctorfeedback', $question->id));
+		$expout .= $format->write_files($fs->get_area_files($question->contextid, $this->plugin_name(), 'correctorfeedback', $question->id));
 		$expout .= "\n    </correctorfeedback>\n";
 		return $expout;
 	}
