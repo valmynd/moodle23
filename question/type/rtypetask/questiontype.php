@@ -87,7 +87,7 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			//debugging($filename . "__" . $base64str);
 			$editor_value = str_replace($needle, $replacement, $editor_value);
 		}
-		//$fs->delete_area_files($formdata->context->id, 'question'); // delete files => this mechaninsm would need to work for all fields!
+		//$fs->delete_area_files($formdata->context->id, 'question'); // delete all files => this mechaninsm would need to work for all fields!
 		//debugging($editor_value);
 		return $editor_value;
 	}

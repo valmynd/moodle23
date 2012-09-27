@@ -25,13 +25,13 @@
 $string['pluginname'] = 'RType';
 $string['pluginname_help'] = 'TODO:Summary';
 $string['pluginname_link'] = 'question/type/rtypetask';
-$string['pluginnameadding'] = 'Adding a RType question';
-$string['pluginnameediting'] = 'Editing a RType question';
+$string['pluginnameadding'] = 'Hinzufügen einer RTyp-Frage';
+$string['pluginnameediting'] = 'Bearbeiten einer RTyp-Frage';
 $string['pluginnamesummary'] = 'TODO:Summary';
 
 ////////// Strings for the Question Selection Form //////////////////////
 
-$string['qheader'] = 'Question';
-$string['correct'] = ' is correct';
-$string['addquestionbtn'] = 'Add another Question Block';
-$string['addanswerbtn'] = 'Add another possible Answer';
+$string['qheader'] = 'Frage';
+$string['correct'] = ' ist korrekt';
+$string['addquestionbtn'] = 'Weiteren Fragenblock hinzufügen';
+$string['addanswerbtn'] = 'Weitere Antwortmöglichkeit hinzufügen';
