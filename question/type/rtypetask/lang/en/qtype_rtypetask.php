@@ -34,4 +34,4 @@ $string['pluginnamesummary'] = 'TODO:Summary';
 $string['qheader'] = 'Question';
 $string['correct'] = ' is correct';
 $string['addquestionbtn'] = 'Add another Question Block';
-$string['addanswerbtn'] = 'Add another possible Answer';
+//$string['addanswerbtn'] = 'Add another possible Answer';
