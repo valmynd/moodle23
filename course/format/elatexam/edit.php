@@ -33,6 +33,7 @@ list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
 $url = new moodle_url($thispageurl);
 $PAGE->set_url($url);
 
+//$questionbank = new elate_exam_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank = new elate_exam_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
 

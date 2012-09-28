@@ -10,8 +10,8 @@ require_once($CFG->dirroot . '/question/editlib.php');
  */
 function question_copy_questions_to_category($questionids, $newcategoryid) {
 	global $DB, $CFG;
-	$newcontextid = $DB->get_field('question_categories', 'contextid',
-			array('id' => $newcategoryid));
+	$fs = get_file_storage();
+	$newcontextid = $DB->get_field('question_categories', 'contextid', array('id' => $newcategoryid));
 	list($questionidcondition, $params) = $DB->get_in_or_equal($questionids);
 	$questions = $DB->get_records_sql("
 			SELECT q.id, q.qtype, qc.contextid
@@ -19,8 +19,8 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			JOIN {question_categories} qc ON q.category = qc.id
 			WHERE  q.id $questionidcondition", $params);
 	foreach ($questions as $question) {
-		if ($newcontextid != $question->contextid) // FIXME: there is no copy_files???
-			question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
+		//if ($newcontextid != $question->contextid) // see d)
+		question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
 		// DUPLICATE ROWS IN ALL RELEVANT TABLES (the ABOVE should look like in question_move_questions_to_category())
 		// a) Table 'question'
 		$existing = $DB->get_record('question', array('id' => $question->id));
@@ -59,6 +59,22 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			unset($existing->id);
 			$existing->itemid = $id_of_dublicate;
 			$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
+		}
+		// d) dublicate all files, see file_storage::move_area_files_to_new_context() (minus delete)
+		//$oldcontextid = $question->contextid;
+		//$oldfiles = $fs->get_area_files($oldcontextid, 'question', false, false, 'id', false);
+		$sql = "SELECT * FROM {files} f LEFT JOIN {files_reference} r ON f.referencefileid = r.id
+				WHERE f.contextid = :contextid AND f.component = 'question'";
+		$oldfiles = array();
+		$filerecords = $DB->get_records_sql($sql, array('contextid'=>$oldcontextid));
+		foreach ($filerecords as $filerecord)
+			if ($filerecord->filename !== '.')
+				$oldfiles[$filerecord->pathnamehash] = $this->get_file_instance($filerecord);
+		debugging($oldfiles);
+		foreach ($oldfiles as $oldfile) {
+			$filerecord = new stdClass();
+			$filerecord->contextid = $newcontextid;
+			$fs->create_file_from_storedfile($filerecord, $oldfile);
 		}
 	}
 	return true;
