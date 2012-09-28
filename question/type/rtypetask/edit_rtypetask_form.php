@@ -63,9 +63,6 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 				$this->append_per_answer_fields($i, $j, $num_answers);
 				$this->handle_delete_answer_button($i, $j, $num_answers);
 				$mform->addElement('radio', "correct_$i", '', get_string('correct', 'qtype_rtypetask'), $j, array());
-				// handle default selection
-				if($j == 1 && !isset($_POST["correct_$i"]) && !isset($this->question->{"correct_$i"}))
-					$this->question->{"correct_$i"} = 1;
 			}
 			// store the information about how many answers are shown for the next request
 			$mform->addElement('hidden', "num_answers_$i", $num_answers);
@@ -110,8 +107,9 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 	}
 
 	protected function handle_delete_answer_button($question_id, $deleted_id, $num_answers) {
-		// what if the deleted answer was selected to be correct? require to change selection first?
 		if(!isset($_POST['delanswerbtn_'.$question_id.'_'.$deleted_id])) return;
+		// what if the deleted answer was selected to be correct? require to change selection first!
+		//if($deleted_id == $_POST["correct_$question_id"]) debugging("complain!");
 		for ($i = $question_id, $j = $deleted_id, $jpp = $deleted_id+1; $j <= $num_answers; $j++, $jpp++) {
 			$_POST['answer_'.$i.'_'.$j] = $_POST['answer_'.$i.'_'.$jpp];
 			//debugging('$_POST[\'answer_\'.$i.\'_\'.$j]: '.$_POST['answer_'.$i.'_'.$j]  .' $_POST[\'answer_\'.$i.\'_\'.$jpp]: '.$_POST['answer_'.$i.'_'.$jpp]);
@@ -159,15 +157,40 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 
 	/**
 	 * overridden to prevent submission when clicked on delete buttons on several scenarios
-	 * after certain fields get deleted, their buttons are not registered as "no submit" anymore!
+	 * -> after certain fields get deleted, their buttons are not registered as "no submit" anymore!
 	 *
 	 * @see moodleform::no_submit_button_pressed()
 	 *
 	 */
 	public function no_submit_button_pressed() {
-		// previously, i added hidden buttons for each last item, handling it here is way better
 		if(count(preg_grep('/^(delquestionbtn_|delanswerbtn_).*/', array_keys($_POST))) > 0)
 			return true;
 		return parent::no_submit_button_pressed();
+	}
+
+	/**
+	 * overridden to prevent form submission, if one question has no answer selected to be correct
+	 *
+	 * @see moodleform::is_validated()
+	 */
+	 public function validation($fromform, $files) {
+		$errors = parent::validation($fromform, $files);
+		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
+			if(!isset($_POST["correct_$i"]))
+				$errors["answergrp$i"] = "You must select an answer to be correct for Question #".$i;
+		}
+		return $errors;
+	}
+
+	protected function data_preprocessing($question) {
+		// this method is called after definition_inner(), thus too late for things like counting the number of
+		// questions for instance -> take a look at qtype_rtypetask::get_question_options()
+		$question = parent::data_preprocessing($question);
+		// handle default selection
+		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
+			if(!isset($_POST["correct_$i"]) && !isset($question->{"correct_$i"}))
+				$question->{"correct_$i"} = 1;
+		}
+		return $question;
 	}
 }
