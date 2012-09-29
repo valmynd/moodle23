@@ -18,7 +18,12 @@ class question_bank_add_to_exam_column extends question_bank_action_column_base 
 		//if (right_to_left()) $movearrow = 't/removeright';
 		//else $movearrow = 't/moveleft';
 		//$this->print_icon($movearrow, get_string('addtoquiz', 'quiz')/*, $this->qbank->add_to_quiz_url($question->id)*/);
-		echo '◄';
+		//echo '<span style="margin:0;padding:0;height:5px">';
+		//echo '<input name="useincategory" value="◄" type="submit" onclick="skipClientValidation = true;" style="margin:0;padding:0;height:16px;width:16px;">';
+		global $OUTPUT;
+		$delete_icon = $OUTPUT->pix_url('t/moveleft');
+		echo '<input type="image" src="'.$delete_icon.'" alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;"">';
+		//echo '</span>';
 	}
 	public function get_required_fields() {
 		return array('q.id');
@@ -52,7 +57,7 @@ class elate_exam_bank_view extends question_bank_view {
 		);
 	}
 	protected function wanted_columns() {
-		return array('checkbox', 'qtype', 'questionname');
+		return array('checkbox', 'qtype', 'questionname', 'addtoexam');
 	}
 	protected function display_question_list($contexts, $pageurl, $categoryandcontext, $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false, $showquestiontext=false, $addcontexts = array()) {
 		global $CFG, $DB, $OUTPUT;
@@ -123,7 +128,7 @@ class elate_exam_bank_view extends question_bank_view {
 			// this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
 			// or on the first display of the form.
 			//put data you want to fill out in the form into array $toform here then :
-			//$mform->set_data($toform);
+			$mform->set_data($_POST);
 			$mform->display();
 		}
 	}
