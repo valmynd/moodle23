@@ -38,8 +38,7 @@ $questionbank = new elate_exam_bank_view($contexts, $thispageurl, $COURSE, $cm);
 $questionbank->process_actions();
 
 $context = $contexts->lowest();
-$streditingquestions = get_string('editquestions', 'question');
-$PAGE->set_title($streditingquestions);
+$PAGE->set_title("Add Exam");
 $PAGE->set_heading($COURSE->fullname);
 echo $OUTPUT->header();
 

@@ -1,9 +1,32 @@
 <?php
 
 require_once($CFG->dirroot . '/question/editlib.php');
-require_once($CFG->dirroot . '/course/format/elatexam/elate_question_bank.php');
+require_once($CFG->dirroot . '/course/format/elatexam/exam_form.php');
+
 /**
- * This class extends the question bank view to show only Exam special Meta Types.
+ * A column type for the add this question to the exam.
+ *
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class question_bank_add_to_exam_column extends question_bank_action_column_base {
+	public function get_name() {
+		return 'addtoexam';
+	}
+	protected function display_content($question, $rowclasses) {
+		if (!question_has_capability_on($question, 'use')) return;
+		// For RTL languages: switch right and left arrows.
+		//if (right_to_left()) $movearrow = 't/removeright';
+		//else $movearrow = 't/moveleft';
+		//$this->print_icon($movearrow, get_string('addtoquiz', 'quiz')/*, $this->qbank->add_to_quiz_url($question->id)*/);
+		echo '◄';
+	}
+	public function get_required_fields() {
+		return array('q.id');
+	}
+}
+
+/**
+ * This class extends the question bank to be not only a question bank anymore...
  *
  * @author C.Wilhelm
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -14,8 +37,14 @@ class elate_exam_bank_view extends question_bank_view {
 	// TODO: Link (Button?) um elate_question_bank_view (in neuem Fenster?) zu öffnen
 	// auf beiden Seiten Fragen mit den jeweiligen Kategorien, beides in unterschiedlichen Tabellen organisiert
 	// über den Tabellen Felder aus qtype_meta
+	// TODO: alles muss zu einem formular gehören
+	// Listenelemente
+	// - editierbar und verschiebbar für Kategorien selbst (+ löschen/hinzufügen)
+	// - verschiebbare Fragen
+	// - Kategorien stets vor Fragen (wie Ordner im FS)
 	protected function known_field_types() {
 		return array(
+				new question_bank_add_to_exam_column($this),
 				new question_bank_checkbox_column($this),
 				new question_bank_question_type_column($this),
 				new question_bank_question_name_column($this),
@@ -26,12 +55,6 @@ class elate_exam_bank_view extends question_bank_view {
 		return array('checkbox', 'qtype', 'questionname');
 	}
 	protected function display_question_list($contexts, $pageurl, $categoryandcontext, $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false, $showquestiontext=false, $addcontexts = array()) {
-		$recurse = 0;
-		$perpage = 10000;
-		$showhidden = false;
-		$showquestiontext = false;
-		$addcontexts = array();
-		//return parent::display_question_list($contexts, $pageurl, $categoryandcontext, $cm, $recurse, $page, $perpage, $showhidden, $showquestiontext, $addcontexts);
 		global $CFG, $DB, $OUTPUT;
 		$category = $this->get_current_category($categoryandcontext);
 		$cmoptions = new stdClass();
@@ -43,22 +66,12 @@ class elate_exam_bank_view extends question_bank_view {
 		$catcontext = get_context_instance_by_id($contextid);
 		$this->build_query_sql($category, $recurse, $showhidden);
 		$totalnumber = $this->get_question_count();
-		if ($totalnumber == 0) {
-			return;
-		}
+		if ($totalnumber == 0) return;
 		$questions = $this->load_page_questions($page, $perpage);
 
-		/*echo '<div class="categorypagingbarcontainer">';
-		$pageing_url = new moodle_url('edit.php');
-		$r = $pageing_url->params($pageurl->params());
-		$pagingbar = new paging_bar($totalnumber, $page, $perpage, $pageing_url);
-		$pagingbar->pagevar = 'qpage';
-		echo $OUTPUT->render($pagingbar);
-		echo '</div>';*/
-
-		echo '<form method="post" action="edit.php">';
-		echo '<fieldset class="invisiblefieldset" style="display: block;">';
-		echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+		//echo '<form method="post" action="edit.php">';
+		//echo '<fieldset class="invisiblefieldset" style="display: block;">';
+		//echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
 		echo html_writer::input_hidden_params($pageurl);
 
 		echo '<div class="categoryquestionscontainer">';
@@ -69,40 +82,49 @@ class elate_exam_bank_view extends question_bank_view {
 			$rowcount += 1;
 		}
 		$this->end_table();
+		//echo "</div>\n";
+
+		//echo '<div class="modulespecificbuttonscontainer">';
+		//echo '<strong>&nbsp;'.get_string('withselected', 'question').':</strong><br />';
+		//if (function_exists('module_specific_buttons')) {
+		//	echo module_specific_buttons($this->cm->id,$cmoptions);
+			// TODO: "Use in Exam" | "Remove from Exam" buttons
+		//}
 		echo "</div>\n";
 
-		/*echo '<div class="categorypagingbarcontainer pagingbottom">';
-		echo $OUTPUT->render($pagingbar);
-		if ($totalnumber > DEFAULT_QUESTIONS_PER_PAGE) {
-			if ($perpage == DEFAULT_QUESTIONS_PER_PAGE) {
-				$url = new moodle_url('edit.php', array_merge($pageurl->params(), array('qperpage'=>1000)));
-				$showall = '<a href="'.$url.'">'.get_string('showall', 'moodle', $totalnumber).'</a>';
-			} else {
-				$url = new moodle_url('edit.php', array_merge($pageurl->params(), array('qperpage'=>DEFAULT_QUESTIONS_PER_PAGE)));
-				$showall = '<a href="'.$url.'">'.get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE).'</a>';
-			}
-			echo "<div class='paging'>$showall</div>";
+		//echo '</fieldset>';
+		//echo "</form>\n";
+	}
+	public function display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext) {
+		global $PAGE, $OUTPUT;
+		if ($this->process_actions_needing_ui()) return;
+		$PAGE->requires->js('/question/qbank.js');
+		ob_start();
+		//$this->display_category_form($this->contexts->having_one_edit_tab_cap($tabname), $this->baseurl, $cat);
+		//$this->display_options($recurse, $showhidden, $showquestiontext);
+		//if (!$category = $this->get_current_category($cat)) return;
+		//$this->print_category_info($category);
+		// continues with list of questions
+		$this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
+				$this->baseurl, $cat, $this->cm,
+				false, $page, 10000, false, false, // force our defaults for the mini-view
+				$this->contexts->having_cap('moodle/question:add'));
+		$htmlstr = ob_get_contents();
+		ob_end_clean();
+		$mform = new exam_form($action=null, $customdata=$htmlstr, $method='post');
+		if ($mform->is_cancelled()){
+			//you need this section if you have a cancel button on your form
+			//here you tell php what to do if your user presses cancel
+			//probably a redirect is called for!
+			// PLEASE NOTE: is_cancelled() should be called before get_data(), as this may return true
+		} else if ($fromform=$mform->get_data()){
+			//this branch is where you process validated data.
+		} else {
+			// this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
+			// or on the first display of the form.
+			//put data you want to fill out in the form into array $toform here then :
+			//$mform->set_data($toform);
+			$mform->display();
 		}
-		echo '</div>';*/
-
-		echo '<div class="modulespecificbuttonscontainer">';
-		echo '<strong>&nbsp;'.get_string('withselected', 'question').':</strong><br />';
-		if (function_exists('module_specific_buttons')) {
-			echo module_specific_buttons($this->cm->id,$cmoptions);
-			// "Use in Exam" | "Remove from Exam"
-		}
-		echo "</div>\n";
-
-		echo '</fieldset>';
-		echo "</form>\n";
-	}
-	protected function display_options($recurse, $showhidden, $showquestiontext) {
-		// we don't want those options in the mini-view
-	}
-	protected function print_category_info($category) {
-		// we don't want those options in the mini-view
-	}
-	protected function create_new_question_form($category, $canadd) {
-		// we don't want those options in the mini-view
 	}
 }
