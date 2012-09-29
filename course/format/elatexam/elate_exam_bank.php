@@ -22,7 +22,7 @@ class question_bank_add_to_exam_column extends question_bank_action_column_base 
 		//echo '<input name="useincategory" value="◄" type="submit" onclick="skipClientValidation = true;" style="margin:0;padding:0;height:16px;width:16px;">';
 		global $OUTPUT;
 		$delete_icon = $OUTPUT->pix_url('t/moveleft');
-		echo '<input type="image" src="'.$delete_icon.'" alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;"">';
+		echo '<input type="image" src="'.$delete_icon.'" alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;">';
 		//echo '</span>';
 	}
 	public function get_required_fields() {
@@ -57,7 +57,7 @@ class elate_exam_bank_view extends question_bank_view {
 		);
 	}
 	protected function wanted_columns() {
-		return array('checkbox', 'qtype', 'questionname', 'addtoexam');
+		return array('addtoexam', 'checkbox', 'qtype', 'questionname');
 	}
 	protected function display_question_list($contexts, $pageurl, $categoryandcontext, $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false, $showquestiontext=false, $addcontexts = array()) {
 		global $CFG, $DB, $OUTPUT;
