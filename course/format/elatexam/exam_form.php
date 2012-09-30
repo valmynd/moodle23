@@ -125,10 +125,8 @@ class exam_form extends moodleform {
 
 		$element = $this->_form->createElement('text', 'newcategory');
 		$ret .= get_string('addcategory', 'question') . $element->toHtml();
-		$this->_form->registerNoSubmitButton('addcategory');
 		$element = $this->_form->createElement('submit', 'addcategory', get_string('add'), ' onclick="skipClientValidation = true;"');
 		$ret .= $element->toHtml();
-		$this->_form->registerNoSubmitButton('removecategory');
 		$element = $this->_form->createElement('submit', 'removecategory', get_string('removeselected', 'quiz'), ' onclick="skipClientValidation = true;"');
 		$ret .= $element->toHtml();
 		return $ret.'</div>'."\n";
@@ -152,7 +150,6 @@ class exam_form extends moodleform {
 			if($level > 0) {
 				$name = "move_left_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/left');
-				$this->_form->registerNoSubmitButton($name.'_x');
 				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveleft').'"'.$buttonattrib.'>';
 			}
@@ -160,7 +157,6 @@ class exam_form extends moodleform {
 			if($i > 1) {
 				$name = "move_up_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/up');
-				$this->_form->registerNoSubmitButton($name.'_x');
 				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveup').'"'.$buttonattrib.'>';
 			}
@@ -168,7 +164,6 @@ class exam_form extends moodleform {
 			if($this->next_item_exists($indices, $level, $i)) {
 				$name = "move_down_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/down');
-				$this->_form->registerNoSubmitButton($name.'_x');
 				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('movedown').'"'.$buttonattrib.'>';
 			}
@@ -176,7 +171,6 @@ class exam_form extends moodleform {
 			if($i > 1) {
 				$name = "move_right_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/right');
-				$this->_form->registerNoSubmitButton($name.'_x');
 				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveright').'"'.$buttonattrib.'>';
 			}
@@ -232,7 +226,15 @@ class exam_form extends moodleform {
 			$finalkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
 		}
 		$_POST["selected_category"] = $finalkey;
-		// TODO: add children from $_POST_COPY[$srckey] to $_POST[$finalkey]
+		// switch children from $_POST_COPY[$srckey] and $_POST[$targetkey]
+		$matches = preg_grep('/^'.$srckey.'_.*/', array_keys($_POST));
+		foreach($matches as $oldkey) {
+			$newkey = $targetkey . substr($oldkey, strlen($srckey));
+			unset($_POST[$oldkey]);
+			unset($_POST[$newkey]);
+			if(isset($_POST_COPY[$newkey])) $_POST[$oldkey] = $_POST_COPY[$newkey];
+			if(isset($_POST_COPY[$oldkey])) $_POST[$newkey] = $_POST_COPY[$oldkey];
+		}
 		//debugging(" remove: " . $srckey . " add: " . "c".implode('_', $indices_target) . " select: " . $_POST["selected_category"]);
 	}
 
@@ -275,7 +277,18 @@ class exam_form extends moodleform {
 			if($i == $first) $override_key = $nextkey;
 		}
 		if($first) $_POST[$override_key] = $_POST["newcategory"];
+		$_POST["selected_category"] = $override_key;
 		return $override_key;
+	}
+
+	/**
+	 * overridden to prevent submission when clicked on certain buttons
+	 * @see moodleform::no_submit_button_pressed()
+	 */
+	public function no_submit_button_pressed() {
+		if(count(preg_grep('/^(move_|delanswerbtn_|add|remove).*/', array_keys($_POST))) > 0)
+			return true;
+		return parent::no_submit_button_pressed();
 	}
 
 	private function next_item_exists(array $indices, $level, $current) {
