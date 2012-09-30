@@ -86,7 +86,7 @@ class exam_form extends moodleform {
 
 	protected function get_list_html() {
 		// note that such things as set_data() will not affect <input> elements generated with toHtml()!
-		$ret = '<div class="examcategorycontainer">'."<ul>\n";
+		$ret = '<div class="examcategorycontainer">'."\n";
 		/*return '
 			<li id="c1">Category</li>
 			<li id="c2">Category</li>
@@ -131,19 +131,20 @@ class exam_form extends moodleform {
 		$this->_form->registerNoSubmitButton('removecategory');
 		$element = $this->_form->createElement('submit', 'removecategory', get_string('removeselected', 'quiz'), ' onclick="skipClientValidation = true;"');
 		$ret .= $element->toHtml();
-		return $ret.'</ul></div>'."\n";
+		return $ret.'</div>'."\n";
 	}
 
 	protected function get_per_item_html(array $indices = null) {
 		// read this: http://davidwalsh.name/php-form-submission-recognize-image-input-buttons
 		global $OUTPUT;
-		$ret = "";
+		$ret = "<ul>";
 		if(!$indices) $indices = array('1',);
 		$level = count($indices)-1;
 		for($i=1; $i <= 9999; $i++) {
 			$indices[$level] = $i;
 			$ckey = "c".implode('_', $indices);
 			$qkey = "i".implode('_', $indices);
+			//if($level > 0) debugging($level . $ckey . $_POST[$ckey]);
 			$radiobtnattrib = '';
 			$buttonstr = '';
 			$buttonattrib = ' onclick="skipClientValidation = true;" style="height:8px;"';
@@ -188,11 +189,12 @@ class exam_form extends moodleform {
 				$ret .= '<li id="c'.$i.'">';
 				$ret .= $radiobtn->toHtml();
 				$ret .= '</li>';
+				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			} else if(isset($_POST[$qkey])) { // question
 
 			} else break;
 		}
-		return $ret;
+		return $ret."</ul>\n";
 	}
 
 	protected function handle_category_move($btn_name) {
@@ -225,13 +227,13 @@ class exam_form extends moodleform {
 		} else {
 			$_POST["newcategory"] = $_POST_COPY[$srckey]; // handle it as if we would add a category, copy subitems into it later on
 			$_POST["selected_category"] = $srckey; // temporarily point to source
-			//$this->handle_category_deletion(); // will remove selected element
+			$this->handle_category_deletion(); // will remove selected element
 			$_POST["selected_category"] = "c".implode('_', $indices_target); // now point to target
-			//$finalkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
+			$finalkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
 		}
-		//$_POST["selected_category"] = $finalkey;
+		$_POST["selected_category"] = $finalkey;
 		// TODO: add children from $_POST_COPY[$srckey] to $_POST[$finalkey]
-		debugging(" remove: " . $srckey . " add: " . "c".implode('_', $indices_target) . " select: " . $_POST["selected_category"]);
+		//debugging(" remove: " . $srckey . " add: " . "c".implode('_', $indices_target) . " select: " . $_POST["selected_category"]);
 	}
 
 	protected function handle_category_deletion(array $indices = null) {
@@ -254,7 +256,7 @@ class exam_form extends moodleform {
 		// at the beginning, indices will contain the indices of the position of the new element
 		// later on, indices will point to the children elements of the element that has to be moved
 		if(!$_POST_COPY) $_POST_COPY = $_POST;
-		$override_key = null;
+		$override_key = $_POST["selected_category"];
 		$first = false;
 		$continue = true;
 		if(!$indices) {
