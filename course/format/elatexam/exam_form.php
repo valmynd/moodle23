@@ -94,10 +94,10 @@ class exam_form extends moodleform {
 			<ul>
 				<li id="c3_1">Category</li>
 				<li id="c3_2">Category</li>
-				<li id="i3_3" class="q">Category</li> // q is reserved, so we call it i
+				<li id="i3_3" class="q">Category</li> // q is used in qbank, so we call it i
 				<li id="i3_4" class="q">Category</li>
 			</ul>*/
-		debugging(var_export($_POST));
+		//debugging(var_export($_POST));
 
 		////// Handle Button Actions (Add, Delete, Move) //////////
 
@@ -105,12 +105,14 @@ class exam_form extends moodleform {
 			if(isset($_POST["selected_category"]))
 				$this->handle_category_deletion();
 		} else if(isset($_POST["addcategory"])) {
-			// on start, there will be no selectable items, later on it must be
-			// prevented to happen, that there is no selected item
+			// at the very beginning, there will be no selectable items
 			if(isset($_POST["selected_category"]))
 				$this->handle_category_addition();
 			else $_POST["c1"] = $_POST["newcategory"];
+		} else if($matches = preg_grep('/^move_.*_.*_x/', array_keys($_POST))) {
+			$this->handle_category_move(array_shift($matches));
 		}
+
 		if(!isset($_POST["selected_category"])) {
 			$_POST["selected_category"] = "c1";
 		}
@@ -133,59 +135,93 @@ class exam_form extends moodleform {
 	}
 
 	protected function get_per_item_html(array $indices = null) {
+		// read this: http://davidwalsh.name/php-form-submission-recognize-image-input-buttons
 		global $OUTPUT;
 		$ret = "";
 		if(!$indices) $indices = array('1',);
 		$level = count($indices)-1;
-		/*$ret .= get_string('moveup') . $OUTPUT->pix_url('t/up');
-		$ret .= get_string('movedown') . $OUTPUT->pix_url('t/down');
-		$ret .= get_string('moveleft') . $OUTPUT->pix_url('t/left');
-		$ret .= get_string('moveright') . $OUTPUT->pix_url('t/right');*/
 		for($i=1; $i <= 9999; $i++) {
 			$indices[$level] = $i;
 			$ckey = "c".implode('_', $indices);
 			$qkey = "i".implode('_', $indices);
+			$radiobtnattrib = '';
 			$buttonstr = '';
 			$buttonattrib = ' onclick="skipClientValidation = true;" style="height:8px;"';
 			// if there is a parent category (level > 0), provide moveleft button
 			if($level > 0) {
+				$name = "move_left_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/left');
-				$this->_form->registerNoSubmitButton('removecategory');
-				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="moveleft"'
+				$this->_form->registerNoSubmitButton($name.'_x');
+				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveleft').'"'.$buttonattrib.'>';
 			}
 			// if there is a previous category, provide moveup button
 			if($i > 1) {
+				$name = "move_up_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/up');
-				$this->_form->registerNoSubmitButton('removecategory');
-				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="moveup"'
+				$this->_form->registerNoSubmitButton($name.'_x');
+				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveup').'"'.$buttonattrib.'>';
 			}
 			// if there is an next category, provide movedown button
 			if($this->next_item_exists($indices, $level, $i)) {
+				$name = "move_down_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/down');
-				$this->_form->registerNoSubmitButton('removecategory');
-				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="movedown"'
+				$this->_form->registerNoSubmitButton($name.'_x');
+				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('movedown').'"'.$buttonattrib.'>';
 			}
 			// if there is another category, provide moveright (use as subcategory) button
 			if($i > 1) {
+				$name = "move_right_".$ckey;
 				$iconurl = $OUTPUT->pix_url('t/right');
-				$this->_form->registerNoSubmitButton('removecategory');
-				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="moveright"'
+				$this->_form->registerNoSubmitButton($name.'_x');
+				$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
 						.' alt="'.get_string('moveright').'"'.$buttonattrib.'>';
 			}
+			// finally, render the item depending on whether it is a category or a question
 			if(isset($_POST[$ckey])) { // category
+				if($_POST["selected_category"] == $ckey)
+					$radiobtnattrib = ' checked="checked"';
 				$input = $this->_form->createElement('text', $ckey, null, ' value="'.$_POST[$ckey].'"');
-				$radiobtn = $this->_form->createElement('radio', 'selected_category', '', $input->toHtml() . $buttonstr, $ckey);
+				$radiobtn = $this->_form->createElement('radio', 'selected_category', '', $input->toHtml() . $buttonstr, $ckey, $radiobtnattrib);
 				$ret .= '<li id="c'.$i.'">';
 				$ret .= $radiobtn->toHtml();
 				$ret .= '</li>';
 			} else if(isset($_POST[$qkey])) { // question
-		
+
 			} else break;
 		}
 		return $ret;
+	}
+
+	protected function handle_category_move($btn_name) {
+		preg_match('/(up|down|left|right)/', $btn_name, $matches);
+		$direction = $matches[0];
+		preg_match('/[^(move_'.$direction.'_)].*[^(_x)]/', $btn_name, $matches);
+		$srckey = $matches[0];
+		$indices_source = explode('_', substr($srckey,1));
+		$indices_target = $indices_source; // copy
+		$level = count($indices_source)-1;
+		switch($direction) {
+			case 'left':
+				array_pop($indices_target); // remove last
+				$name = "move_to_".implode('_', $indices_target);
+				break;
+			case 'right':
+				$indices_target[$level+1] = 1; // append 1
+				$name = "move_to_".implode('_', $indices_target);
+				break;
+			case 'up':
+				$indices_target[$level] = $i-1; // replace last
+				$name = "move_to_".implode('_', $indices_target);
+				break;
+			case 'down':
+				$indices_target[$level] = $i+1; // replace last
+				$name = "move_to_".implode('_', $indices_target);
+				break;				
+		}
+		debugging($name);
 	}
 
 	protected function handle_category_deletion(array $indices = null) {
