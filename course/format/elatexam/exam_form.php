@@ -52,14 +52,14 @@ class exam_form extends moodleform {
 		$mform->setDefault('tries', 1);
 		$mform->addHelpButton('tries', 'tries', 'qtype_meta');
 		
-		$mform->addElement('editor', "questiontext", get_string('description', 'qtype_meta'), array('rows' => 8));
-		$mform->addHelpButton('questiontext', 'description', 'qtype_meta');
+		//$mform->addElement('editor', "questiontext", get_string('description', 'qtype_meta'), array('rows' => 8));
+		//$mform->addHelpButton('questiontext', 'description', 'qtype_meta');
 
 		$mform->addElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), "");
 		$mform->setDefault('showhandlinghintsbeforestart', true);
 		
-		$mform->addElement('editor', "generalfeedback", get_string('starttext', 'qtype_meta'), array('rows' => 6));
-		$mform->addHelpButton('generalfeedback', 'starttext', 'qtype_meta');
+		//$mform->addElement('editor', "generalfeedback", get_string('starttext', 'qtype_meta'), array('rows' => 6));
+		//$mform->addHelpButton('generalfeedback', 'starttext', 'qtype_meta');
 
 		$mform->addElement('text', 'numberofcorrectors', get_string('numberofcorrectors', 'qtype_meta'), ' style="width:35px;"');
 		$mform->setType('numberofcorrectors', PARAM_INT);
@@ -203,25 +203,35 @@ class exam_form extends moodleform {
 		$indices_source = explode('_', substr($srckey,1));
 		$indices_target = $indices_source; // copy
 		$level = count($indices_source)-1;
+		$i = $indices_source[$level];
+		// TODO: handle question selection in a different way (e.g. checkboxes instead of radio buttons)
+		$_POST_COPY = $_POST; // values will be overwritten
 		switch($direction) {
-			case 'left':
-				array_pop($indices_target); // remove last
-				$name = "move_to_".implode('_', $indices_target);
+			case 'up':    $indices_target[$level] = $i-1; break;
+			case 'down':  $indices_target[$level] = $i+1; break;
+			case 'left': array_pop($indices_target); break; // remove last
+			case 'right': // always appent into the previous sibling
+				$parentid = $indices_target[$level];
+				$indices_target[$level] = $parentid-1;
+				$indices_target[$level+1] = $this->count_categories_at_level($indices_target, $level+1); // append to last
 				break;
-			case 'right':
-				$indices_target[$level+1] = 1; // append 1
-				$name = "move_to_".implode('_', $indices_target);
-				break;
-			case 'up':
-				$indices_target[$level] = $i-1; // replace last
-				$name = "move_to_".implode('_', $indices_target);
-				break;
-			case 'down':
-				$indices_target[$level] = $i+1; // replace last
-				$name = "move_to_".implode('_', $indices_target);
-				break;				
 		}
-		debugging($name);
+		if($direction == 'up' || $direction == 'down') {
+			// this one is simple, just swap the values
+			$targetkey = "c".implode('_', $indices_target);
+			$_POST[$targetkey] = $_POST_COPY[$srckey];
+			$_POST[$srckey] = $_POST_COPY[$targetkey];
+			$finalkey = $targetkey;
+		} else {
+			$_POST["newcategory"] = $_POST_COPY[$srckey]; // handle it as if we would add a category, copy subitems into it later on
+			$_POST["selected_category"] = $srckey; // temporarily point to source
+			//$this->handle_category_deletion(); // will remove selected element
+			$_POST["selected_category"] = "c".implode('_', $indices_target); // now point to target
+			//$finalkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
+		}
+		//$_POST["selected_category"] = $finalkey;
+		// TODO: add children from $_POST_COPY[$srckey] to $_POST[$finalkey]
+		debugging(" remove: " . $srckey . " add: " . "c".implode('_', $indices_target) . " select: " . $_POST["selected_category"]);
 	}
 
 	protected function handle_category_deletion(array $indices = null) {
@@ -240,18 +250,18 @@ class exam_form extends moodleform {
 		}
 	}
 
-	protected function handle_category_addition(array $indices = null) {
+	protected function handle_category_addition(array $indices = null, $_POST_COPY = null) {
 		// at the beginning, indices will contain the indices of the position of the new element
 		// later on, indices will point to the children elements of the element that has to be moved
-		$first = false;
+		if(!$_POST_COPY) $_POST_COPY = $_POST;
 		$override_key = null;
+		$first = false;
 		$continue = true;
 		if(!$indices) {
 			$indices = explode('_', substr($_POST["selected_category"],1));
 			$first = $indices[count($indices)-1];
 		}
 		$level = count($indices)-1;
-		$_POST_COPY = $_POST; // values will be overwritten
 		for($i=$indices[$level]; $i <= 99 && $continue; $i++) {
 			$currkey = "c".implode('_', $indices);
 			$indices[$level] = $i+1;
@@ -263,6 +273,7 @@ class exam_form extends moodleform {
 			if($i == $first) $override_key = $nextkey;
 		}
 		if($first) $_POST[$override_key] = $_POST["newcategory"];
+		return $override_key;
 	}
 
 	private function next_item_exists(array $indices, $level, $current) {
@@ -270,5 +281,14 @@ class exam_form extends moodleform {
 		$ckey = "c".implode('_', $indices);
 		$qkey = "i".implode('_', $indices);
 		return isset($_POST[$ckey]) || isset($_POST[$qkey]);
+	}
+
+	private function count_categories_at_level(array $indices, $level) {
+		for($i=1; $i <= 99; $i++) {
+			$indices[$level] = $i;
+			$key = "c".implode('_', $indices);
+			if(!isset($_POST[$key]))
+				return $i;
+		}
 	}
 }
