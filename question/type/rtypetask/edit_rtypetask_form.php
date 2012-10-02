@@ -36,10 +36,6 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 		// we won't use any applets
 		$this->add_corrector_feedback();
 		$this->add_question_fields();
-		// remove "default mark" field
-		$mform->removeElement('defaultmark');
-		$mform->addElement('hidden', 'defaultmark', 0);
-		$mform->setType('defaultmark', PARAM_RAW);
 	}
 
 	protected function add_question_fields() {

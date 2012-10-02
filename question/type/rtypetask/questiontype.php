@@ -49,14 +49,14 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			$mcList->appendChild($question);
 			assert(isset($formdata->{"hint_$i"}));
 			// get contents of the editor-fields, including files, e.g. uploaded images
-			$problemCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "problem_$i"));
-			$hintCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "hint_$i"));
-			$problem = $dom->createElement('problem');
-			$hint = $dom->createElement('hint');
+			//$problemCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "problem_$i"));
+			//$hintCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "hint_$i"));
+			$problem = $dom->createElement('problem', $this->get_value_from_editor_field($formdata, "problem_$i"));
+			$hint = $dom->createElement('hint', $this->get_value_from_editor_field($formdata, "hint_$i"));
 			$question->appendChild($problem);
 			$question->appendChild($hint);
-			$problem->appendChild($problemCData);
-			$hint->appendChild($hintCData);
+			//$problem->appendChild($problemCData);
+			//$hint->appendChild($hintCData);
 			for ($j = 1; $j <= 9999; $j++) {
 				$key = $i.'_'.$j;
 				if(!isset($formdata->{"answer_$key"})) break;

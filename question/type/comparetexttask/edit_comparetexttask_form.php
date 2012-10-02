@@ -83,7 +83,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 				.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
 
 		// Hidden Elements to put in the Applet output via module.js
-		$failstr = "Error: Applet Content was not send!"; // result when javascript didn't execute properly 
+		$failstr = "Error: Applet Content was not send!"; // result when javascript didn't execute properly
 		$mform->addElement('textarea', 'memento', '', 'style="display:none;"');
 		$mform->setDefault('memento', $failstr);
 

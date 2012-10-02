@@ -95,10 +95,6 @@ class qtype_comparetexttask extends question_type {
 	public function can_analyse_responses() {
 		return false;
 	}
-	public function save_question($question, $form) {
-		$form->defaultmark = 0;
-		return parent::save_question($question, $form);
-	}
 	public function actual_number_of_questions($question) {
 		return 0;
 	}

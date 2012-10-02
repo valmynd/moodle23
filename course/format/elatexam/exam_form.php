@@ -111,6 +111,8 @@ class exam_form extends moodleform {
 			else $_POST["c1"] = $_POST["newcategory"];
 		} else if($matches = preg_grep('/^move_.*_.*_x/', array_keys($_POST))) {
 			$this->handle_category_move(array_shift($matches));
+		} else if($matches = preg_grep('/^use_.*_x/', array_keys($_POST))) {
+			$this->handle_use_question(array_shift($matches));
 		}
 
 		if(!isset($_POST["selected_category"])) {
@@ -185,10 +187,31 @@ class exam_form extends moodleform {
 				$ret .= '</li>';
 				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			} else if(isset($_POST[$qkey])) { // question
-
+				$ret .= '<li id="i'.$i.'" class="q">';
+				$ret .= $_POST[$qkey]; // see quiz_print_singlequestion()
+				$ret .= '</li>';
+				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			} else break;
 		}
 		return $ret."</ul>\n";
+	}
+
+	protected function handle_use_question($btn_name) {
+		$matches = array();
+		preg_match('/[^(use_)].*[^(_x)]/', $btn_name, $matches);
+		$questionid = substr($matches[0],1);
+		// put below selected category
+		//$_POST["selected_category"]
+		//$parentid = $indices_target[$level];
+		//$indices_target[$level] = $parentid-1;
+		//$indices_target[$level+1] = $this->count_categories_at_level($indices_target, $level+1); // append to last
+		$indices = explode('_', substr($_POST["selected_category"],1));
+		$level = count($indices)-1;
+		$indices[$level+1] = 1;
+		$indices[$level+1] = $this->count_categories_at_level($indices, $level+1);
+		$key = $nextkey = "i".implode('_', $indices);
+		//debugging($key);
+		$_POST[$key] = $questionid;
 	}
 
 	protected function handle_category_move($btn_name) {
@@ -217,23 +240,40 @@ class exam_form extends moodleform {
 			$targetkey = "c".implode('_', $indices_target);
 			$_POST[$targetkey] = $_POST_COPY[$srckey];
 			$_POST[$srckey] = $_POST_COPY[$targetkey];
-			$finalkey = $targetkey;
 		} else {
 			$_POST["newcategory"] = $_POST_COPY[$srckey]; // handle it as if we would add a category, copy subitems into it later on
 			$_POST["selected_category"] = $srckey; // temporarily point to source
 			$this->handle_category_deletion(); // will remove selected element
 			$_POST["selected_category"] = "c".implode('_', $indices_target); // now point to target
-			$finalkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
+			$targetkey = $this->handle_category_addition(null, $_POST_COPY); // will put it to the final position
 		}
-		$_POST["selected_category"] = $finalkey;
-		// switch children from $_POST_COPY[$srckey] and $_POST[$targetkey]
-		$matches = preg_grep('/^'.$srckey.'_.*/', array_keys($_POST));
-		foreach($matches as $oldkey) {
-			$newkey = $targetkey . substr($oldkey, strlen($srckey));
-			unset($_POST[$oldkey]);
-			unset($_POST[$newkey]);
-			if(isset($_POST_COPY[$newkey])) $_POST[$oldkey] = $_POST_COPY[$newkey];
-			if(isset($_POST_COPY[$oldkey])) $_POST[$newkey] = $_POST_COPY[$oldkey];
+		$_POST["selected_category"] = $targetkey;
+		// swap children from $_POST[$srckey] and $_POST[$targetkey]
+		$_POST_COPY = $_POST; // need more recent copy
+		$skeypaths = array();
+		$tkeypaths = array();
+		$skeys = preg_grep('/^'.$srckey.'_.*/', array_keys($_POST));
+		$tkeys = preg_grep('/^'.$targetkey.'_.*/', array_keys($_POST));
+		foreach($skeys as $skey) array_push($skeypaths, substr($skey, strlen($srckey)));
+		foreach($tkeys as $tkey) array_push($tkeypaths, substr($tkey, strlen($targetkey)));
+		$common_keypaths = array_intersect($skeypaths, $tkeypaths);
+		foreach($common_keypaths as $spath) { // swap elements
+			$skey = $srckey . $spath;
+			$tkey = $targetkey . $spath;
+			$_POST[$tkey] = $_POST_COPY[$skey];
+			$_POST[$skey] = $_POST_COPY[$tkey];
+		}
+		foreach(array_diff($tkeypaths, $common_keypaths) as $tpath) {
+			$skey = $srckey . $tpath;
+			$tkey = $targetkey . $tpath;
+			$_POST[$skey] = $_POST_COPY[$tkey];
+			unset($_POST[$tkey]);
+		}
+		foreach(array_diff($skeypaths, $common_keypaths) as $spath) {
+			$skey = $srckey . $spath;
+			$tkey = $targetkey . $spath;
+			$_POST[$tkey] = $_POST_COPY[$skey];
+			unset($_POST[$skey]);
 		}
 		//debugging(" remove: " . $srckey . " add: " . "c".implode('_', $indices_target) . " select: " . $_POST["selected_category"]);
 	}
@@ -286,7 +326,7 @@ class exam_form extends moodleform {
 	 * @see moodleform::no_submit_button_pressed()
 	 */
 	public function no_submit_button_pressed() {
-		if(count(preg_grep('/^(move_|delanswerbtn_|add|remove).*/', array_keys($_POST))) > 0)
+		if(count(preg_grep('/^(move_|delanswerbtn_|add|remove|use_).*/', array_keys($_POST))) > 0)
 			return true;
 		return parent::no_submit_button_pressed();
 	}
