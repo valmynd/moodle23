@@ -52,14 +52,14 @@ class exam_form extends moodleform {
 		$mform->setDefault('tries', 1);
 		$mform->addHelpButton('tries', 'tries', 'qtype_meta');
 		
-		//$mform->addElement('editor', "questiontext", get_string('description', 'qtype_meta'), array('rows' => 8));
-		//$mform->addHelpButton('questiontext', 'description', 'qtype_meta');
+		$mform->addElement('editor', "description", get_string('description', 'qtype_meta'), array('rows' => 8));
+		$mform->addHelpButton('description', 'description', 'qtype_meta');
 
 		$mform->addElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), "");
 		$mform->setDefault('showhandlinghintsbeforestart', true);
 		
-		//$mform->addElement('editor', "generalfeedback", get_string('starttext', 'qtype_meta'), array('rows' => 6));
-		//$mform->addHelpButton('generalfeedback', 'starttext', 'qtype_meta');
+		$mform->addElement('editor', "starttext", get_string('starttext', 'qtype_meta'), array('rows' => 6));
+		$mform->addHelpButton('starttext', 'starttext', 'qtype_meta');
 
 		$mform->addElement('text', 'numberofcorrectors', get_string('numberofcorrectors', 'qtype_meta'), ' style="width:35px;"');
 		$mform->setType('numberofcorrectors', PARAM_INT);
@@ -67,7 +67,7 @@ class exam_form extends moodleform {
 		$mform->addHelpButton('numberofcorrectors', 'numberofcorrectors', 'qtype_meta');
 
 		////// Set Fields which are required to fill out //////////
-		//$mform->addRule('questiontext', null, 'required', null, 'client');
+		//$mform->addRule('description', null, 'required', null, 'client');
 		$mform->addRule('time', null, 'required', null, 'client');
 		
 		////// Add Question Selector  //////////
