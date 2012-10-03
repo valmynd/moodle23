@@ -28,6 +28,16 @@ class exam_form extends moodleform {
 
 	protected function definition() {
 		$mform = &$this->_form;
+
+		////// Add Question Selector  //////////
+
+		$mform->addElement('header', 'qheader', get_string('qheader', 'qtype_meta'));
+		$mform->addElement('html', $this->get_list_html());
+		$mform->addElement('html', $this->_customdata->get_html());
+		//$mform->addElement('html', '<div style="clear: both;"></div>');
+
+		///// Add fields from legacy "meta" question type  //////////
+
 		$mform->addElement('header', 'generalheader', get_string("general", 'form'));
 
 		$mform->addElement('text', 'name', get_string('title', 'qtype_meta'));
@@ -51,13 +61,13 @@ class exam_form extends moodleform {
 		$mform->setType('tries', PARAM_INT);
 		$mform->setDefault('tries', 1);
 		$mform->addHelpButton('tries', 'tries', 'qtype_meta');
-		
+
 		$mform->addElement('editor', "description", get_string('description', 'qtype_meta'), array('rows' => 8));
 		$mform->addHelpButton('description', 'description', 'qtype_meta');
 
 		$mform->addElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), "");
 		$mform->setDefault('showhandlinghintsbeforestart', true);
-		
+
 		$mform->addElement('editor', "starttext", get_string('starttext', 'qtype_meta'), array('rows' => 6));
 		$mform->addHelpButton('starttext', 'starttext', 'qtype_meta');
 
@@ -69,13 +79,7 @@ class exam_form extends moodleform {
 		////// Set Fields which are required to fill out //////////
 		//$mform->addRule('description', null, 'required', null, 'client');
 		$mform->addRule('time', null, 'required', null, 'client');
-		
-		////// Add Question Selector  //////////
-		$mform->addElement('header', 'qheader', get_string('qheader', 'qtype_meta'));
-		$mform->addElement('html', $this->get_list_html());
-		$mform->addElement('html', $this->_customdata);
-		//$mform->addElement('html', '<div style="clear: both;"></div>');
-		
+
 		////// Add Submit / Cancel Buttons  //////////
 		$buttonarray=array();
 		$buttonarray[] =& $mform->createElement('submit', 'submitbutton', get_string('savechanges'));
@@ -119,18 +123,19 @@ class exam_form extends moodleform {
 			$_POST["selected_category"] = "c1";
 		}
 
-		////// Generate Fields for each Category / Question (by now $_POST should not be changed anymore!) //////////
-
-		$ret .= $this->get_per_item_html(); // works recursively
-
 		////// Add Action Buttons (Add, Delete, Move) //////////
-
+		
 		$element = $this->_form->createElement('text', 'newcategory');
 		$ret .= get_string('addcategory', 'question') . $element->toHtml();
 		$element = $this->_form->createElement('submit', 'addcategory', get_string('add'), ' onclick="skipClientValidation = true;"');
 		$ret .= $element->toHtml();
 		$element = $this->_form->createElement('submit', 'removecategory', get_string('removeselected', 'quiz'), ' onclick="skipClientValidation = true;"');
 		$ret .= $element->toHtml();
+
+		////// Generate Fields for each Category / Question (by now $_POST should not be changed anymore!) //////////
+
+		$ret .= $this->get_per_item_html(); // works recursively
+
 		return $ret.'</div>'."\n";
 	}
 
@@ -184,12 +189,14 @@ class exam_form extends moodleform {
 				$radiobtn = $this->_form->createElement('radio', 'selected_category', '', $input->toHtml() . $buttonstr, $ckey, $radiobtnattrib);
 				$ret .= '<li id="c'.$i.'">';
 				$ret .= $radiobtn->toHtml();
-				$ret .= '</li>';
+				$ret .= "</li>\n";
 				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			} else if(isset($_POST[$qkey])) { // question
 				$ret .= '<li id="i'.$i.'" class="q">';
+				// fetch questions, and if not in the list (no "save" button pressed yet), get them from the qbank
+				// problem: what if category has just changed? -> we must fetch it ourselves, then!
 				$ret .= $_POST[$qkey]; // see quiz_print_singlequestion()
-				$ret .= '</li>';
+				$ret .= "</li>\n";
 				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			} else break;
 		}
@@ -197,21 +204,21 @@ class exam_form extends moodleform {
 	}
 
 	protected function handle_use_question($btn_name) {
+		if(!isset($_POST["selected_category"])) {
+			echo '<div class="box warning">You must create a category first (on the left), before you can assign questions to it.</div>';
+			return;
+		}
 		$matches = array();
 		preg_match('/[^(use_)].*[^(_x)]/', $btn_name, $matches);
 		$questionid = substr($matches[0],1);
 		// put below selected category
-		//$_POST["selected_category"]
-		//$parentid = $indices_target[$level];
-		//$indices_target[$level] = $parentid-1;
-		//$indices_target[$level+1] = $this->count_categories_at_level($indices_target, $level+1); // append to last
 		$indices = explode('_', substr($_POST["selected_category"],1));
 		$level = count($indices)-1;
 		$indices[$level+1] = 1;
 		$indices[$level+1] = $this->count_categories_at_level($indices, $level+1);
 		$key = $nextkey = "i".implode('_', $indices);
-		//debugging($key);
-		$_POST[$key] = $questionid;
+		// use the data still avaiable in the questionbank, so we don't have to fetch them each time
+		$_POST[$key] = $this->_customdata->get_question_by_id($questionid);
 	}
 
 	protected function handle_category_move($btn_name) {
@@ -326,7 +333,7 @@ class exam_form extends moodleform {
 	 * @see moodleform::no_submit_button_pressed()
 	 */
 	public function no_submit_button_pressed() {
-		if(count(preg_grep('/^(move_|delanswerbtn_|add|remove|use_).*/', array_keys($_POST))) > 0)
+		if(count(preg_grep('/^(move_|delanswerbtn_|add|remove|use_|change_).*/', array_keys($_POST))) > 0)
 			return true;
 		return parent::no_submit_button_pressed();
 	}

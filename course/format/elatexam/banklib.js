@@ -53,6 +53,9 @@ var process_filter = function(value) {
 }
 
 $(document).ready(function() {
+
+	/* Setup Tag Search */
+
 	var lookup_list = [];
 	$("td.tagcloud").each(function(index) {
 		$.merge(lookup_list, $(this).text().split(", "));
@@ -77,4 +80,11 @@ $(document).ready(function() {
 	});
 	$("#searchbox_option").change(
 		handle_filter_input);
+
+	/* Setup Minified Question Base */
+
+	$("#selected_category").change(function() {
+		$("#change_category").click();
+	});
+	$("#change_category").hide();
 });

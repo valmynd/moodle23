@@ -26,7 +26,7 @@
 	visibility: hidden;
 }
 
-/* Minified Variant of categoryquestions */
+/* Minified Question Base Styles */
 fieldset#qheader .examcategorycontainer {
 	width: 45%;
 	float:left;
@@ -50,6 +50,11 @@ fieldset#qheader li {
 }
 fieldset#qheader li.q {
 	background-color: ghostwhite;
+	height: 1.2em;
+}
+fieldset#qheader li.q img {
+	vertical-align: middle;
+	margin: 0px 7px 0px 5px;
 }
 fieldset#qheader input {
 	margin: 4px;

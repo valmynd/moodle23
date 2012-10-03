@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="course/format/elatexam/db" VERSION="20121002" COMMENT="XMLDB file for Moodle course/format/elatexam"
+<XMLDB PATH="course/format/elatexam/db" VERSION="20121003" COMMENT="XMLDB file for Moodle course/format/elatexam"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -20,28 +20,29 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="exam_categories" COMMENT="Categories for grouping questions inside exams" PREVIOUS="exam" NEXT="exam_question">
+    <TABLE NAME="exam_categories" COMMENT="Categories for grouping questions inside exams" PREVIOUS="exam" NEXT="exam_category_question">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="info"/>
-        <FIELD NAME="info" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="parent"/>
-        <FIELD NAME="parent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="info"/>
+        <FIELD NAME="info" TYPE="text" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="examid"/>
+        <FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign Key refernces exam.id" PREVIOUS="info" NEXT="parent"/>
+        <FIELD NAME="parent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="examid"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="parent"/>
-        <KEY NAME="parent" TYPE="foreign" FIELDS="parent" REFTABLE="exam_categories" REFFIELDS="id" COMMENT="note that to make this recursive FK working, the parent field must be declared NULL" PREVIOUS="primary"/>
+        <KEY NAME="parent" TYPE="foreign" FIELDS="parent" REFTABLE="exam_categories" REFFIELDS="id" COMMENT="Comment from question_categories: note that to make this recursive FK working, the parent field must be declared NULL" PREVIOUS="primary" NEXT="examid"/>
+        <KEY NAME="examid" TYPE="foreign" FIELDS="examid" REFTABLE="exam" REFFIELDS="id" COMMENT="Foreign Key references exam.id" PREVIOUS="parent"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="exam_question" COMMENT="This table maps questions to exam_categories" PREVIOUS="exam_categories">
+    <TABLE NAME="exam_category_question" COMMENT="Map questions to exam_categories (1:1)." PREVIOUS="exam_categories">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="categoryid"/>
-        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references exam_categories.id" PREVIOUS="id" NEXT="questionid"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references exam_categories.id" NEXT="questionid"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references question.id" PREVIOUS="categoryid"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="categoryid"/>
-        <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="exam_categories" REFFIELDS="id" PREVIOUS="primary" NEXT="questionid"/>
-        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="categoryid"/>
+        <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="exam_categories" REFFIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="categoryid" NEXT="primary"/>
+        <KEY NAME="primary" TYPE="unique" FIELDS="categoryid, questionid" PREVIOUS="questionid"/>
       </KEYS>
     </TABLE>
   </TABLES>
