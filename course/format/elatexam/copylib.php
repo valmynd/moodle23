@@ -41,8 +41,8 @@ function question_turn_images_into_base64_strings(&$record, $question, $column_n
 			// @see qtype_rtypetask::get_value_from_editor_field()
 			// <img src="@@PLUGINFILE@@/timeline.png" alt="" width="16" height="16">
 			// component is sometimes $question->qtype, sometimes just 'question'
-			$files1 = $fs->get_area_files($question->contextid, 'question', $column_name, $question->id);
-			$files2 = $fs->get_area_files($question->contextid, 'qtype_'.$question->qtype, $column_name, $question->id);
+			$files1 = $fs->get_area_files($question->contextid, 'question', $column_name);
+			$files2 = $fs->get_area_files($question->contextid, 'qtype_'.$question->qtype, $column_name);
 			$files = array_merge($files1, $files2);
 			//debugging(var_export($question) . " ; " . $question->contextid . " " . $question->qtype . " " . $column_name . " " . $question->id);
 			foreach ($files as $file) {
@@ -54,7 +54,29 @@ function question_turn_images_into_base64_strings(&$record, $question, $column_n
 				$record->{$column_name} = str_replace($needle, $replacement, $record->{$column_name});
 				$update_reasonable = true;
 			}
-			//debugging($record->{$column_name});
+			// we need workarounds for some fields, especially there a problem with question_answers rows
+			preg_match('/@@PLUGINFILE@@\/[^\"]*/', $record->{$column_name}, $matches);
+			if($matches) { // i) in rows related to question_answers, some editor fields' files are related to 'answerfeedback'
+				$files_by_name = array(); // mapping of file names to file objects
+				$files = $fs->get_area_files($question->contextid, 'question', 'answerfeedback');
+				foreach ($files as $file) {
+					$files_by_name[$file->get_filename()] = $file;
+					debugging($file->get_filename());
+				}
+				foreach($matches as $match) {
+					// <img src="@@PLUGINFILE@@/tumblr_lyzfata2KS1qbdwe9o1_500.jpg"
+					preg_match('/[^@@PLUGINFILE@@\/].*/', $match, $filenames);
+					foreach($filenames as $linked_filename) {
+						if(!isset($files_by_name[$linked_filename])) debugging("NOT FOUND: $linked_filename IN ". var_export(array_keys($files_by_name)));
+						$base64str = base64_encode($files_by_name[$linked_filename]->get_content());
+						$needle = '@@PLUGINFILE@@/' . $linked_filename;
+						$replacement = 'data:image/gif;base64,' . $base64str;
+						$record->{$column_name} = str_replace($needle, $replacement, $record->{$column_name});
+						$update_reasonable = true;
+					}
+				}
+			}
+			debugging($record->{$column_name});
 		}
 	}
 	return $update_reasonable;
@@ -140,6 +162,7 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		$records = $DB->get_records('question_answers', array('question' => $question->id)); // question_answers holds metadata relevant for us
 		$answer_id_mapping = array(); // workaround for truefalse: we map the old ids to the new ones
 		foreach($records as $existing) { // question_answers stores POSSIBLE answers for the definition of multiplechoice questions
+			// note there is a notorious 'answerfeedback', that is not mentioned in install.xml
 			question_turn_images_into_base64_strings($existing, $question, array('answer', 'feedback'));
 			$old_answer_id = $existing->id;
 			unset($existing->id);
