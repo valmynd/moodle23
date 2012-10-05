@@ -23,6 +23,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * nasty hack that turns every link to an image in a row into a base64 string.
+ * may be used to reduce sideffects.
+ * problematic if image is very big! browsers may refuse to load it as an image, then!
+ *
+ * @param stdClass $record a row fetched from a table that belongs to a certain qtype
+ * @param stdClass $question a row fetched from the table 'question'
+ * @param array $column_names an array containing names of columns that potentially contain image links
+ * @return boolean wether an update seems reasonable (that is, if $record was changed)
+ */
 function question_turn_images_into_base64_strings(&$record, $question, $column_names) {
 	$update_reasonable = false; // whether to overwrite the values of this row, afterwards
 	$fs = get_file_storage();
@@ -50,7 +60,15 @@ function question_turn_images_into_base64_strings(&$record, $question, $column_n
 	return $update_reasonable;
 }
 
-function question_copy_dependant_qtype_rows($path_to_xmlfile, $question, $id_of_dublicate) {
+/**
+ * get Tables for a certain qtype and dublicate the relevant rows in them
+ *
+ * @param string $path_to_xmlfile path to the install.xml file that belongs to the question type, potentially containing table definitions
+ * @param stdClass $question the row that is fetched from the questions table (see usage in question_copy_questions_to_category())
+ * @param int $id_of_dublicate the value of the primary key, that the new row should point at when this function is done
+ * @param array $answer_id_mapping an assoziative array, needed for a workaround only relevant for the truefalse question type
+ */
+function question_copy_dependant_qtype_rows($path_to_xmlfile, $question, $id_of_dublicate, $answer_id_mapping) {
 	global $DB;
 	if (file_exists($path_to_xmlfile)) try {
 		// gather information on the table we want to copy from
@@ -70,8 +88,12 @@ function question_copy_dependant_qtype_rows($path_to_xmlfile, $question, $id_of_
 			//debugging("trying to copy: " . $tablename . " , " . $foreignkey_name . " , " . $primarykey_name);
 			$records = $DB->get_records($tablename, array($foreignkey_name => $question->id));
 			foreach($records as $existing) {
-				// hack: turn every image into a base64 string, to reduce sideffects
 				question_turn_images_into_base64_strings($existing, $question, $potential_editorfields);
+				if($question->qtype === 'truefalse') {
+					// special treatment is needed for truefalse: has foreign keys on question_answers (see it's install.xml)
+					$existing->trueanswer = $answer_id_mapping[$existing->trueanswer];
+					$existing->falseanswer = $answer_id_mapping[$existing->falseanswer];
+				}
 				unset($existing->{$primarykey_name});
 				$existing->{$foreignkey_name} = $id_of_dublicate;
 				$id_of_subsequent_dublicate = $DB->insert_record($tablename, $existing);
@@ -107,10 +129,8 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		unset($existing->id);
 		$existing->category = $newcategoryid;
 		$id_of_dublicate = $DB->insert_record('question', $existing);
-		// b) get Tables for this qtype and dublicate the relevant rows in them
-		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
-		question_copy_dependant_qtype_rows($xml_path, $question, $id_of_dublicate);
-		// c) dublicate other rows in tables that are affected: Tags, Answers, Hints (see moodle23/lib/db/install.xml !)
+		// b) dublicate rows in affected tables that are part of moodle23/lib/db/install.xml: Tags, Answers, Hints
+		// because of truefalse's behaviour, we need to do this before c) as we need the PKs of the copied question_answer entries
 		$records = $DB->get_records('tag_instance', array('itemtype' => 'question', 'itemid' => $question->id));
 		foreach($records as $existing) {
 			unset($existing->id);
@@ -118,19 +138,24 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			$id_of_taginstance_dublicate = $DB->insert_record('tag_instance', $existing);
 		}
 		$records = $DB->get_records('question_answers', array('question' => $question->id)); // question_answers holds metadata relevant for us
+		$answer_id_mapping = array(); // workaround for truefalse: we map the old ids to the new ones
 		foreach($records as $existing) { // question_answers stores POSSIBLE answers for the definition of multiplechoice questions
 			question_turn_images_into_base64_strings($existing, $question, array('answer', 'feedback'));
+			$old_answer_id = $existing->id;
 			unset($existing->id);
 			$existing->question = $id_of_dublicate;
-			$id_of_subsequent_dublicate = $DB->insert_record('question_answers', $existing);
+			$answer_id_mapping[$old_answer_id] = $DB->insert_record('question_answers', $existing);
 		}
 		$records = $DB->get_records('question_hints', array('questionid' => $question->id));
 		foreach($records as $existing) {
 			question_turn_images_into_base64_strings($existing, $question, array('hint',));
 			unset($existing->id);
-			$existing->question = $id_of_dublicate;
+			$existing->questionid = $id_of_dublicate;
 			$id_of_subsequent_dublicate = $DB->insert_record('question_hints', $existing);
 		}
+		// c) get Tables for this qtype and dublicate the relevant rows in them
+		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
+		question_copy_dependant_qtype_rows($xml_path, $question, $id_of_dublicate, $answer_id_mapping);
 		// d) dublicate all files, see file_storage::move_area_files_to_new_context() (minus delete)
 		// some of this is now handled above, i'll leave that commented out for reference
 		/*$oldcontextid = $question->contextid;

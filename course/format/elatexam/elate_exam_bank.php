@@ -158,9 +158,8 @@ class elate_exam_bank_view extends question_bank_view {
 		global $PAGE;
 		if(!isset($this->questions[$id])) return null;
 		$question = $this->questions[$id];
-		$ret = "<span id=\"$id\">";
-		$ret .= $PAGE->get_renderer('question', 'bank')->qtype_icon($question->qtype);
+		$ret = $PAGE->get_renderer('question', 'bank')->qtype_icon($question->qtype);
 		$ret .= $question->name;
-		return $ret . "</span>";
+		return $ret;
 	}
 }

@@ -50,7 +50,6 @@ fieldset#qheader li {
 }
 fieldset#qheader li.q {
 	background-color: ghostwhite;
-	height: 1.2em;
 }
 fieldset#qheader li.q img {
 	vertical-align: middle;

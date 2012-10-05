@@ -91,15 +91,14 @@ class exam_form extends moodleform {
 	protected function get_list_html() {
 		// note that such things as set_data() will not affect <input> elements generated with toHtml()!
 		$ret = '<div class="examcategorycontainer">'."\n";
-		/*return '
-			<li id="c1">Category</li>
+		/*	<li id="c1">Category</li>
 			<li id="c2">Category</li>
 			<li id="c3">Category</li>
 			<ul>
 				<li id="c3_1">Category</li>
 				<li id="c3_2">Category</li>
-				<li id="i3_3" class="q">Category</li> // q is used in qbank, so we call it i
-				<li id="i3_4" class="q">Category</li>
+				<li id="c3_3" class="q"><span id=43><img/>Question</span></li>
+				<li id="c3_4" class="q"><span id=45><img/>Question</span></li>
 			</ul>*/
 		//debugging(var_export($_POST));
 
@@ -148,7 +147,6 @@ class exam_form extends moodleform {
 		for($i=1; $i <= 9999; $i++) {
 			$indices[$level] = $i;
 			$ckey = "c".implode('_', $indices);
-			$qkey = "i".implode('_', $indices);
 			//if($level > 0) debugging($level . $ckey . $_POST[$ckey]);
 			$radiobtnattrib = '';
 			$buttonstr = '';
@@ -182,23 +180,23 @@ class exam_form extends moodleform {
 						.' alt="'.get_string('moveright').'"'.$buttonattrib.'>';
 			}
 			// finally, render the item depending on whether it is a category or a question
-			if(isset($_POST[$ckey])) { // category
+			if(!isset($_POST[$ckey])) break;
+			if(strpos($_POST[$ckey], '<img') !== false) { // only questions contain <img>
+				$ret .= '<li id="c'.$i.'" class="q">';
+				$ret .= $_POST[$ckey]; // it's value must've been prepared elsewhere
+				// the following is what the "advanced checkbox" in moodle is all about:
+				$ret .= '<input name="'.$ckey.'" value="'.$ckey.'" type="hidden">';
+				$ret .= "</li>\n";
+			} else { // current item is a category
+				$ret .= '<li id="c'.$i.'">'; // without "q"
 				if($_POST["selected_category"] == $ckey)
 					$radiobtnattrib = ' checked="checked"';
-				$input = $this->_form->createElement('text', $ckey, null, ' value="'.$_POST[$ckey].'"');
-				$radiobtn = $this->_form->createElement('radio', 'selected_category', '', $input->toHtml() . $buttonstr, $ckey, $radiobtnattrib);
-				$ret .= '<li id="c'.$i.'">';
-				$ret .= $radiobtn->toHtml();
+				$ret .= '<input name="selected_category" value="'.$ckey.'" type="radio"'.$radiobtnattrib.'>';
+				$ret .= '<input value="'.$_POST[$ckey].'" name="'.$ckey.'" type="text">';
+				$ret .= $buttonstr;
 				$ret .= "</li>\n";
 				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
-			} else if(isset($_POST[$qkey])) { // question
-				$ret .= '<li id="i'.$i.'" class="q">';
-				// fetch questions, and if not in the list (no "save" button pressed yet), get them from the qbank
-				// problem: what if category has just changed? -> we must fetch it ourselves, then!
-				$ret .= $_POST[$qkey]; // see quiz_print_singlequestion()
-				$ret .= "</li>\n";
-				if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
-			} else break;
+			}
 		}
 		return $ret."</ul>\n";
 	}
@@ -216,7 +214,7 @@ class exam_form extends moodleform {
 		$level = count($indices)-1;
 		$indices[$level+1] = 1;
 		$indices[$level+1] = $this->count_categories_at_level($indices, $level+1);
-		$key = $nextkey = "i".implode('_', $indices);
+		$key = $nextkey = "c".implode('_', $indices);
 		// use the data still avaiable in the questionbank, so we don't have to fetch them each time
 		$_POST[$key] = $this->_customdata->get_question_by_id($questionid);
 	}
@@ -340,9 +338,7 @@ class exam_form extends moodleform {
 
 	private function next_item_exists(array $indices, $level, $current) {
 		$indices[$level] = $current + 1; // we operate on copy
-		$ckey = "c".implode('_', $indices);
-		$qkey = "i".implode('_', $indices);
-		return isset($_POST[$ckey]) || isset($_POST[$qkey]);
+		return isset($_POST["c".implode('_', $indices)]);
 	}
 
 	private function count_categories_at_level(array $indices, $level) {
