@@ -32,8 +32,9 @@ defined('MOODLE_INTERNAL') || die();
  * @param stdClass $question a row fetched from the table 'question'
  * @param array $column_names an array containing names of columns that potentially contain image links
  * @return boolean wether an update seems reasonable (that is, if $record was changed)
- */
+*/
 function question_turn_images_into_base64_strings(&$record, $question, $column_names) {
+	return; // DEBUG
 	$update_reasonable = false; // whether to overwrite the values of this row, afterwards
 	$fs = get_file_storage();
 	foreach($column_names as $column_name) {
@@ -56,13 +57,15 @@ function question_turn_images_into_base64_strings(&$record, $question, $column_n
 			}
 			// we need workarounds for some fields, especially there a problem with question_answers rows
 			preg_match('/@@PLUGINFILE@@\/[^\"]*/', $record->{$column_name}, $matches);
-			if($matches) { // i) in rows related to question_answers, some editor fields' files are related to 'answerfeedback'
+			if($matches) { // if no occurrences of @@PLUGINFILE@@ were found, everything is fine
 				$files_by_name = array(); // mapping of file names to file objects
+				// i) in rows related to question_answers, some editor fields' files are related to 'answerfeedback'
 				$files = $fs->get_area_files($question->contextid, 'question', 'answerfeedback');
-				foreach ($files as $file) {
-					$files_by_name[$file->get_filename()] = $file;
-					debugging($file->get_filename());
+				if($question->qtype === 'match') {
+					// ii) qtype_match uses an awkyard 'subquestion' editor field
+					$files = array_merge($files, $fs->get_area_files($question->contextid, 'qtype_'.$question->qtype, 'subquestion'));
 				}
+				foreach ($files as $file) $files_by_name[$file->get_filename()] = $file;
 				foreach($matches as $match) {
 					// <img src="@@PLUGINFILE@@/tumblr_lyzfata2KS1qbdwe9o1_500.jpg"
 					preg_match('/[^@@PLUGINFILE@@\/].*/', $match, $filenames);
@@ -76,7 +79,6 @@ function question_turn_images_into_base64_strings(&$record, $question, $column_n
 					}
 				}
 			}
-			debugging($record->{$column_name});
 		}
 	}
 	return $update_reasonable;
@@ -134,8 +136,7 @@ function question_copy_dependant_qtype_rows($path_to_xmlfile, $question, $id_of_
  */
 function question_copy_questions_to_category($questionids, $newcategoryid) {
 	global $DB, $CFG;
-	// TODO: // Lösungshinweis für den Studenten
-	$newcontextid = $DB->get_field('question_categories', 'contextid', array('id' => $newcategoryid));
+	$newcontextid = $DB->get_field('question_categories', 'contextid', array('id' => $newcategoryid)); // this line is from question_move_questions_to_category()
 	list($questionidcondition, $params) = $DB->get_in_or_equal($questionids);
 	$questions = $DB->get_records_sql("
 			SELECT q.id, q.qtype, qc.contextid
@@ -143,8 +144,6 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 			JOIN {question_categories} qc ON q.category = qc.id
 			WHERE  q.id $questionidcondition", $params);
 	foreach ($questions as $question) {
-		//if ($newcontextid != $question->contextid) // see d)
-		//question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
 		// a) Table 'question'
 		$existing = $DB->get_record('question', array('id' => $question->id));
 		question_turn_images_into_base64_strings($existing, $question, array('questiontext', 'generalfeedback'));
@@ -180,22 +179,25 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		$xml_path = $CFG->dirroot . '/question/type/' . $question->qtype . '/db/install.xml';
 		question_copy_dependant_qtype_rows($xml_path, $question, $id_of_dublicate, $answer_id_mapping);
 		// d) dublicate all files, see file_storage::move_area_files_to_new_context() (minus delete)
-		// some of this is now handled above, i'll leave that commented out for reference
-		/*$oldcontextid = $question->contextid;
-		$oldfiles = $fs->get_area_files($oldcontextid, 'question', false, false, 'id', false);
-		$sql = "SELECT * FROM {files} f LEFT JOIN {files_reference} r ON f.referencefileid = r.id
-		WHERE f.contextid = :contextid AND f.component = 'question'";
-		$oldfiles = array();
-		$filerecords = $DB->get_records_sql($sql, array('contextid'=>$oldcontextid));
-		foreach ($filerecords as $filerecord)
-			if ($filerecord->filename !== '.')
-			$oldfiles[$filerecord->pathnamehash] = $this->get_file_instance($filerecord);
-		debugging($oldcontextid . "__" . $newcontextid);
-		foreach ($oldfiles as $oldfile) {
-		$filerecord = new stdClass();
-		$filerecord->contextid = $newcontextid;
-		$fs->create_file_from_storedfile($filerecord, $oldfile);
-		}*/
+		$fs = get_file_storage();
+		$oldcontextid = $question->contextid;
+		//debugging("OLD: " . $question->contextid . " NEW: " . $newcontextid);
+		if ($newcontextid != $oldcontextid) { // see d)
+			//question_bank::get_qtype($question->qtype)->move_files($question->id, $question->contextid, $newcontextid);
+			$sql = "SELECT * FROM {files} f LEFT JOIN {files_reference} r ON f.referencefileid = r.id
+					WHERE f.contextid = :contextid AND f.component = 'question'";
+			$oldfiles = array();
+			$filerecords = $DB->get_records_sql($sql, array('contextid'=>$oldcontextid));
+			foreach ($filerecords as $filerecord)
+				if ($filerecord->filename !== '.')
+				$oldfiles[$filerecord->pathnamehash] = $this->get_file_instance($filerecord);
+			//debugging($oldcontextid . "__" . $newcontextid);
+			foreach ($oldfiles as $oldfile) {
+				$filerecord = new stdClass();
+				$filerecord->contextid = $newcontextid;
+				$fs->create_file_from_storedfile($filerecord, $oldfile);
+			}
+		}
 		// /var/moodledata/filedir/41/82/4182a9cbaaa591b733ec62e2f72878c4f696247a
 		// $CFG->dataroot.'/filedir
 	}
