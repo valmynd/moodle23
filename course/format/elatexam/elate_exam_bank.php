@@ -43,8 +43,9 @@ class question_bank_add_to_exam_column extends question_bank_action_column_base 
 class elate_exam_bank_view extends question_bank_view {
 	// TODO: alle klausuren kommen in bestimmte kategorie, welche angelegt wird, wenn es sie noch nicht gibt
 	// TODO: Link (Button?) um elate_question_bank_view (in neuem Fenster?) zu öffnen
-	private $qbank_html;
 	private $questions;
+	private $qbank_html;
+	private $qbank_html_hidden;
 	// auf beiden Seiten Fragen mit den jeweiligen Kategorien, beides in unterschiedlichen Tabellen organisiert
 	// über den Tabellen Felder aus qtype_meta
 	// Listenelemente
@@ -103,7 +104,8 @@ class elate_exam_bank_view extends question_bank_view {
 		$catcontext = get_context_instance_by_id($contextid);
 		$this->build_query_sql($category, $recurse, $showhidden);
 		$questions = $this->load_page_questions($page, $perpage);
-		echo html_writer::input_hidden_params($pageurl);
+		$this->qbank_html_hidden = html_writer::input_hidden_params($pageurl);
+		echo $this->qbank_html_hidden;
 
 		echo '<div class="categoryquestionscontainer">';
 		$this->start_table();
@@ -151,6 +153,13 @@ class elate_exam_bank_view extends question_bank_view {
 	 */
 	public function get_html() {
 		return $this->qbank_html;
+	}
+	/**
+	 * @return string containing the html to be displayed if no categories
+	 * where added yet
+	 */
+	public function get_hidden_html() {
+		return $this->qbank_html_hidden;
 	}
 	/**
 	 * @return string containing an html representation of an already fetched

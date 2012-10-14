@@ -31,16 +31,9 @@ class exam_form extends moodleform {
 		$mform = &$this->_form;
 		$categoryview = new category_view($this);
 
-		////// Add Question Selector  //////////
-
-		$mform->addElement('header', 'qheader', get_string('qheader', 'qtype_meta'));
-		$mform->addElement('html', $categoryview->get_list_html());
-		$mform->addElement('html', $this->get_question_bank()->get_html());
-		//$mform->addElement('html', '<div style="clear: both;"></div>');
-
 		///// Add fields from legacy "meta" question type  //////////
 
-		/*$mform->addElement('header', 'generalheader', get_string("general", 'form'));
+		$mform->addElement('header', 'generalheader', get_string("general", 'form'));
 
 		$mform->addElement('text', 'name', get_string('title', 'qtype_meta'));
 		$mform->addHelpButton('name', 'title', 'qtype_meta');
@@ -82,12 +75,20 @@ class exam_form extends moodleform {
 		//$mform->addRule('description', null, 'required', null, 'client');
 		$mform->addRule('time', null, 'required', null, 'client');
 
+		////// Add Question Selector  //////////
+		
+		$mform->addElement('header', 'qheader', get_string('qheader', 'qtype_meta'));
+		$mform->addElement('html', $categoryview->get_list_html());
+		if(category_view::not_empty())
+			$mform->addElement('html', $this->get_question_bank()->get_html());
+		else $mform->addElement('html', $this->get_question_bank()->get_hidden_html());
+
 		////// Add Submit / Cancel Buttons  //////////
 		$buttonarray=array();
 		$buttonarray[] =& $mform->createElement('submit', 'submitbutton', get_string('savechanges'));
 		$buttonarray[] =& $mform->createElement('submit', 'cancel', get_string('cancel'));
 		$mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-		$mform->closeHeaderBefore('buttonar');*/
+		$mform->closeHeaderBefore('buttonar');
 	}
 
 	/**

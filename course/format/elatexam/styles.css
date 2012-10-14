@@ -43,6 +43,7 @@ fieldset#qheader ul {
 	background-color: rgb(228, 228, 228);
 	padding: 0px 0px 0px 10px;
 	margin: 0px;
+	/*border-left:1px solid darkgrey;*/
 }
 fieldset#qheader li {
 	padding: 3px;
@@ -58,7 +59,10 @@ fieldset#qheader li.q img {
 fieldset#qheader input {
 	margin: 4px;
 }
-
+fieldset#qheader input[type='image'] {
+	height:8px;
+	margin:0px 4px;
+}
 fieldset#qheader .examcategorycontainer input[type='checkbox'] {
 	margin:0;
 	float: right;

@@ -4,6 +4,7 @@ class folder_view {
 
 	public static $folder_identifier;
 	public static $file_identifier;
+	protected static $buttonattrib;
 	public static function get_key_of_first_folder() {
 		return self::$folder_identifier.'1';
 	}
@@ -13,6 +14,7 @@ class folder_view {
 	public static function init() {
 		self::$folder_identifier = "folder";
 		self::$file_identifier = "file";
+		self::$buttonattrib = ' onclick="skipClientValidation = true;"';
 	}
 
 	public function get_list_html() {
@@ -29,9 +31,14 @@ class folder_view {
 	protected function get_key_from_indices(array $indices, $identifier) {
 		return $identifier.implode('_', $indices);
 	}
-	protected function next_folder_exists(array $indices, $level, $current) {
+	protected function folder_not_last(array $indices, $level, $current) {
 		$indices[$level] = $current + 1; // we operate on copy
 		return isset($_POST[$this->get_key_from_indices($indices, self::$folder_identifier)]);
+	}
+	protected function folder_not_empty(array $indices, $level, $current) {
+		$indices[$level+1] = 1; // we operate on copy
+		return isset($_POST[$this->get_key_from_indices($indices, self::$folder_identifier)])
+		|| isset($_POST[$this->get_key_from_indices($indices, self::$file_identifier)]);
 	}
 
 	protected function count_folders_at_level(array $indices, $level, $count_files = false) {
@@ -43,43 +50,48 @@ class folder_view {
 				return $i-1;
 		}
 	}
-
 	protected function count_files_at_level(array $indices, $level) {
 		return $this->count_folders_at_level($indices, $level, true);
 	}
 
-	protected function get_move_buttons(array $indices, $key, $level, $i) {
+	protected function get_per_folder_buttons(array $indices, $key, $level, $i) {
 		// read this: http://davidwalsh.name/php-form-submission-recognize-image-input-buttons
 		global $OUTPUT;
 		$buttonstr = '';
-		$buttonattrib = ' onclick="skipClientValidation = true;" style="height:8px;"';
 		// if there is a parent category (level > 0), provide moveleft button
 		if($level > 0) {
 			$name = "move_left_".$key;
 			$iconurl = $OUTPUT->pix_url('t/left');
 			$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
-					.' alt="'.get_string('moveleft').'"'.$buttonattrib.'>';
+					.' alt="'.get_string('moveleft').'"'.self::$buttonattrib.'>';
 		}
 		// if there is a previous category, provide moveup button
 		if($i > 1) {
 			$name = "move_up_".$key;
 			$iconurl = $OUTPUT->pix_url('t/up');
 			$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
-					.' alt="'.get_string('moveup').'"'.$buttonattrib.'>';
+					.' alt="'.get_string('moveup').'"'.self::$buttonattrib.'>';
 		}
 		// if there is an next category, provide movedown button
-		if($this->next_folder_exists($indices, $level, $i)) {
+		if($this->folder_not_last($indices, $level, $i)) { // next folder exists?
 			$name = "move_down_".$key;
 			$iconurl = $OUTPUT->pix_url('t/down');
 			$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
-					.' alt="'.get_string('movedown').'"'.$buttonattrib.'>';
+					.' alt="'.get_string('movedown').'"'.self::$buttonattrib.'>';
 		}
 		// if there is another category, provide moveright (use as subcategory) button
 		if($i > 1) {
 			$name = "move_right_".$key;
 			$iconurl = $OUTPUT->pix_url('t/right');
 			$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
-					.' alt="'.get_string('moveright').'"'.$buttonattrib.'>';
+					.' alt="'.get_string('moveright').'"'.self::$buttonattrib.'>';
+		}
+		// add remove button
+		if(!$this->folder_not_empty($indices, $level, $i)) {
+			$name = "remove_folder_".$key;
+			$iconurl = $OUTPUT->pix_url('t/delete');
+			$buttonstr .= '<input type="image" src="'.$iconurl.'" name="'.$name.'"'
+					.' alt="'.get_string('remove').'"'.self::$buttonattrib.'>';
 		}
 		return $buttonstr;
 	}
@@ -209,28 +221,14 @@ class category_view extends folder_view {
 
 	public static function get_use_in_question_button($questionid) {
 		global $OUTPUT;
-		$delete_icon = $OUTPUT->pix_url('t/moveleft');
-		return '<input type="image" src="'.$delete_icon.'" name="use_'.self::$file_identifier.$questionid.'"'
-				.' alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;">';
+		$move_icon = $OUTPUT->pix_url('t/moveleft');
+		return '<input type="image" src="'.$move_icon.'" name="use_'.self::$file_identifier.$questionid.'"'
+				.' alt="'.get_string('addtoquiz', 'quiz').self::$buttonattrib.' style="height:7px;">';
 	}
 
 	protected function get_per_item_html(array $indices = array('1',)) {
 		$ret = "<ul>";
 		$level = count($indices)-1;
-		for($i=1; $i <= 9999; $i++) { // render folders first
-			$indices[$level] = $i;
-			$folderkey = $this->get_key_from_indices($indices, self::$folder_identifier);
-			if(!isset($_POST[$folderkey])) break;
-			$ret .= '<li>'; // without "q"
-			$radiobtnattrib = '';
-			if($_POST["selected_folder"] == $folderkey)
-				$radiobtnattrib = ' checked="checked"';
-			$ret .= '<input name="selected_folder" value="'.$folderkey.'" type="radio"'.$radiobtnattrib.'>';
-			$ret .= '<input value="'.$_POST[$folderkey].'" name="'.$folderkey.'" type="text">';
-			$ret .= $this->get_move_buttons($indices, $folderkey, $level, $i);
-			$ret .= "</li>\n";
-			if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
-		}
 		for($i=1; $i <= 9999; $i++) {
 			$indices[$level] = $i;
 			$filekey = $this->get_key_from_indices($indices, self::$file_identifier);
@@ -242,7 +240,21 @@ class category_view extends folder_view {
 			// the following is what the "advanced checkbox" in moodle is all about:
 			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
 			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
+			$ret .= "</li>\n";
 			$ret .= '<input name="'.$filekey.'" value="drop_'.$_POST[$filekey].'" type="checkbox"'.$checkboxattrib.'>';
+		}
+		for($i=1; $i <= 9999; $i++) { // render folders first
+			$indices[$level] = $i;
+			$folderkey = $this->get_key_from_indices($indices, self::$folder_identifier);
+			if(!isset($_POST[$folderkey])) break;
+			$ret .= '<li class="c">';
+			$radiobtnattrib = '';
+			if($_POST["selected_folder"] == $folderkey)
+				$radiobtnattrib = ' checked="checked"';
+			$ret .= '<input name="selected_folder" value="'.$folderkey.'" type="radio"'.$radiobtnattrib.'>';
+			$ret .= '<input value="'.$_POST[$folderkey].'" name="'.$folderkey.'" type="text">';
+			$ret .= $this->get_per_folder_buttons($indices, $folderkey, $level, $i);
+			if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
 			$ret .= "</li>\n";
 		}
 		return $ret."</ul>\n";
@@ -251,16 +263,7 @@ class category_view extends folder_view {
 	public function get_list_html() {
 		// note that such things as set_data() will not affect <input> elements generated with toHtml()!
 		$ret = '<div class="examcategorycontainer">'."\n";
-		/*	<li id="c1">Category</li>
-		 <li id="c2">Category</li>
-		<li id="c3">Category</li>
-		<ul>
-		<li id="c3_1">Category</li>
-		<li id="c3_2">Category</li>
-		<li id="c3_3" class="q"><span id=43><img/>Question</span></li>
-		<li id="c3_4" class="q"><span id=45><img/>Question</span></li>
-		</ul>*/
-		debugging("before/after<br>".var_export($_POST));
+		//debugging("before/after<br>".var_export($_POST));
 
 		////// Handle Button Actions (Add, Delete, Move) //////////
 
@@ -282,18 +285,23 @@ class category_view extends folder_view {
 			$_POST["selected_folder"] = self::get_key_of_first_folder();
 		}
 
-		////// Add Action Buttons (Add, Delete, Move) //////////
+		////// Add Action Buttons for Categories (Add, Delete, Move) //////////
 
 		$ret .= 'Add category to exam: ';
 		$ret .= '<input name="newcategory" type="text" />';
-		$ret .= '<input onclick="skipClientValidation = true;" name="addcategory" value="Add" type="submit" />';
-		if(self::not_empty())
-			$ret .= '<input onclick="skipClientValidation = true;" name="removecategory" value="Remove selected" type="submit" />';
+		$ret .= '<input name="addcategory" value="Add" type="submit"'.self::$buttonattrib.' />';
+		//$ret .= '<input name="removecategory" value="Remove selected Category" type="submit"'.self::$buttonattrib.' />';
 
 		////// Generate Fields for each Category / Question (by now $_POST should not be changed anymore!) //////////
 
-		debugging(var_export($_POST));
+		//debugging(var_export($_POST));
 		$ret .= $this->get_per_item_html(); // works recursively
+
+		////// Add Action Buttons for Questions (Delete, Move) //////////
+		if(self::not_empty()) {
+			$ret .= '<input name="removequestions" value="Remove" type="submit"'.self::$buttonattrib.' />';
+			$ret .= '<input type="submit" name="move" value="'.get_string('moveto', 'question').'"'.self::$buttonattrib.' />';
+		}
 
 		return $ret.'</div>'."\n";
 	}
