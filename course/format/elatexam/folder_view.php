@@ -1,5 +1,34 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Widgets used in Exam Form
+ *
+ * @author C.Wilhelm
+ * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Base class for category_view, could be usefull elsewhere
+ *
+ * @author C.Wilhelm
+ * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class folder_view {
 
 	public static $folder_identifier;
@@ -151,11 +180,9 @@ class folder_view {
 			$_POST[$sourcefolder_key] = $_POST_COPY[$targetfolder_key];
 		} else {
 			$_POST["newcategory"] = $_POST_COPY[$sourcefolder_key]; // handle it as if we would add a folder, copy subitems into it later on
-			$_POST["selected_folder"] = $sourcefolder_key; // temporarily point to source
-			$this->handle_delete_folder(); // will remove selected element
+			$this->handle_delete_folder('remove_folder_'.$sourcefolder_key.'_x'); // will remove selected element
 			$_POST["selected_folder"] = $this->get_key_from_indices($indices_target, self::$folder_identifier); // now point to target
 			$targetfolder_key = $this->handle_add_folder($_POST_COPY); // will put it to the final position
-			//$_POST_COPY = $_POST; // need more recent copy
 		}
 		$_POST["selected_folder"] = $targetfolder_key;
 		// swap children from $_POST[$sourcefolder_key] and $_POST[$targetfolder_key]
@@ -166,8 +193,9 @@ class folder_view {
 		$this->handle_move_folder_children($sourcefile_key, $targetfile_key, $_POST_COPY);
 	}
 
-	protected function handle_delete_folder() {
-		$indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
+	protected function handle_delete_folder($btn_name) {
+		preg_match('/[^(remove_folder_)].*[^(_x)]/', $btn_name, $matches);
+		$indices = $this->get_indices_from_key($matches[0], self::$folder_identifier);
 		$level = count($indices)-1;
 		// move any folder, that follows inside this level, up once, then remove the last one
 		for($i=$indices[$level]; $i <= 99; $i++) {
@@ -204,6 +232,13 @@ class folder_view {
 	}
 }
 
+/**
+ * Widget responsible to render the categories in the
+ * exams and allow adding questions into them.
+ *
+ * @author C.Wilhelm
+ * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class category_view extends folder_view {
 
 	protected $exam_bank;
@@ -267,10 +302,7 @@ class category_view extends folder_view {
 
 		////// Handle Button Actions (Add, Delete, Move) //////////
 
-		if(isset($_POST["removecategory"])) {
-			if(isset($_POST["selected_folder"]))
-				$this->handle_delete_folder();
-		} else if(isset($_POST["addcategory"])) {
+		if(isset($_POST["addcategory"])) {
 			// at the very beginning, there will be no selectable items
 			if(isset($_POST["selected_folder"]))
 				$this->handle_add_folder();
@@ -279,6 +311,8 @@ class category_view extends folder_view {
 			$this->handle_move_folder(array_shift($matches));
 		} else if($matches = preg_grep('/^use_.*_x/', array_keys($_POST))) {
 			$this->handle_use_question(array_shift($matches));
+		} else if($matches = preg_grep('/^remove_folder_.*_x/', array_keys($_POST))) {
+			$this->handle_delete_folder(array_shift($matches));
 		}
 
 		if(!isset($_POST["selected_folder"])) {
@@ -324,11 +358,6 @@ class category_view extends folder_view {
 	}
 
 	protected function handle_use_question($btn_name) {
-		if(!isset($_POST["selected_folder"])) {
-			echo '<div class="box warning">You must create a category first (on the left), before you can assign questions to it.</div>';
-			// TODO: not show anything else than add category
-			return;
-		}
 		$matches = array();
 		preg_match('/[^(use_)].*[^(_x)]/', $btn_name, $matches);
 		$questionid = substr($matches[0],strlen(self::$file_identifier));
