@@ -4,6 +4,16 @@ class folder_view {
 
 	public static $folder_identifier;
 	public static $file_identifier;
+	public static function get_key_of_first_folder() {
+		return self::$folder_identifier.'1';
+	}
+	public static function not_empty() {
+		return isset($_POST[self::get_key_of_first_folder()]);
+	}
+	public static function init() {
+		self::$folder_identifier = "folder";
+		self::$file_identifier = "file";
+	}
 
 	public function get_list_html() {
 		throw Exception("Not implemented in folder_view");
@@ -19,12 +29,6 @@ class folder_view {
 	protected function get_key_from_indices(array $indices, $identifier) {
 		return $identifier.implode('_', $indices);
 	}
-	protected function get_key_of_first_folder() {
-		return self::$folder_identifier.'1';
-	}
-	protected function not_empty() {
-		return isset($_POST[$this->get_key_of_first_folder()]);
-	}
 	protected function next_folder_exists(array $indices, $level, $current) {
 		$indices[$level] = $current + 1; // we operate on copy
 		return isset($_POST[$this->get_key_from_indices($indices, self::$folder_identifier)]);
@@ -36,7 +40,7 @@ class folder_view {
 			if(!$count_files) $key = $this->get_key_from_indices($indices, self::$folder_identifier);
 			else $key = $this->get_key_from_indices($indices, self::$file_identifier);
 			if(!isset($_POST[$key]))
-				return $i;
+				return $i-1;
 		}
 	}
 
@@ -125,7 +129,7 @@ class folder_view {
 			case 'right': // always appent into the previous sibling
 				$parentid = $indices_target[$level];
 				$indices_target[$level] = $parentid-1;
-				$indices_target[$level+1] = $this->count_folders_at_level($indices_target, $level+1); // append to last
+				$indices_target[$level+1] = 1 + $this->count_folders_at_level($indices_target, $level+1); // append to last
 				break;
 		}
 		if($direction == 'up' || $direction == 'down') {
@@ -138,7 +142,7 @@ class folder_view {
 			$_POST["selected_folder"] = $sourcefolder_key; // temporarily point to source
 			$this->handle_delete_folder(); // will remove selected element
 			$_POST["selected_folder"] = $this->get_key_from_indices($indices_target, self::$folder_identifier); // now point to target
-			$targetfolder_key = $this->handle_add_folder(null, $_POST_COPY); // will put it to the final position
+			$targetfolder_key = $this->handle_add_folder($_POST_COPY); // will put it to the final position
 			//$_POST_COPY = $_POST; // need more recent copy
 		}
 		$_POST["selected_folder"] = $targetfolder_key;
@@ -150,8 +154,8 @@ class folder_view {
 		$this->handle_move_folder_children($sourcefile_key, $targetfile_key, $_POST_COPY);
 	}
 
-	protected function handle_delete_folder(array $indices = null) {
-		if(!$indices) $indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
+	protected function handle_delete_folder() {
+		$indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
 		$level = count($indices)-1;
 		// move any folder, that follows inside this level, up once, then remove the last one
 		for($i=$indices[$level]; $i <= 99; $i++) {
@@ -162,35 +166,29 @@ class folder_view {
 			// pretend, that "move_up" button was pressed upon the next item, so form a string such as move_up_2_2_x
 			$this->handle_move_folder('move_up_'.$nextkey.'_x'); // last _x is because of the input type in the form
 		}
-		unset($_POST[$currkey]); // maybe remove children now
-		//debugging("would remove ".$_POST[$currkey]);
+		unset($_POST[$currkey]);
 	}
 
-	protected function handle_add_folder(array $indices = null, $_POST_COPY = null) {
+	protected function handle_add_folder($_POST_COPY = null) {
 		// at the beginning, indices will contain the indices of the position of the new element
 		// later on, indices will point to the children elements of the element that has to be moved
 		if(!$_POST_COPY) $_POST_COPY = $_POST;
-		$override_key = $_POST["selected_folder"];
-		$first = false;
-		$continue = true;
-		if(!$indices) {
-			$indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
-			$first = $indices[count($indices)-1];
-		}
+		$indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
 		$level = count($indices)-1;
-		for($i=$indices[$level]; $i <= 99 && $continue; $i++) {
-			$currkey = $this->get_key_from_indices($indices, self::$folder_identifier);
-			$indices[$level] = $i+1;
-			$nextkey = $this->get_key_from_indices($indices, self::$folder_identifier);
-			if(!isset($_POST[$currkey])) break;
-			$continue = isset($_POST[$nextkey]);
-			$_POST[$nextkey] = $_POST_COPY[$currkey];
-			if($level <= 5) $this->handle_add_folder( array_merge($indices, array('1',)) );
-			if($i == $first) $override_key = $nextkey;
+		$first = $indices[$level]; // the position of the item that was selected at the beginning
+		$last = $this->count_folders_at_level($indices, $level); // number of items at this level
+		// append newcategory to the very end, then move it to our position (swapping items) step by step
+		$indices[$level] = $last+1; // make it point to an not yet existing item, coming after last folder
+		$newkey = $this->get_key_from_indices($indices, self::$folder_identifier);
+		$_POST[$newkey] = $_POST["newcategory"];
+		for($i=$last+1; $i > $first+1; $i--) {
+			$moved_key = $this->get_key_from_indices($indices, self::$folder_identifier);
+			// pretend, that "move_up" button was pressed upon the added item
+			$this->handle_move_folder('move_up_'.$moved_key.'_x');
+			$indices[$level] = $i-1;
 		}
-		if($first) $_POST[$override_key] = $_POST["newcategory"];
-		$_POST["selected_folder"] = $override_key;
-		return $override_key;
+		$_POST["selected_folder"] = $this->get_key_from_indices($indices, self::$folder_identifier);
+		return $_POST["selected_folder"];
 	}
 }
 
@@ -202,6 +200,11 @@ class category_view extends folder_view {
 	public function category_view($examform) {
 		$this->exam_form = $examform;
 		$this->exam_bank = $examform->get_question_bank();
+	}
+
+	public static function init() {
+		self::$folder_identifier = "category";
+		self::$file_identifier = "question";
 	}
 
 	public static function get_use_in_question_button($questionid) {
@@ -268,7 +271,7 @@ class category_view extends folder_view {
 			// at the very beginning, there will be no selectable items
 			if(isset($_POST["selected_folder"]))
 				$this->handle_add_folder();
-			else $_POST[$this->get_key_of_first_folder()] = $_POST["newcategory"];
+			else $_POST[self::get_key_of_first_folder()] = $_POST["newcategory"];
 		} else if($matches = preg_grep('/^move_.*_.*_x/', array_keys($_POST))) {
 			$this->handle_move_folder(array_shift($matches));
 		} else if($matches = preg_grep('/^use_.*_x/', array_keys($_POST))) {
@@ -276,7 +279,7 @@ class category_view extends folder_view {
 		}
 
 		if(!isset($_POST["selected_folder"])) {
-			$_POST["selected_folder"] = $this->get_key_of_first_folder();
+			$_POST["selected_folder"] = self::get_key_of_first_folder();
 		}
 
 		////// Add Action Buttons (Add, Delete, Move) //////////
@@ -284,7 +287,8 @@ class category_view extends folder_view {
 		$ret .= 'Add category to exam: ';
 		$ret .= '<input name="newcategory" type="text" />';
 		$ret .= '<input onclick="skipClientValidation = true;" name="addcategory" value="Add" type="submit" />';
-		$ret .= '<input onclick="skipClientValidation = true;" name="removecategory" value="Remove selected" type="submit" />';
+		if(self::not_empty())
+			$ret .= '<input onclick="skipClientValidation = true;" name="removecategory" value="Remove selected" type="submit" />';
 
 		////// Generate Fields for each Category / Question (by now $_POST should not be changed anymore!) //////////
 
@@ -307,14 +311,12 @@ class category_view extends folder_view {
 		$indices = $this->get_indices_from_key($_POST["selected_folder"], self::$folder_identifier);
 		$level = count($indices)-1;
 		$indices[$level+1] = 1; // put into that category
-		$indices[$level+1] = $this->count_files_at_level($indices, $level+1);
+		$indices[$level+1] = 1 + $this->count_files_at_level($indices, $level+1);
 		$key = $nextkey = $this->get_key_from_indices($indices, self::$file_identifier);
 		// use the data still avaiable in the questionbank, so we don't have to fetch them each time
 		$_POST[$key] = $questionid;
 	}
 }
 
-folder_view::$folder_identifier = "folder";
-folder_view::$file_identifier = "file";
-category_view::$folder_identifier = "category";
-category_view::$file_identifier = "question";
+folder_view::init();
+category_view::init();
