@@ -8,6 +8,7 @@ Was bereits geht:
 - Dozenten und Tutoren sollen in entsprechenden Moodle-Kursen Klausuren erstellen und dabei die bereits vorhandenen Möglichkeiten der Fragenverwaltung (Questionbank) nutzen
 - es lassen sich Kategorien anlegen, in denen sich die Fragen einordnen lassen
 	- die Kategorien lassen sich verschieben und ineinander verschachteln
+	![Screenshot](https://raw.github.com/valmynd/moodle23/master/course/format/elatexam/doc/screenshot.png)
 - Fragen aus Questionbank lassen sich in die angelegten Kategorien einordnen
 	- dabei lässt sich zwischen den Kategorien aus der Questionbank wechseln
 - Formular für Metadaten ist angelegt
