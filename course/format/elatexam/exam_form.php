@@ -60,11 +60,11 @@ class exam_form extends moodleform {
 		$mform->addElement('editor', "description", get_string('description', 'qtype_meta'), array('rows' => 8));
 		$mform->addHelpButton('description', 'description', 'qtype_meta');
 
-		//$mform->addElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), "");
-		//$mform->setDefault('showhandlinghintsbeforestart', true);
+		$mform->addElement('advcheckbox', 'showhandlinghintsbeforestart', get_string('showhandlinghintsbeforestart', 'qtype_meta'), "");
+		$mform->setDefault('showhandlinghintsbeforestart', true);
 
-		//$mform->addElement('editor', "starttext", get_string('starttext', 'qtype_meta'), array('rows' => 6));
-		//$mform->addHelpButton('starttext', 'starttext', 'qtype_meta');
+		$mform->addElement('editor', "starttext", get_string('starttext', 'qtype_meta'), array('rows' => 6));
+		$mform->addHelpButton('starttext', 'starttext', 'qtype_meta');
 
 		$mform->addElement('text', 'numberofcorrectors', get_string('numberofcorrectors', 'qtype_meta'), ' style="width:35px;"');
 		$mform->setType('numberofcorrectors', PARAM_INT);

@@ -16,7 +16,7 @@ Was bereits geht:
 - Fragen aus Questionbank lassen sich in die angelegten Kategorien einordnen
 	- dabei lässt sich zwischen den Kategorien aus der Questionbank wechseln
 - Formular für Metadaten ist angelegt
-	- Bereits eingesetzt in Meta-Fragetyp-Plugin (siehe (moodle-root)/question/type/meta)
+	- Bereits eingesetzt in Meta-Fragetyp-Plugin (siehe [Meta-Fragetyp-Plugin](https://github.com/valmynd/moodle23/tree/master/question/type/meta))
 - Tabellen sind entworfen:
 	![siehe db/install.xml](https://raw.github.com/valmynd/moodle23/master/course/format/elatexam/doc/db.png)
 
