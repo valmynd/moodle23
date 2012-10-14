@@ -2,6 +2,7 @@
 
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once($CFG->dirroot . '/course/format/elatexam/exam_form.php');
+require_once($CFG->dirroot . '/course/format/elatexam/folder_view.php');
 
 /**
  * A column type for the add this question to the exam.
@@ -20,11 +21,12 @@ class question_bank_add_to_exam_column extends question_bank_action_column_base 
 		//$this->print_icon($movearrow, get_string('addtoquiz', 'quiz')/*, $this->qbank->add_to_quiz_url($question->id)*/);
 		//echo '<span style="margin:0;padding:0;height:5px">';
 		//echo '<input name="useincategory" value="◄" type="submit" onclick="skipClientValidation = true;" style="margin:0;padding:0;height:16px;width:16px;">';
-		global $OUTPUT;
+		/*global $OUTPUT;
 		$delete_icon = $OUTPUT->pix_url('t/moveleft');
 		echo '<input type="image" src="'.$delete_icon.'" name="use_q'.$question->id.'"'
-				.' alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;">';
+				.' alt="'.get_string('addtoquiz', 'quiz').' onclick="skipClientValidation = true;" style="height:7px;">';*/
 		//echo '</span>';
+		echo category_view::get_use_in_question_button($question->id);
 	}
 	public function get_required_fields() {
 		return array('q.id');

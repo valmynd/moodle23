@@ -59,6 +59,11 @@ fieldset#qheader input {
 	margin: 4px;
 }
 
+fieldset#qheader .examcategorycontainer input[type='checkbox'] {
+	margin:0;
+	float: right;
+}
+
 /* Autocomplete dropdown styles */
 .autocomplete-w1 {
 	position: absolute;

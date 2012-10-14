@@ -134,7 +134,7 @@ function question_copy_dependant_qtype_rows($path_to_xmlfile, $question, $id_of_
  * @param array $questionids of question ids.
  * @param integer $newcategoryid the id of the category to move to.
  */
-function question_copy_questions_to_category($questionids, $newcategoryid) {
+function question_copy_questions_to_category_old($questionids, $newcategoryid) {
 	global $DB, $CFG;
 	$newcontextid = $DB->get_field('question_categories', 'contextid', array('id' => $newcategoryid)); // this line is from question_move_questions_to_category()
 	list($questionidcondition, $params) = $DB->get_in_or_equal($questionids);
@@ -200,6 +200,104 @@ function question_copy_questions_to_category($questionids, $newcategoryid) {
 		}
 		// /var/moodledata/filedir/41/82/4182a9cbaaa591b733ec62e2f72878c4f696247a
 		// $CFG->dataroot.'/filedir
+	}
+	return true;
+}
+
+/****************
+ * NEW APPROACH *
+****************/
+
+require_once($CFG->dirroot . '/lib/questionlib.php');
+require_once($CFG->dirroot . '/question/format/xml/format.php');
+
+class qformat_xml_hack extends qformat_xml {
+	/*public function readquestions($lines) { // in original, this is protected
+		return parent::readquestions($lines);
+	}*/
+	private $_xml = null;
+	/**
+	 * called by importprocess() to get data
+	 * @see qformat_default::readdata()
+	 */
+	protected function readdata($filename) {
+		return explode("\n", $this->_xml);
+	}
+	/**
+	 * needing to override this is VERY unfortunate, as the only thing that is problematic in the
+	 * original is the get_class() call -> thus we couldn't do this subclass without basically
+	 * copy & paste this method (maybe report this as bug to moodle?)
+	 *
+	 * @see qformat_default::try_importing_using_qtypes()
+	 */
+	public function try_importing_using_qtypes($data, $question = null, $extra = null, $qtypehint = '') {
+		$methodname = "import_from_xml";
+		if (!empty($qtypehint)) {
+			$qtype = question_bank::get_qtype($qtypehint, false);
+			if (is_object($qtype) && method_exists($qtype, $methodname)) {
+				$question = $qtype->$methodname($data, $question, $this, $extra);
+				if ($question) {
+					return $question;
+				}
+			}
+		}
+		foreach (question_bank::get_all_qtypes() as $qtype) {
+			if (method_exists($qtype, $methodname)) {
+				if ($question = $qtype->$methodname($data, $question, $this, $extra)) {
+					return $question;
+				}
+			}
+		}
+		return false;
+	}
+	/**
+	 * takes a string containing a question in XML and
+	 * imports it to the database. it will be located
+	 * where $categoryid points to.
+	 *
+	 * @param string $xmlstr
+	 * @param int $categoryid
+	 * @return boolean $success
+	 */
+	public function import_question_to_category($xmlstr, $categoryid) {
+		global $DB;
+		$this->_xml = $xmlstr; // will be used by readdata()
+		// the next three lines were taken from /question/import.php
+		$category = $DB->get_record("question_categories", array('id' => $categoryid));
+		$categorycontext = get_context_instance_by_id($category->contextid);
+		$category->context = $categorycontext;
+		$this->setCategory($category);
+		return $this->importprocess($category);
+	}
+}
+
+/*
+$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<quiz>\n" . $xml . "\n</quiz>";
+$lines = explode("\n", $xml); // readquestions expects "lines"
+$method = new ReflectionMethod('qformat_xml', 'readquestions');
+$method->setAccessible(true);
+$newquestions = $method->invoke($formatcls, $lines);
+debugging(var_export($newquestions) . "\n<br><br>\n");
+*/
+
+/**
+ * @see question_move_questions_to_category (questionlib.php)
+ *
+ * @param array $questionids of question ids.
+ * @param integer $newcategoryid the id of the category to move to.
+ */
+function question_copy_questions_to_category($questionids, $newcategoryid) {
+	$questions = question_load_questions($questionids);
+	$exporter = new qformat_xml();
+	$importer = new qformat_xml_hack();
+	foreach ($questions as $question) {
+		// 1) export the modified question into an XML string
+		$success = get_question_options($question); // TODO: throw exception when false
+		$xml = $exporter->writequestion($question);
+		// 2) re-import (thus copy it) and retrieve the id of the new question
+		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<quiz>\n" . $xml . "\n</quiz>";
+		$newquestions = $importer->import_question_to_category($xml, $newcategoryid);
+		//debugging(var_export($newquestions) . "\n<br><br>\n");
 	}
 	return true;
 }
