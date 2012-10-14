@@ -12,20 +12,13 @@ Was bereits geht:
 	- dabei lässt sich zwischen den Kategorien aus der Questionbank wechseln
 - Formular für Metadaten ist angelegt
 	- Bereits eingesetzt in Meta-Fragetyp-Plugin (siehe (moodle-root)/question/type/meta)
-- Tabellen sind entworfen, siehe db/install.xml bzw. doc/db.png
-
-Was am Mockup noch unfertig ist // mach ich noch fertig
--------------------------------
-
-- Es sollte möglich sein, mehrere Fragen aus Questionbank gleichzeitig in Klausur zu übertragen
-	- Button "Use in Exam" unter Questionbank, wenn der gedrückt wird sollen die ausgewählten Fragen in links ausgewählter Kategorie zu sehen sein
-- Außerhalb sollte es auch auf Klausurseite Checkboxen geben sowie ein Button, um mehrere Fragen aus der Klausur gleichzeitig entfernen zu können
-- Verschieben von Fragen (auf Linker Seite) funktioniert noch nicht
-- Mehr als eine Frage (auf linker Seite) wird noch nicht angezeigt
+- Tabellen sind entworfen:
+	![siehe db/install.xml](https://raw.github.com/valmynd/moodle23/master/course/format/elatexam/doc/db.png)
 
 Was noch zu tun ist:
 --------------------
 
+- Noch nicht implementierte Buttons fertigstellen (z.B. "Use in Exam", "Move to Category")
 - Speichern und Laden funktioniert noch nicht (siehe Tabellenentwurf)
 	- Zuordnung Kategorien zu Klausur als Fremdschlüsselbeziehung (n:1)
 	- Zuordnung Fragen zu Kategorie als Fremdschlüsselbeziehung (n:1)
@@ -44,4 +37,3 @@ Was noch zu tun ist:
 	- Buttons zum Hinzufügen und importieren von Klausuren
 	- Buttons zum Löschen und Bearbeiten der bereits vorhandenen Klausuren
 	- Anzeige bestimmter Metadaten aus den Klausuren, z.B. Erstellungsdatum, Datum letzter Bearbeitung
-

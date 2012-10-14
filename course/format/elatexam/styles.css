@@ -27,43 +27,43 @@
 }
 
 /* Minified Question Base Styles */
-fieldset#qheader .examcategorycontainer {
+#qheader .examcategorycontainer {
 	width: 45%;
 	float:left;
 }
-fieldset#qheader .categoryquestionscontainer {
+#qheader .categoryquestionscontainer {
 	width: 55%;
 	float:right;
 }
-fieldset#qheader #categoryquestions .questionname {
+#qheader #categoryquestions .questionname {
 	width: 98%;
 }
-fieldset#qheader ul {
+#qheader ul {
 	list-style-type: none;
 	background-color: rgb(228, 228, 228);
 	padding: 0px 0px 0px 10px;
 	margin: 0px;
-	/*border-left:1px solid darkgrey;*/
+	border:1px solid darkgrey;
 }
-fieldset#qheader li {
+#qheader li {
 	padding: 3px;
 	margin: 0px;
 }
-fieldset#qheader li.q {
+#qheader li.q {
 	background-color: ghostwhite;
 }
-fieldset#qheader li.q img {
+#qheader li.q img {
 	vertical-align: middle;
 	margin: 0px 7px 0px 5px;
 }
-fieldset#qheader input {
+#qheader input {
 	margin: 4px;
 }
-fieldset#qheader input[type='image'] {
+#qheader input[type='image'] {
 	height:8px;
 	margin:0px 4px;
 }
-fieldset#qheader .examcategorycontainer input[type='checkbox'] {
+#qheader .examcategorycontainer input[type='checkbox'] {
 	margin:0;
 	float: right;
 }

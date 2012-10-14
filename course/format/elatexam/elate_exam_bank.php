@@ -89,7 +89,7 @@ class elate_exam_bank_view extends question_bank_view {
 			}
 		}
 		echo "\n</select>";
-		echo '<input type="submit" id="change_category" name="change_category" value="'.get_string('go').'" onclick="skipClientValidation = true;">';
+		echo '<input type="submit" id="change_category" name="change_category" value="'.get_string('go').'"'.folder_view::$buttonattrib.'>';
 		echo "</div>\n";
 	}
 	protected function display_question_list($contexts, $pageurl, $categoryandcontext, $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false, $showquestiontext=false, $addcontexts = array()) {
@@ -118,6 +118,10 @@ class elate_exam_bank_view extends question_bank_view {
 		}
 		$this->end_table();
 		// TODO: "Use in Exam" | "Remove from Exam" buttons
+		echo '<div style="width:100%;text-align:right;">';
+		echo '<input type="submit" id="change_category" name="change_category" value="'."<< Use in Exam".'"'.folder_view::$buttonattrib.'>';
+		echo "</div>\n";
+		// close div
 		echo "</div>\n";
 	}
 	public function display($tabname, $page, $perpage, $cat, $recurse, $showhidden, $showquestiontext) {

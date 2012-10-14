@@ -86,5 +86,9 @@ $(document).ready(function() {
 	$("#selected_category").change(function() {
 		$("#change_category").click();
 	});
+	$("#target_category").change(function() {
+		$("#move_question").click();
+	});
 	$("#change_category").hide();
+	$("#move_question").hide();
 });

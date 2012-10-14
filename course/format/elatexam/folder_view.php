@@ -4,7 +4,7 @@ class folder_view {
 
 	public static $folder_identifier;
 	public static $file_identifier;
-	protected static $buttonattrib;
+	public static $buttonattrib;
 	public static function get_key_of_first_folder() {
 		return self::$folder_identifier.'1';
 	}
@@ -229,20 +229,6 @@ class category_view extends folder_view {
 	protected function get_per_item_html(array $indices = array('1',)) {
 		$ret = "<ul>";
 		$level = count($indices)-1;
-		for($i=1; $i <= 9999; $i++) {
-			$indices[$level] = $i;
-			$filekey = $this->get_key_from_indices($indices, self::$file_identifier);
-			if(!isset($_POST[$filekey])) break;
-			$ret .= '<li class="q">';
-			//$ret .= $_POST[$filekey];
-			$checkboxattrib = ' class="clearfix"';
-			$ret .= $this->exam_bank->get_question_by_id($_POST[$filekey]); // TODO: Fetch when not avaiable (e.g. category changed) !!
-			// the following is what the "advanced checkbox" in moodle is all about:
-			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
-			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
-			$ret .= "</li>\n";
-			$ret .= '<input name="'.$filekey.'" value="drop_'.$_POST[$filekey].'" type="checkbox"'.$checkboxattrib.'>';
-		}
 		for($i=1; $i <= 9999; $i++) { // render folders first
 			$indices[$level] = $i;
 			$folderkey = $this->get_key_from_indices($indices, self::$folder_identifier);
@@ -254,7 +240,21 @@ class category_view extends folder_view {
 			$ret .= '<input name="selected_folder" value="'.$folderkey.'" type="radio"'.$radiobtnattrib.'>';
 			$ret .= '<input value="'.$_POST[$folderkey].'" name="'.$folderkey.'" type="text">';
 			$ret .= $this->get_per_folder_buttons($indices, $folderkey, $level, $i);
+			$ret .= "</li>\n";
 			if($level <= 5) $ret .= $this->get_per_item_html( array_merge($indices, array('1',)) );
+		}
+		for($i=1; $i <= 9999; $i++) {
+			$indices[$level] = $i;
+			$filekey = $this->get_key_from_indices($indices, self::$file_identifier);
+			if(!isset($_POST[$filekey])) break;
+			$ret .= '<li class="q">';
+			//$ret .= $_POST[$filekey];
+			$checkboxattrib = ' class="clearfix"';
+			$ret .= $this->exam_bank->get_question_by_id($_POST[$filekey]); // TODO: Fetch when not avaiable (e.g. category changed) !!
+			// the following is what the "advanced checkbox" in moodle is all about:
+			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
+			$ret .= '<input name="'.$filekey.'" value="'.$_POST[$filekey].'" type="hidden">';
+			$ret .= '<input name="'.$filekey.'" value="drop_'.$_POST[$filekey].'" type="checkbox"'.$checkboxattrib.'>';
 			$ret .= "</li>\n";
 		}
 		return $ret."</ul>\n";
@@ -299,8 +299,25 @@ class category_view extends folder_view {
 
 		////// Add Action Buttons for Questions (Delete, Move) //////////
 		if(self::not_empty()) {
-			$ret .= '<input name="removequestions" value="Remove" type="submit"'.self::$buttonattrib.' />';
+			$ret .= '<div style="width:100%;text-align:right;">';
 			$ret .= '<input type="submit" name="move" value="'.get_string('moveto', 'question').'"'.self::$buttonattrib.' />';
+			//$ret .= '<label for="target_category">'.get_string('selectacategory', 'question').' </label>';
+			$ret .= "<select id=\"target_category\" name=\"category\" class=\"select menucategory\">\n";
+			/*foreach($catmenu as $toplevel) {
+				foreach($toplevel as $label=>$sublevel) {
+					$ret .= '<optgroup label="'.$label.'">';
+					foreach($sublevel as $id=>$title) {
+						if($id != $current) $selectedstr = '';
+						else $selectedstr = ' selected="selected"';
+						$ret .= '<option value="'.$id.'"'.$selectedstr.'>'.$title.'</option>';
+					}
+					$ret .= "</optgroup>/n";
+				}
+			}*/
+			$ret .= "\n</select>";
+			$ret .= '<input type="submit" id="move_question" name="move_question" value="'.get_string('go').'"'.folder_view::$buttonattrib.'>';
+			$ret .= '<input name="removequestions" value="Remove" type="submit"'.self::$buttonattrib.' />';
+			$ret .= '</div>';
 		}
 
 		return $ret.'</div>'."\n";
