@@ -205,7 +205,9 @@ abstract class question_edit_form extends question_wizard_form {
 
         if (!empty($CFG->usetags)) {
             $mform->addElement('header', 'tagsheader', get_string('tags'));
-            $mform->addElement('tags', 'tags', get_string('tags'));
+			//Erweiterte Tags ermöglichen (advtags.php muss existieren!)
+			MoodleQuickForm::registerElementType('advtags', "$CFG->libdir/form/advtags.php", 'MoodleQuickForm_advtags');
+            $mform->addElement('advtags', 'tags', get_string('tags'));
         }
 
         if (!empty($this->question->id)) {

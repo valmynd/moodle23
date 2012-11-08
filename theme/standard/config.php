@@ -43,6 +43,11 @@ $THEME->sheets = array(
     'message',
     'modules',
     'question',
-    'css3'      /** Sets up CSS 3 + browser specific styles **/
+    'css3',      /** Sets up CSS 3 + browser specific styles **/
+	'tags'
 );
+// Add the required JavaScript to the page
+$THEME->javascripts = array('jquery-1.8.2.min', 'jquery-ui.min');
 $THEME->enable_dock = true;
+//Aktivieren des Renderer-Override-Mechanismus
+//$THEME->rendererfactory = 'theme_overridden_renderer_factory';
