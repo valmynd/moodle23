@@ -1,0 +1,53 @@
+/** Tag-Styling **/
+
+.mform .fadvtags label.accesshide {display: block;position: static;}
+.mform .fadvtags select {margin-bottom: 0.7em;min-width: 22em;}
+
+.ui-tooltip {
+	padding: 8px;
+	position: absolute;
+	z-index: 9999;
+	max-width: 300px;
+	-webkit-box-shadow: 0 0 5px #aaa;
+	box-shadow: 0 0 5px #aaa;
+    background-color:rgba(230,230,230,0.85);
+    color:black;
+}
+/* Fades and background-images don't work well together in IE6, drop the image */
+* html .ui-tooltip {
+	background-image: none;
+}
+body .ui-tooltip { border-width: 2px; }
+
+.log_container {
+    margin: 5px auto;
+}
+.log_container div {
+    display: inline-block;
+    padding: 15px 25px 15px 25px;
+    text-align:center;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+.ajax_failed {
+    background: #FFE1E1 url(./../pix/i/cross_red_big.gif) no-repeat 5px center;
+    border: 2px solid #CD0A0A;
+    color: #CD0A0A;
+}
+.ajax_success {
+    background: #DCFFDC url(./../pix/i/tick_green_big.gif) no-repeat 5px center;
+    border: 1px solid #14B80A;
+}
+.save_text {
+    cursor: pointer;
+}
+.list_control, .list_control input, .list_control select, .list_control label, .list_control div {
+    vertical-align: middle;
+}
+.list_control div {
+    display: inline-block;
+}
+#tag-management-list tr:hover td {
+    background-color: #CCCCCC;
+}
