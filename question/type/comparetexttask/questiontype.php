@@ -55,7 +55,7 @@ class qtype_comparetexttask extends question_type {
 	}
 
 	////// IMPORT/EXPORT FUNCTIONS /////////////////
-	/** Imports question from the Moodle XML format */
+	/* Imports question from the Moodle XML format
 	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
 		//debugging(var_export($data));
 		// compare to parent::import_from_xml($data, $question, $format, $extra);
@@ -72,7 +72,7 @@ class qtype_comparetexttask extends question_type {
 		return $qo;
 	}
 
-	/** Export question to the Moodle XML format */
+	// Export question to the Moodle XML format
 	public function export_to_xml($question, qformat_xml $format, $extra=null) {
 		// compare to parent::export_to_xml($question, $format, $extra);
 		$expout = "    <memento>{$format->xml_escape($question->options->memento)}</memento>";
@@ -83,7 +83,7 @@ class qtype_comparetexttask extends question_type {
 		$expout .= $format->write_files($fs->get_area_files($question->contextid, $this->plugin_name(), 'correctorfeedback', $question->id));
 		$expout .= "\n    </correctorfeedback>\n";
 		return $expout;
-	}
+	}*/
 
 	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
 	public function is_real_question_type() {

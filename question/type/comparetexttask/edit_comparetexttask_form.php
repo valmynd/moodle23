@@ -91,7 +91,7 @@ class qtype_comparetexttask_edit_form extends question_edit_form {
 		$mform->addElement('html', $appletstr);
 
 		// c) Add Module.js
-		$PAGE->requires->js("/question/type/comparetexttask/jquery-1.8.0.min.js");
+		//$PAGE->requires->js("/question/type/comparetexttask/jquery-1.8.0.min.js"); // now global
 		$PAGE->requires->js("/question/type/comparetexttask/module.js");
 	}
 

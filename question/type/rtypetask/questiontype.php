@@ -51,8 +51,8 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			// get contents of the editor-fields, including files, e.g. uploaded images
 			//$problemCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "problem_$i"));
 			//$hintCData = $dom->createCDATASection($this->get_value_from_editor_field($formdata, "hint_$i"));
-			$problem = $dom->createElement('problem', htmlentities($this->get_value_from_editor_field($formdata, "problem_$i")));
-			$hint = $dom->createElement('hint', htmlentities($this->get_value_from_editor_field($formdata, "hint_$i")));
+			$problem = $dom->createElement('problem', $this->get_value_from_editor_field($formdata, "problem_$i"));
+			$hint = $dom->createElement('hint', $this->get_value_from_editor_field($formdata, "hint_$i"));
 			$question->appendChild($problem);
 			$question->appendChild($hint);
 			//$problem->appendChild($problemCData);
@@ -64,32 +64,12 @@ class qtype_rtypetask extends qtype_comparetexttask {
 				$answer = $dom->createElement('answer', $formdata->{"answer_$key"});
 				if(isset($formdata->{"correct_$i"})) // validator should make that check removable
 					if($formdata->{"correct_$i"} == $j)
-						$answer->setAttribute('correct', 'true');
+					$answer->setAttribute('correct', 'true');
 				$question->appendChild($answer);
 			}
 		}
 		$formdata->memento = $dom->saveXML();
 		return parent::save_question_options($formdata);
-	}
-
-	protected function get_value_from_editor_field($formdata, $fieldname) {
-		$editor_value = $this->import_or_save_files($formdata->{$fieldname}, $formdata->context, $this->plugin_name(), $fieldname, $formdata->id);
-		// see https://github.com/kyro46/elateXam/blob/uni_leipzig/taskmodel/taskmodel-moodleTransformator/src/main/java/de/christophjobst/main/Base64Relocator.java
-		// (Java) problem_string = problem_string.replaceAll("@@PLUGINFILE@@/" + fileList.get(i).getName(), "data:image/gif;base64," + fileList.get(i).getValue());
-		$fs = get_file_storage();
-		$files = $fs->get_area_files($formdata->context->id, $this->plugin_name(), $fieldname, $formdata->id);
-		//debugging(var_export($files));
-		foreach ($files as $file) {
-			$filename = $file->get_filename();
-			$base64str = base64_encode($file->get_content());
-			$needle = '@@PLUGINFILE@@/' . $filename;
-			$replacement = 'data:image/gif;base64,' . $base64str;
-			//debugging($filename . "__" . $base64str);
-			$editor_value = str_replace($needle, $replacement, $editor_value);
-		}
-		//$fs->delete_area_files($formdata->context->id, 'question'); // delete all files => this mechaninsm would need to work for all fields!
-		//debugging($editor_value);
-		return $editor_value;
 	}
 
 	public function get_question_options($formdata) {
@@ -105,12 +85,12 @@ class qtype_rtypetask extends qtype_comparetexttask {
 				switch($question->nodeName) {
 					case 'problem':
 						$i++;
-						$formdata->{"problem_$i"} = array('text' => $question->nodeValue);
+						$formdata->{"problem_$i"} = array('text' => html_entity_decode($question->nodeValue));
 						$formdata->{"num_answers_$i"} = 0;
 						$j=1;
 						break;
 					case 'hint':
-						$formdata->{"hint_$i"} = array('text' => $question->nodeValue);
+						$formdata->{"hint_$i"} = array('text' => html_entity_decode($question->nodeValue));
 						break;
 					case 'answer':
 						$key = $i.'_'.$j;
@@ -126,5 +106,104 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			return true;
 		}
 		return false;
+	}
+
+	protected function get_value_from_editor_field($formdata, $fieldname) {
+		$editor_value = $this->import_or_save_files($formdata->{$fieldname}, $formdata->context, $this->plugin_name(), $fieldname, $formdata->id);
+		return htmlentities($editor_value); // the opposite is html_entity_decode()
+	}
+
+	/**
+	 * XML Export Overridden to prepare images
+	 * @see question_type::export_to_xml()
+	 */
+	public function export_to_xml($question, qformat_xml $format, $extra=null) {
+		// change memento tag: put all images into base64-strings -> must be reversible
+		$dom = new DomDocument();
+		$dom->loadXML($question->options->memento);
+		$XPath = new DOMXPath($dom);
+		$this->convert_images_to_base64($XPath, $question, "problem");
+		$this->convert_images_to_base64($XPath, $question, "hint");
+		$question->options->memento = $dom->saveXML();
+		return parent::export_to_xml($question, $format, $extra);
+	}
+
+	/**
+	 * XML Import Overridden to prepare images
+	 * @see question_type::import_from_xml()
+	 */
+	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+		$qo = parent::import_from_xml($data, $question, $format, $extra);
+		// reverse the mechanism implemented in export_to_xml()
+		// -> files must be assigned to the proper file areas!
+		$dom = new DomDocument();
+		$dom->loadXML($qo->memento);
+		$XPath = new DOMXPath($dom);
+		$this->extract_images_from_base64($XPath, $qo, "problem");
+		$this->extract_images_from_base64($XPath, $qo, "hint");
+		$qo->memento = $dom->saveXML();
+		return $qo;
+	}
+
+	/** helper method for export_to_xml */
+	protected function convert_images_to_base64(DOMXPath &$XPath, $question, $tagname) {
+		$fs = get_file_storage();
+		$relevanttags = $XPath->query("//question/$tagname");
+		for($i = 1; $i <= $relevanttags->length; $i++) {
+			$tag = $relevanttags->item($i-1);
+			$html = html_entity_decode($tag->nodeValue);
+			$files = $fs->get_area_files($question->contextid, $this->plugin_name(), $tagname.'_'.$i, $question->id);
+			foreach ($files as $file) {
+				$filename = $file->get_filename();
+				if($filename == '.') continue;
+				$base64str = base64_encode($file->get_content());
+				$needle = '@@PLUGINFILE@@/' . $filename;
+				$replacement = 'data:image/gif;base64,' . $base64str;
+				$html = str_replace($needle, $replacement, $html);
+				//$debug = $filename . "_" . $html;
+				$tag->nodeValue = htmlentities($html);
+			}
+		}
+	}
+
+	/** helper method for import_from_xml */
+	protected function extract_images_from_base64(DOMXPath &$XPath, $question, $tagname) {
+		$fs = get_file_storage();
+		$relevanttags = $XPath->query("//question/$tagname");
+		for($i = 1; $i <= $relevanttags->length; $i++) {
+			$tag = $relevanttags->item($i-1);
+			$html = html_entity_decode($tag->nodeValue);
+			// Pattern pattern = Pattern.compile("data:image/([a-z]+);base64,([^\"]+)");
+			// Matcher match = pattern.matcher(orig);
+			// while(match.find()) try {
+			// 	String type = match.group(1), base64 = match.group(2);
+			// 	byte[] img = DatatypeConverter.parseBase64Binary(base64);
+			// 	final BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(img));
+			// 	String randomname = "/frombase64_" + new BigInteger(130, random).toString(32) + "." + type;
+			// 	ImageIO.write(bufferedImage, type, new File(fspath + randomname)); // write to file on filesystem
+			// 	ret += orig.substring(lastPos, match.start()) + svpath + randomname; // have a link to that file accessible via web
+			// 	lastPos = match.end();
+			// }
+			// ret += orig.substring(lastPos);
+			$num_matches = preg_match_all("/data:image\/([a-z]+);base64,([^\"]+)/", $html, $matches);
+			for($i = 0; $i < $num_matches; $i++) {
+				// $matches[0] is an array of full pattern matches, $matches[1] is an array of strings
+				// matched by the first parenthesized subpattern, and so on
+				$type = $matches[1][$i];
+				$b64s = $matches[2][$i];
+				$img = base64_decode($b64s);
+				// @see http://docs.moodle.org/dev/Using_the_File_API#Moving_files_around
+				$file_record = array('contextid'=>$question->contextid, 'component'=>$this->plugin_name(), 'filearea'=>$tagname.'_'.$i,
+						'itemid'=>$question->id, 'filepath'=>'/', 'filename'=>"imported_file.$type",
+						'timecreated'=>time(), 'timemodified'=>time());
+				$storedfile = $fs->create_file_from_string($file_record, $img);
+				// the filename could't be preserved, but actually that doesn't matter at all (it will compare the hashes)
+				// -> @see https://groups.google.com/d/msg/moodlemayhem/cNjGG3ewLjI/8rzYbV5pUqoJ
+				$needle = "data:image/".$type.";base64,".$b64s;
+				$replacement = '@@PLUGINFILE@@/' . $storedfile->get_filename();
+				$html = str_replace($needle, $replacement, $html);
+			}
+			$tag->nodeValue = htmlentities($html);
+		}
 	}
 }
