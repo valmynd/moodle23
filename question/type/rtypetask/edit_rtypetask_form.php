@@ -169,7 +169,7 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 	 *
 	 * @see moodleform::is_validated()
 	 */
-	 public function validation($fromform, $files) {
+	public function validation($fromform, $files) {
 		$errors = parent::validation($fromform, $files);
 		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
 			if(!isset($_POST["correct_$i"]))
@@ -182,10 +182,38 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 		// this method is called after definition_inner(), thus too late for things like counting the number of
 		// questions for instance -> take a look at qtype_rtypetask::get_question_options()
 		$question = parent::data_preprocessing($question);
-		// handle default selection
 		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
+			// handle default selection
 			if(!isset($_POST["correct_$i"]) && !isset($question->{"correct_$i"}))
 				$question->{"correct_$i"} = 1;
+			// prepare editor area: problem
+			$draftid = file_get_submitted_draft_itemid("problem_$i");
+			$question->{"problem_$i"} = array(
+					'text' => file_prepare_draft_area(
+							$draftid,				// draftid
+							$this->context->id,		// context
+							'qtype_'.$this->qtype(),// component
+							"problem_$i",			// filarea
+							!empty($question->id) ? (int) $question->id : null, // itemid
+							$this->fileoptions,		// options
+							$question->{"problemtext_$i"} // text
+					),
+					'itemid' => $draftid,
+			);
+			// prepare editor area: hint
+			$draftid = file_get_submitted_draft_itemid("hint_$i");
+			$question->{"hint_$i"} = array(
+					'text' => file_prepare_draft_area(
+							$draftid,				// draftid
+							$this->context->id,		// context
+							'qtype_'.$this->qtype(),// component
+							"hint_$i",				// filarea
+							!empty($question->id) ? (int) $question->id : null, // itemid
+							$this->fileoptions,		// options
+							$question->{"hinttext_$i"}	// text
+					),
+					'itemid' => $draftid,
+			);
 		}
 		return $question;
 	}

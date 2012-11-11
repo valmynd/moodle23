@@ -84,12 +84,14 @@ class qtype_rtypetask extends qtype_comparetexttask {
 				switch($question->nodeName) {
 					case 'problem':
 						$i++;
-						$formdata->{"problem_$i"} = array('text' => $this->prepare_value_for_editor_field($formdata, "problem_$i", $question->nodeValue));
+						$val = $this->prepare_value_for_editor_field($formdata, "problem_$i", $question->nodeValue);
+						$formdata->{"problemtext_$i"} = $val;
 						$formdata->{"num_answers_$i"} = 0;
 						$j=1;
 						break;
 					case 'hint':
-						$formdata->{"hint_$i"} = array('text' => $this->prepare_value_for_editor_field($formdata, "hint_$i", $question->nodeValue));
+						$val = $this->prepare_value_for_editor_field($formdata, "hint_$i", $question->nodeValue);
+						$formdata->{"hinttext_$i"} = $val;
 						break;
 					case 'answer':
 						$key = $i.'_'.$j;
@@ -113,16 +115,19 @@ class qtype_rtypetask extends qtype_comparetexttask {
 	}
 	
 	protected function prepare_value_for_editor_field($question, $fieldname, $html) {
-		/*$num_matches = preg_match_all("/data:image\/([a-z]+);base64,([^\"]+)/", $html, $matches);
-		for($i = 0; $i < $num_matches; $i++) { // most of the time, nothing will be found
+		$fs = get_file_storage();
+		$num_matches = preg_match_all("/data:image\/([a-z]+);base64,([^\"]+)/", $html, $matches);
+		$context = parent::get_context_by_category_id($question->category);
+		//debugging("prepare_value_for_editor_field() called" . $contextid);
+		/*for($i = 0; $i < $num_matches; $i++) { // most of the time, nothing will be found
 			// $matches[0] is an array of full pattern matches, $matches[1] is an array of strings
 			// matched by the first parenthesized subpattern, and so on
 			$type = $matches[1][$i];
 			$b64s = $matches[2][$i];
 			$img = base64_decode($b64s);
 			// @see http://docs.moodle.org/dev/Using_the_File_API#Moving_files_around
-			$file_record = array('contextid'=>$question->contextid, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
-					'itemid'=>$question->id, 'filepath'=>'/', 'filename'=>"imported_file.$type",
+			$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
+					'itemid'=>0, 'filepath'=>'/', 'filename'=>"imported_file.$type",
 					'timecreated'=>time(), 'timemodified'=>time());
 			$storedfile = $fs->create_file_from_string($file_record, $img);
 			// the filename could't be preserved, but actually that doesn't matter at all (it will compare the hashes)
@@ -189,8 +194,8 @@ class qtype_rtypetask extends qtype_comparetexttask {
 		}
 	}
 
-	/** helper method for import_from_xml */
-	/*protected function extract_images_from_base64(DOMXPath &$XPath, $question, $tagname) {
+	/* helper method for import_from_xml
+	protected function extract_images_from_base64(DOMXPath &$XPath, $question, $tagname) {
 		$fs = get_file_storage();
 		$relevanttags = $XPath->query("//question/$tagname");
 		for($i = 1; $i <= $relevanttags->length; $i++) {
