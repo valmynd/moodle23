@@ -49,8 +49,8 @@ class qtype_comparetexttask extends question_type {
 		if(substr($formdata->memento, 0, 5) !== "<?xml") // won't be base64-encoded on import!
 			$formdata->memento = base64_decode($formdata->memento);
 		// "editor" fields need extra treatment in moodle formslib + they cause problems on import!
-		$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
-				$formdata->context, $this->plugin_name(), 'correctorfeedback', $formdata->id);
+		//$formdata->correctorfeedback = $this->import_or_save_files($formdata->correctorfeedback,
+		//		$formdata->context, $this->plugin_name(), 'correctorfeedback', $formdata->id);
 		return parent::save_question_options($formdata);
 	}
 

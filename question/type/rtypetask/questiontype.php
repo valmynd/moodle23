@@ -34,7 +34,6 @@ class qtype_rtypetask extends qtype_comparetexttask {
 	 * @see question_type::save_question_options()
 	 */
 	public function save_question_options($formdata) {
-		//debugging(var_export($formdata));
 		// memento will already exist when called from import mechanism
 		if(isset($formdata->memento))
 			return parent::save_question_options($formdata);
@@ -85,12 +84,12 @@ class qtype_rtypetask extends qtype_comparetexttask {
 				switch($question->nodeName) {
 					case 'problem':
 						$i++;
-						$formdata->{"problem_$i"} = array('text' => html_entity_decode($question->nodeValue));
+						$formdata->{"problem_$i"} = array('text' => $this->prepare_value_for_editor_field($formdata, "problem_$i", $question->nodeValue));
 						$formdata->{"num_answers_$i"} = 0;
 						$j=1;
 						break;
 					case 'hint':
-						$formdata->{"hint_$i"} = array('text' => html_entity_decode($question->nodeValue));
+						$formdata->{"hint_$i"} = array('text' => $this->prepare_value_for_editor_field($formdata, "hint_$i", $question->nodeValue));
 						break;
 					case 'answer':
 						$key = $i.'_'.$j;
@@ -112,6 +111,28 @@ class qtype_rtypetask extends qtype_comparetexttask {
 		$editor_value = $this->import_or_save_files($formdata->{$fieldname}, $formdata->context, $this->plugin_name(), $fieldname, $formdata->id);
 		return htmlentities($editor_value); // the opposite is html_entity_decode()
 	}
+	
+	protected function prepare_value_for_editor_field($question, $fieldname, $html) {
+		/*$num_matches = preg_match_all("/data:image\/([a-z]+);base64,([^\"]+)/", $html, $matches);
+		for($i = 0; $i < $num_matches; $i++) { // most of the time, nothing will be found
+			// $matches[0] is an array of full pattern matches, $matches[1] is an array of strings
+			// matched by the first parenthesized subpattern, and so on
+			$type = $matches[1][$i];
+			$b64s = $matches[2][$i];
+			$img = base64_decode($b64s);
+			// @see http://docs.moodle.org/dev/Using_the_File_API#Moving_files_around
+			$file_record = array('contextid'=>$question->contextid, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
+					'itemid'=>$question->id, 'filepath'=>'/', 'filename'=>"imported_file.$type",
+					'timecreated'=>time(), 'timemodified'=>time());
+			$storedfile = $fs->create_file_from_string($file_record, $img);
+			// the filename could't be preserved, but actually that doesn't matter at all (it will compare the hashes)
+			// -> @see https://groups.google.com/d/msg/moodlemayhem/cNjGG3ewLjI/8rzYbV5pUqoJ
+			$needle = "data:image/".$type.";base64,".$b64s;
+			$replacement = '@@PLUGINFILE@@/' . $storedfile->get_filename();
+			$html = str_replace($needle, $replacement, $html);
+		}*/
+		return html_entity_decode($html);
+	}
 
 	/**
 	 * XML Export Overridden to prepare images
@@ -130,18 +151,20 @@ class qtype_rtypetask extends qtype_comparetexttask {
 
 	/**
 	 * XML Import Overridden to prepare images
+	 * Problem: When this method is called, ID and ContextID aren't set
+	 *
 	 * @see question_type::import_from_xml()
 	 */
 	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
 		$qo = parent::import_from_xml($data, $question, $format, $extra);
 		// reverse the mechanism implemented in export_to_xml()
 		// -> files must be assigned to the proper file areas!
-		$dom = new DomDocument();
+		/*$dom = new DomDocument();
 		$dom->loadXML($qo->memento);
 		$XPath = new DOMXPath($dom);
 		$this->extract_images_from_base64($XPath, $qo, "problem");
 		$this->extract_images_from_base64($XPath, $qo, "hint");
-		$qo->memento = $dom->saveXML();
+		$qo->memento = $dom->saveXML();*/
 		return $qo;
 	}
 
@@ -167,7 +190,7 @@ class qtype_rtypetask extends qtype_comparetexttask {
 	}
 
 	/** helper method for import_from_xml */
-	protected function extract_images_from_base64(DOMXPath &$XPath, $question, $tagname) {
+	/*protected function extract_images_from_base64(DOMXPath &$XPath, $question, $tagname) {
 		$fs = get_file_storage();
 		$relevanttags = $XPath->query("//question/$tagname");
 		for($i = 1; $i <= $relevanttags->length; $i++) {
@@ -205,5 +228,5 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			}
 			$tag->nodeValue = htmlentities($html);
 		}
-	}
+	}*/
 }
