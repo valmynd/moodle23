@@ -115,27 +115,47 @@ class qtype_rtypetask extends qtype_comparetexttask {
 	}
 	
 	protected function prepare_value_for_editor_field($question, $fieldname, $html) {
+		global $DB;
 		$fs = get_file_storage();
 		$num_matches = preg_match_all("/data:image\/([a-z]+);base64,([^\"]+)/", $html, $matches);
 		$context = parent::get_context_by_category_id($question->category);
 		//debugging("prepare_value_for_editor_field() called" . $contextid);
-		/*for($i = 0; $i < $num_matches; $i++) { // most of the time, nothing will be found
+		for($i = 0; $i < $num_matches; $i++) { // most of the time, nothing will be found
 			// $matches[0] is an array of full pattern matches, $matches[1] is an array of strings
 			// matched by the first parenthesized subpattern, and so on
 			$type = $matches[1][$i];
 			$b64s = $matches[2][$i];
 			$img = base64_decode($b64s);
+			$hash = sha1($img);
+			// see if file already exists:
+			//debugging($context->id."__ ".$hash);
 			// @see http://docs.moodle.org/dev/Using_the_File_API#Moving_files_around
-			$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
+			/*$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
 					'itemid'=>0, 'filepath'=>'/', 'filename'=>"imported_file.$type",
 					'timecreated'=>time(), 'timemodified'=>time());
-			$storedfile = $fs->create_file_from_string($file_record, $img);
-			// the filename could't be preserved, but actually that doesn't matter at all (it will compare the hashes)
+			select * from mdl_files f left join mdl_files_reference r on f.referencefileid = r.id 
+				where f.contenthash = '81253d27ecec3b0903fa15cd9b41a00729050fa7' and contextid = 15
+					and filearea like 'problem%' */
+			$file_records = $DB->get_records_sql("select f.* from {files} f left join {files_reference} r on f.referencefileid = r.id
+					where f.contenthash = ? and contextid = ? and filearea = ?;", array($hash, $context->id, $fieldname));
+			$file_records = array_values($file_records);
+			if(count($file_records)) {
+				$first_record = array_pop($file_records);
+				$storedfile = $fs->get_file_instance((object)$first_record);
+				//$storedfile = $fs->get_file_by_id($first_record->id); // does the exact same as above...
+				//$fs->create_file_from_storedfile($file_record, $storedfile); // create another alias?
+			} else {
+				// the filename can't be preserved, but actually that doesn't matter at all
+				$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
+						'itemid'=>0, 'filepath'=>'/', 'filename'=>"imported_file.$type",
+						'timecreated'=>time(), 'timemodified'=>time());
+				$storedfile = $fs->create_file_from_string($file_record, $img);
+			}
 			// -> @see https://groups.google.com/d/msg/moodlemayhem/cNjGG3ewLjI/8rzYbV5pUqoJ
 			$needle = "data:image/".$type.";base64,".$b64s;
 			$replacement = '@@PLUGINFILE@@/' . $storedfile->get_filename();
 			$html = str_replace($needle, $replacement, $html);
-		}*/
+		}
 		return html_entity_decode($html);
 	}
 

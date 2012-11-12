@@ -181,11 +181,22 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 	protected function data_preprocessing($question) {
 		// this method is called after definition_inner(), thus too late for things like counting the number of
 		// questions for instance -> take a look at qtype_rtypetask::get_question_options()
+		debugging("data_preprocessing() called");
 		$question = parent::data_preprocessing($question);
 		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
 			// handle default selection
 			if(!isset($_POST["correct_$i"]) && !isset($question->{"correct_$i"}))
 				$question->{"correct_$i"} = 1;
+			//if($i >= $question->num_questions) continue;
+			if(!isset($question->{"hinttext_$i"})) {
+				if(isset($_REQUEST["hinttext_$i"])) {
+					$question->{"hinttext_$i"} = $_REQUEST["hinttext_$i"];
+					$question->{"problemtext_$i"} = $_REQUEST["problemtext_$i"];
+				} else {
+					$question->{"hinttext_$i"} = "";
+					$question->{"problemtext_$i"} = "";
+				}
+			}
 			// prepare editor area: problem
 			$draftid = file_get_submitted_draft_itemid("problem_$i");
 			$question->{"problem_$i"} = array(
