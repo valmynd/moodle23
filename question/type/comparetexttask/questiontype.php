@@ -83,6 +83,12 @@ class qtype_comparetexttask extends question_type {
 		$expout .= "\n    </correctorfeedback>\n";
 		return $expout;
 	}
+	
+	public function move_files($questionid, $oldcontextid, $newcontextid) {
+		parent::move_files($questionid, $oldcontextid, $newcontextid);
+		$fs = get_file_storage();
+		$fs->move_area_files_to_new_context($oldcontextid, $newcontextid, $this->plugin_name(), 'correctorfeedback', $questionid);
+	}
 
 	////// the following is borrowed from qtype_description -> compare to original when upgrading moodle! //////////
 	public function is_real_question_type() {
