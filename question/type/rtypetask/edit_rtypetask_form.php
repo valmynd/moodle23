@@ -181,7 +181,6 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 	protected function data_preprocessing($question) {
 		// this method is called after definition_inner(), thus too late for things like counting the number of
 		// questions for instance -> take a look at qtype_rtypetask::get_question_options()
-		debugging("data_preprocessing() called");
 		$question = parent::data_preprocessing($question);
 		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
 			// handle default selection
@@ -226,6 +225,19 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 					'itemid' => $draftid,
 			);
 		}
+		// handle correctorfeedback
+		$draftid = file_get_submitted_draft_itemid('correctorfeedback');
+		$question->correctorfeedback = array();
+		$question->correctorfeedback['text'] = file_prepare_draft_area(
+				$draftid,				// draftid
+				$this->context->id,		// context
+				'qtype_'.$this->qtype(),// component
+				'correctorfeedback',	// filarea
+				!empty($question->id) ? (int) $question->id : null, // itemid
+				$this->fileoptions,		// options
+				$question->options->correctorfeedback // text
+		);
+		$question->correctorfeedback['itemid'] = $draftid;
 		return $question;
 	}
 }
