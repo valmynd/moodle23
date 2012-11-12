@@ -128,12 +128,8 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			$img = base64_decode($b64s);
 			$hash = sha1($img);
 			// see if file already exists:
-			//debugging($context->id."__ ".$hash);
 			// @see http://docs.moodle.org/dev/Using_the_File_API#Moving_files_around
-			/*$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
-					'itemid'=>0, 'filepath'=>'/', 'filename'=>"imported_file.$type",
-					'timecreated'=>time(), 'timemodified'=>time());
-			select * from mdl_files f left join mdl_files_reference r on f.referencefileid = r.id 
+			/* select * from mdl_files f left join mdl_files_reference r on f.referencefileid = r.id 
 				where f.contenthash = '81253d27ecec3b0903fa15cd9b41a00729050fa7' and contextid = 15
 					and filearea like 'problem%' */
 			$file_records = $DB->get_records_sql("select f.* from {files} f left join {files_reference} r on f.referencefileid = r.id
@@ -147,7 +143,7 @@ class qtype_rtypetask extends qtype_comparetexttask {
 			} else {
 				// the filename can't be preserved, but actually that doesn't matter at all
 				$file_record = array('contextid'=>$context->id, 'component'=>$this->plugin_name(), 'filearea'=>$fieldname,
-						'itemid'=>0, 'filepath'=>'/', 'filename'=>"imported_file.$type",
+						'itemid'=>$question->id, 'filepath'=>'/', 'filename'=>"imported_file.$type",
 						'timecreated'=>time(), 'timemodified'=>time());
 				$storedfile = $fs->create_file_from_string($file_record, $img);
 			}
