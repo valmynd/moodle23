@@ -36,6 +36,8 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 		// we won't use any applets
 		$this->add_corrector_feedback();
 		$this->add_question_fields();
+		global $PAGE;
+		$PAGE->requires->js("/question/type/rtypetask/module.js");
 	}
 
 	protected function add_question_fields() {
