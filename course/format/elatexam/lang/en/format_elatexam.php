@@ -25,3 +25,12 @@
 $string['pluginname'] = 'ElateXam format';
 
 $string['copyto'] = "Copy to >>";
+$string['empty_search'] = 'Empty search result.';
+$string['customize_table'] = 'cusomize table: ';
+$string['search'] = 'search';
+$string['reset'] = 'reset';
+$string['reset_search'] = 'reset search';
+$string['search_text'] = 'search text';
+$string['search_every_cat'] = ' in allen Kategorien suchen ';
+$string['tags'] = 'Schlagworte';
+$string['category'] = 'Kategorie';

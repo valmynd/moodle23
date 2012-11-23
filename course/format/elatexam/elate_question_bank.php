@@ -21,21 +21,78 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once($CFG->dirroot . '/course/format/elatexam/copylib.php');
-require_once('question_bank_columns.php');
+//require_once('question_bank_columns.php');
 /*error_reporting(E_ALL);
 ini_set('display_errors', 1);*/
+
+class question_bank_category_column extends question_bank_column_base {
+	public function get_name() {
+		return 'category';
+	}
+	protected function get_title() {
+		return "Kategorie";
+	}
+    public function is_sortable() {
+        return "ct.categorypath";
+    }
+    public function get_extra_joins() {
+        global $SESSION;
+        $catmenu = question_category_options($SESSION->categcontext, false, 0, true);
+        $maxhierarchy = 0;
+        foreach ($catmenu as $catcourse) {
+            foreach ($catcourse as $optgroup) {
+                foreach ($optgroup as $cat) {
+                    $temphierarchy = intval(substr_count($cat,'&nbsp;') / 3);
+                    if ($temphierarchy > $maxhierarchy) {
+                        $maxhierarchy = $temphierarchy;
+                    }
+        }}}
+        $concat = "'',";
+        $joins  = "";
+        for ($i = 1;$i <= $maxhierarchy; $i++) {
+            $concat = "IFNULL(CONCAT(c$i.name,'<br />>>&nbsp;'),''),".$concat;
+            $joins  .= " LEFT JOIN {question_categories} c$i ON c".($i-1 == 0 ? '' : $i-1).".parent = c$i.id";
+        }
+        return array('ct' => "LEFT JOIN (".
+                                 "SELECT c.id, CONCAT($concat IFNULL(c.name,'')) AS categorypath FROM {question_categories} c $joins".
+                             ") ct ON ct.id = q.category");
+    }
+
+    public function get_required_fields() {
+        return array('ct.categorypath');
+    }
+	protected function display_content($question, $rowclasses) {
+        echo '<div class="tags_container">'.$question->categorypath.'</div>';
+	}
+}
+class question_bank_tags_column extends question_bank_column_base {
+	public function get_name() {
+		return 'tags';
+	}
+	protected function get_title() {
+		return "Schlagworte";
+	}
+    public function get_extra_joins() {
+        return array('tc' => "LEFT JOIN (".
+                                 "SELECT ti.itemid, GROUP_CONCAT(tg.rawname SEPARATOR ', ') AS tags FROM {tag_instance} ti ".
+                                 "LEFT JOIN {tag} tg ON ti.tagid = tg.id WHERE ti.itemtype = 'question' AND tg.name NOT LIKE '%=%' GROUP BY ti.itemid".
+                             ") tc ON tc.itemid = q.id");
+    }
+
+    public function get_required_fields() {
+        return array('tc.tags');
+    }
+	protected function display_content($question, $rowclasses) {
+        echo '<div class="tags_container">'.$question->tags.'</div>';
+	}
+}
 
 /**
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 class elate_question_bank_view extends question_bank_view {
-    protected $new_cols = array(//Neue Klassen: 'name für qbank column' => Bezeichnung
-                                'tags' => 'Schlagworte',
-                                'autor' => 'Autor',
-                                'schwierigkeit' => 'Schwierigkeitsgrad',
-                                'fachgebiet' => 'Fachgebiet'
-                              );
+    protected $new_cols;
     protected $selectable_cols;
     protected $std_selected_cols = array('questionname','modifiername', 'autor', 'schwierigkeit');
     protected $catids;
@@ -44,11 +101,58 @@ class elate_question_bank_view extends question_bank_view {
      * Konstruktor
      */         
     public function __construct($contexts, $pageurl, $course, $cm = null) {
-		global $PAGE, $OUTPUT, $CFG;
+		global $PAGE, $OUTPUT, $CFG, $SESSION,$DB;
+        $SESSION->categcontext = $contexts->having_one_edit_tab_cap('questions');
+        //get new cols
+        $this->new_cols = array(//Neue Klassen: 'name für qbank column' => Bezeichnung 
+                                'tags' => get_string('tags', 'tag'),
+                                'category' => get_string('category', 'question'),
+                                //'autor' => 'Autor',
+                                //'schwierigkeit' => 'Schwierigkeitsgrad',
+                                //'fachgebiet' => 'Fachgebiet'
+                              );
+        if ($off_tags= $DB->get_records_sql("SELECT name, rawname FROM {tag} WHERE tagtype = :seltag OR tagtype = :textag ORDER BY name",array('seltag'=>'official_select','textag'=>'official_text'))) {
+            if(count($off_tags)){
+                foreach($off_tags as $tag) {
+                    $this->new_cols[$tag->name] = $tag->rawname;
+                    $zeichen = 'abcdefghijklmnopqrstABCDEFGHIJKLMNOTQRST';   
+                    mt_srand( (double) microtime() * 1000000);  
+                    $tbl_shortcut = $zeichen[mt_rand(0,(strlen($zeichen)-1))].$zeichen[mt_rand(0,(strlen($zeichen)-1))].$zeichen[mt_rand(0,(strlen($zeichen)-1))];
+                    $tagname = $tag->name;
+                    $rawname = $tag->rawname;
+                    $newclass = "class question_bank_".$tagname."_column extends question_bank_column_base {
+                                	public function get_name() {
+                                		return '$tagname';
+                                	}
+                                	protected function get_title() {
+                                		return '$rawname';
+                                	}
+                                    public function get_extra_joins() {
+                                        return array('$tbl_shortcut' => \"LEFT JOIN (
+                                                                 SELECT ti.itemid, GROUP_CONCAT(tg.rawname SEPARATOR ', ') AS $tagname FROM {tag_instance} ti 
+                                                                 LEFT JOIN {tag} tg ON ti.tagid = tg.id WHERE ti.itemtype = 'question' AND tg.name LIKE '%$tagname=%' GROUP BY ti.itemid
+                                                             ) $tbl_shortcut ON $tbl_shortcut.itemid = q.id\");
+                                    }
+                                
+                                    public function get_required_fields() {
+                                        return array('$tbl_shortcut.$tagname');
+                                    }
+                                    public function is_sortable() {
+                                        return '$tbl_shortcut.$tagname';
+                                    }
+                                	protected function display_content(\$question, \$rowclasses) {
+                                        \$name = '$tagname';
+                                        echo str_replace('$tagname=','',\$question->\$name);
+                                	}
+                                }";
+                    eval ($newclass);
+                }
+            }
+        }
         $this->selectable_cols = array_merge(array( 'questiontext' => 'Fragetext',//Std
                                                     'questionname' => 'Fragename',//Std
                                                     'creatorname' => 'Erstellt von',//Std
-                                                    'modifiername' => 'Zuletzt verändert von'//Std
+                                                    'modifiername' => get_string('lastmodifiedby', 'question')//Std
                                                     ), $this->new_cols);
 		$PAGE->requires->css("/course/format/elatexam/styles.css");
 		$PAGE->requires->js("/course/format/elatexam/banklib.js");
@@ -147,7 +251,7 @@ class elate_question_bank_view extends question_bank_view {
         }
 
         //$this->sqlparams = $params;
-    /// Suche aufbauen
+
         $searchbyform = (optional_param('question_search', '', PARAM_ALPHA) == 'y');
         if ($searchbyform) {
             if (strlen(optional_param('input_question_search_text', '', PARAM_RAW))>0) {
@@ -156,9 +260,24 @@ class elate_question_bank_view extends question_bank_view {
                 $this->reset_search();
             }
         } else {
-            if (isset($SESSION->search_columns) && isset($SESSION->question_search_text)) {
-                if (strlen($SESSION->question_search_text) > 0) {
-                    $this->search_question($fields, $joins, $tests, $searchbyform);
+            if (strlen(optional_param('qbs1', '', PARAM_RAW))>0 || optional_param('qpage', -1, PARAM_INT)>=0 || optional_param('qperpage', 0, PARAM_INT)>0 || optional_param('showhidden_on', -1, PARAM_INT)>=0 || optional_param('recurse', -1, PARAM_INT)>=0 || is_array(optional_param_array('column_select', null, PARAM_RAW))) {
+                $lastchanged = optional_param('lastchanged', 0, PARAM_INT);
+                if ($lastchanged > 0) {
+                    if (isset($SESSION->lastchanged)) {
+                        if ($lastchanged != $SESSION->lastchanged) {
+                            $this->reset_search();
+                        }
+                    } else {
+                        $this->reset_search();
+                    }
+                    $SESSION->lastchanged = $lastchanged;
+                } 
+                if (isset($SESSION->search_columns) && isset($SESSION->question_search_text)) {
+                    if (strlen($SESSION->question_search_text) > 0) {
+                        $this->search_question($fields, $joins, $tests, $searchbyform);
+                    } else {
+                        $this->reset_search();
+                    }
                 } else {
                     $this->reset_search();
                 }
@@ -197,11 +316,6 @@ class elate_question_bank_view extends question_bank_view {
      * Funktion für eine Fragensuche
      */
     protected function search_question(&$fields, &$joins, &$tests, $searchbyform) {
-        ///SUCHE IN DB
-        //-->Leerzeichen als AND
-        //-->'' bzw "" als kompletter Term
-        //-->&,&&,and,und,|,||,or,oder
-        //-->Aufgabenstellung(nur bei Fragetypen XYZ gültig) durchsuchen?/Antwortalternativen
         global $SESSION;
         $search_parts = array();
         $missing_join = array();
@@ -357,7 +471,7 @@ class elate_question_bank_view extends question_bank_view {
         $this->display_search();
         $totalnumber = $this->get_question_count();
         if ($totalnumber == 0) {
-            echo "<div style='padding:15px;'>Kein Ergebnis für die aktuelle Suche.</div>";            
+            echo '<div style="padding:15px;">'.get_string('empty_search', 'format_elatexam').'</div>';            
 			return;
 		}        
         $questions = $this->load_page_questions($page, $perpage);        
@@ -428,7 +542,7 @@ class elate_question_bank_view extends question_bank_view {
         global $SESSION;       
         echo '<form method="post" action="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'" id="form_column_select">';
         echo '<fieldset class="invisiblefieldset">';
-        echo '<div class="column_select_box"><label><strong>Tabelleninformationen anpassen: </strong>';
+        echo '<div class="column_select_box"><label><strong>'.get_string('customize_table', 'format_elatexam').'</strong>';
         echo html_writer::select($this->selectable_cols, 'column_select[]',$SESSION->sel_columns, false, array('multiple' => 'true', 'id' => 'column_select'));
         echo '</label></div>';
         echo '<noscript><div class="centerpara"><input type="submit" value="'. get_string('go') .'" />';
@@ -444,11 +558,11 @@ class elate_question_bank_view extends question_bank_view {
         echo '<fieldset class="invisiblefieldset">';
         
         echo '<div class="search_part">';
-        echo '<input type="submit" value="suchen" /> <br /> <input type="submit" value="zurücksetzen" onclick="$(\'#input_question_search_text\').val(\'\')" title="Suche zurücksetzen" />';
+        echo '<input type="submit" value="'.get_string('search', 'format_elatexam').'" /> <br /> <input type="submit" value="'.get_string('reset', 'format_elatexam').'" onclick="$(\'#input_question_search_text\').val(\'\')" title="'.get_string('reset_search', 'format_elatexam').'" />';
         echo '<input type="hidden" name="question_search" value="y" /></div>';
-        echo '<div class="search_part"><input type="text" id="input_question_search_text" size="29" title="Suchtext (jedes Wort muss für eine Frage in einer der ausgewählten Tabellenspalten vorkommen)" value="'.str_replace("\"","'",$SESSION->question_search_text).'" name="input_question_search_text" /><br />';
+        echo '<div class="search_part"><input type="text" id="input_question_search_text" size="29" title="'.get_string('search_text', 'format_elatexam').'" value="'.str_replace("\"","'",$SESSION->question_search_text).'" name="input_question_search_text" /><br />';
         echo html_writer::select($this->selectable_cols, 'search_select[]', $SESSION->search_columns, false, array('multiple' => 'true', 'id' => 'search_select'));
-        echo '<br /><label><input type="checkbox" name="search_all_categories" value="1" '.($SESSION->search_all_cats ? 'checked="true"' : '') .' /> in allen Kategorien suchen </label></div>';
+        echo '<br /><label><input type="checkbox" name="search_all_categories" value="1" '.($SESSION->search_all_cats ? 'checked="true"' : '') .' />'.get_string('search_every_cat', 'format_elatexam').'</label></div>';
         
         echo '</fieldset></form>';
         echo '</div>';
@@ -488,7 +602,9 @@ class elate_question_bank_view extends question_bank_view {
         echo $OUTPUT->render($select);
         echo "</div>\n";
     }
-
+    /**
+     * function to display question-table options
+     */
     protected function display_options($recurse, $showhidden, $showquestiontext) {
         echo '<form method="get" action="edit.php" id="displayoptions">';
         echo "<fieldset class='invisiblefieldset'>";
@@ -500,17 +616,18 @@ class elate_question_bank_view extends question_bank_view {
         echo '<noscript><div class="centerpara"><input type="submit" value="'. get_string('go') .'" />';
         echo '</div></noscript></fieldset></form>';
     }
+    /**
+     * function to write the 'new question' button
+     */
 	protected function create_new_question_form($category, $canadd) {
-		// idea was to add row with create question button and searchbox via
-		// print_table_headers() -> won't work because of table-layout:fixed; (CSS)
-		// we need to have the new question button at one line with searchbox
-		// this woud get messed up with some themes, so we have to modify this anyways
 		echo '<span class="addbtn">';
-		// call create_new_question_button() -> compare to original when upgrading moodle!
 		if ($canadd) create_new_question_button($category->id, $this->editquestionurl->params(), get_string('createnewquestion', 'question'));
 		else print_string('nopermissionadd', 'question');
         echo '</span>';
 	}
+    /**
+     * function with extends the actions to process acopy
+     */
 	public function process_actions() {
 		global $CFG, $DB;
 		/// The following is handled very much the same as the 'move' part of parent::process_actions() in

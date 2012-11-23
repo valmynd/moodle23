@@ -112,6 +112,6 @@ $(document).ready(function() {
      selectedText: 'in # ausgewählten Spalten',
       header: true,
    });
-   $( "input[type=submit]" ).button();
+   //$( "input[type=submit]" ).button();
    $( document ).tooltip();
 });

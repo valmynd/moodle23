@@ -8,7 +8,7 @@ $id     = optional_param('tagid', '', PARAM_INT);
 $morexml = '';
 $error = '';
 if (strlen($task) == 0 || $id <= 0 ) {
-    $error = "ungültige Daten";
+    $error = get_string('missing_data','theme_standard');
 } else {
     switch ($task) {
         case 'changetype':
@@ -26,10 +26,10 @@ if (strlen($task) == 0 || $id <= 0 ) {
                     }
                     
                 } else {
-                    $error = "Tag existiert nicht in der Datenbank.";
+                    $error = get_string('not_existing_tag','theme_standard');
                 }
             } else {
-                $error = "Tag-Typ nicht definiert";
+                $error = get_string('undefined_tagtype','theme_standard');
             }
             break;
         case 'editname':
@@ -43,24 +43,24 @@ if (strlen($task) == 0 || $id <= 0 ) {
                     $morexml .= "<name>".$record->rawname."</name>\n";
                     
                 } else {
-                    $error = "Tag existiert nicht in der Datenbank.";
+                    $error = get_string('not_existing_tag','theme_standard');
                 }
             } else {
-                $error = "Kein Name übergeben";
+                $error = get_string('missing_tagname','theme_standard');
             }
             break;
         case 'deletetag':
             if ($DB->record_exists('tag', array('id' => $id))) {
                 if (!tag_delete($id) ) {
-                    $error = 'Tag konnte nicht gelöscht werden.';
+                    $error = get_string('tag_del_error','theme_standard');
                 }
             } else {
-                $error = "Tag existiert nicht in der Datenbank.";
+                $error = get_string('not_existing_tag','theme_standard');
             }
             break;
         case 'writepredef':
             $newdesc   = addslashes(optional_param('newdesc', '', PARAM_RAW));
-            $newdesc = str_replace(array(", ",",,", " ,"),array(",",",",","), $newdesc);
+            $newdesc = str_replace(array(", ",",,", " ,"," , "),array(",",",",",",","), $newdesc);
             $record = new stdClass();
             $record->id             = $id;
             $record->description    = $newdesc;
@@ -69,7 +69,7 @@ if (strlen($task) == 0 || $id <= 0 ) {
                 $record = $DB->get_record('tag', array('id'=>$record->id));
                 $morexml .= "<name>".$record->rawname."</name>\n";
             } else {
-                $error = "Tag existiert nicht in der Datenbank.";
+                $error = get_string('not_existing_tag','theme_standard');
             }
             break;
         case 'setinstances':
@@ -111,24 +111,24 @@ WHERE tg.name LIKE '".$record->name."=%' AND ti.itemtype = 'question') ";
                             $morexml .= "<created>".($questionsafter - $questionsbefore)."</created>\n";
                             $morexml .= "<newcount>".$questionsafter."</newcount>\n";
                         } else {
-                            $error = "Datenbankfehler beim Updaten";
+                            $error = get_string('db_error_update','theme_standard');
                         }
                         mysql_close($conn);
                         
                     } else {
-                        $error = "Erstellen der Instanz ".$record->name."=".$description." fehlgeschlagen.";
+                        $error = get_string('error_create_instanz_1','theme_standard').$record->name."=".$description.get_string('error_create_instanz_2','theme_standard');
                     }
                 } else {
-                    $error = "Instanz-Missmatch: Übermittelte Ausprägung stimmt nicht mit der vom Server berechneten Ausprägung des Tags überein. Übermittelt:$instance , Server:$description";
+                    $error = get_string('instance_missmatch','theme_standard').$instance." , Server:$description";
                 }
             } else {
-                $error = "Keine Ausprägung des Tags übermittelt.";
+                $error = get_string('missing_instance','theme_standard');
             }
 
                 
             break;
         default:
-            $error = "Task muss definiert sein!";
+            $error = get_string('wrong_task','theme_standard');
             break;
     }
 

@@ -24,4 +24,13 @@
 
 $string['pluginname'] = 'ElateXam Format';
 
-$string['copyto'] = "Kopieren nach >>";
+$string['copyto'] = 'Kopieren nach >>';
+$string['empty_search'] = 'Kein Ergebnis für die aktuelle Suche.';
+$string['customize_table'] = 'Tabelleninformationen anpassen: ';
+$string['search'] = 'suchen';
+$string['reset'] = 'zurücksetzen';
+$string['reset_search'] = 'Suche zurücksetzen';
+$string['search_text'] = 'Suchtext (jedes Wort muss für eine Frage in einer der ausgewählten Tabellenspalten vorkommen)';
+$string['search_every_cat'] = ' in allen Kategorien suchen ';
+$string['tags'] = 'Schlagworte';
+$string['category'] = 'Kategorie';

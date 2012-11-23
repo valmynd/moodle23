@@ -68,7 +68,7 @@ if ($action == 'addtag') {
             require_capability('moodle/tag:create', get_context_instance(CONTEXT_SYSTEM));
             tag_add($new_otag, optional_param('tagtype', 'official_text', PARAM_ALPHAEXT));
         }
-        $notice .= 'Ein neues Schlagwort wurde hinzugefügt: '.$new_otag. '<br />';
+        $notice .= get_string('newtag','theme_standard',$new_otag);
     }
 }
 
@@ -86,14 +86,14 @@ if ($ptypes = $DB->get_records_sql("SELECT DISTINCT(tagtype) FROM {tag} ORDER BY
     }
 }
 
-$existing_tagtypes['default'] = 'Standard';
+$existing_tagtypes['default'] = get_string('default','theme_standard');
 $existing_tagtypes['official'] = get_string('tagtype_official', 'tag');
-$existing_tagtypes['official_text'] = 'Vorgegebenes Text-Schlagwort';
-$existing_tagtypes['official_select'] = 'Vorgegebenes Auswahl-Schlagwort';
+$existing_tagtypes['official_text'] = get_string('official_text','theme_standard');
+$existing_tagtypes['official_select'] = get_string('official_select','theme_standard');
 
 //setup table
 $tablecolumns = array('id','name','tagtype','count','timemodified');
-$tableheaders = array(get_string('id', 'tag'),get_string('name', 'tag'),get_string('tagtype', 'tag'),'<span title="In dieser Spalte steht die Anzahl wie oft jedes Schlagwort vorkommt. Bei den vorgegebenen Schlagwörtern wird die Anzahl der Fragen gezählt die mindestens eine Taginstanz eines vorgebenen Schlagworts haben.">'.get_string('count', 'tag').'</span>',get_string('timemodified', 'tag'));
+$tableheaders = array(get_string('id', 'tag'),get_string('name', 'tag'),get_string('tagtype', 'tag'),'<span title="'.get_string('tags_count','theme_standard').'">'.get_string('count', 'tag').'</span>',get_string('timemodified', 'tag'));
 
 $table = new flexible_table('tag-management-list-'.$USER->id);
 
@@ -162,37 +162,37 @@ $table->pagesize($perpage, $totalcount);
 ?>
 <form class="tag-management-form" method="post" action="<?php echo $CFG->wwwroot ?>/tag/manage.php">
     <input type="hidden" name="action" value="addtag" />
-    <div class="tag-management-form generalbox"><label class="accesshide" for="id_otagsadd">Schlagwort hinzufügen</label>
+    <div class="tag-management-form generalbox"><label class="accesshide" for="id_otagsadd"><?php echo get_string('add_tag','theme_standard') ?></label>
         <input name="otagsadd" id="id_otagsadd" type="text" />
             <?php echo html_writer::select($existing_tagtypes, 'tagtype', 'official_select', false) ?>
         <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
-        <input name="addotags" value="Schlagwort hinzufügen" onclick="skipClientValidation = true;" id="id_addotags" type="submit" />
+        <input name="addotags" value="<?php echo get_string('add_tag','theme_standard') ?>" onclick="skipClientValidation = true;" id="id_addotags" type="submit" />
     </div>
 </form>
 <form class="tag-management-form" method="post" action="<?php echo $CFG->wwwroot?>/tag/manage.php"><div>
 <div class="list_control">
     <div>
-        <label for="search">Tag nach Name suchen</label><br />
+        <label for="search"><?php echo get_string('tag_search_by_name','theme_standard') ?></label><br />
         <input type="text" value="<?php echo $search ?>" id="search" name="search" />
-        <br /><input type="submit" value="Suchen/Liste aktualisieren" />
+        <br /><input type="submit" value="<?php echo get_string('search_refresh','theme_standard') ?>" />
         
     </div>
     <div>
         <?php echo  html_writer::select($existing_tagtypes, 'tabletagtypes[]',$sel_tagtypes, false, array('multiple' => 'true', 'size' => 4)) ?>
     </div>
     <div style="text-align: left;padding-left: 5px;">
-        <label><input type="radio" name="changeIm" value="wait" <?php echo $changeIm == 'wait' ? 'checked="true"' : '' ?> /> Änderungen manuell speichern</label><br />
-        <label><input type="radio" name="changeIm" value="ask" <?php echo $changeIm == 'ask' ? 'checked="true"' : '' ?> /> Frage zum Speichern per onChange auslösen</label><br />
-        <label><input type="radio" name="changeIm" value="immediatly" <?php echo $changeIm == 'immediatly' ? 'checked="true"' : '' ?> /> Änderungen per onChange sofort in die Datenbank schreiben</label><br />
-        <label><input type="checkbox" name="dwq" value="y" /> Tag ohne Nachfrage löschen.</label>
+        <label><input type="radio" name="changeIm" value="wait" <?php echo $changeIm == 'wait' ? 'checked="true"' : '' ?> /> <?php echo get_string('save_by_hand','theme_standard') ?></label><br />
+        <label><input type="radio" name="changeIm" value="ask" <?php echo $changeIm == 'ask' ? 'checked="true"' : '' ?> /> <?php echo get_string('ask_onchange','theme_standard') ?></label><br />
+        <label><input type="radio" name="changeIm" value="immediatly" <?php echo $changeIm == 'immediatly' ? 'checked="true"' : '' ?> /> <?php echo get_string('save_onchange','theme_standard') ?></label><br />
+        <label><input type="checkbox" name="dwq" value="y" /> <?php echo get_string('instant_del','theme_standard') ?></label>
     </div>
 </div>
 <div class="log_container"><div id="log"></div></div>
 <script type="text/javascript">
 /* mehrfach genutzte Texte */
-var off_text_title      = "Standardwert für dieses Textfeld.";
-var off_select_title    = "Auswahlmöglichkeiten. Werte (nur) durch ein Komma getrennt eingeben. Der erste Wert ist vorausgewählt.";
-var write_to_db         = "Änderung in die Datenbank schreiben?";
+var off_text_title      = "<?php echo get_string('off_text_title','theme_standard') ?>";
+var off_select_title    = "<?php echo get_string('off_select_title','theme_standard') ?>";
+var write_to_db         = "<?php echo get_string('write_to_db','theme_standard') ?>";
 
 var lastaction          = "";
 
@@ -221,7 +221,7 @@ function changetype (newtype, tagid, oc) {
                 success: function (xmlResp) {
                     $('#desc'+tagid).html('');
                     if ($(xmlResp).find('status').eq(0).text() == 'ok') {
-                        log.html('Tagtyp für \''+$(xmlResp).find('name').eq(0).text()+'\' erfolgreich aktualisiert.');
+                        log.html('<?php echo get_string('changed_tagtype_1','theme_standard') ?>\''+$(xmlResp).find('name').eq(0).text()+'\'<?php echo get_string('changed_tagtype_2','theme_standard') ?>');
                         log.attr("class","ajax_success");
                         if (newtype == 'official_text') {
                             createInput(tagid,30,$(xmlResp).find('description').eq(0).text(),off_text_title);
@@ -229,7 +229,7 @@ function changetype (newtype, tagid, oc) {
                         if (newtype == 'official_select') {
                             createInput(tagid,40,$(xmlResp).find('description').eq(0).text(),off_select_title);
                         }
-                        $('#ttsave'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="Gespeichert" alt="Gespeichert"/>');
+                        $('#ttsave'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="<?php echo get_string('saved','theme_standard') ?>" alt="<?php echo get_string('saved','theme_standard') ?>"/>');
                     } else {
                         log.html($(xmlResp).find('status').eq(0).text());
                         log.attr("class","ajax_failed");
@@ -238,7 +238,7 @@ function changetype (newtype, tagid, oc) {
                 }
             });
         } else {
-            $('#desc'+tagid).html('<image src="../pix/i/portfolio.gif" class="save_text" onclick="changetype(\''+newtype+'\', '+tagid+', 0)" title="Noch nicht gespeichert. Jetzt speichern?" alt="Noch nicht gespeichert. Jetzt speichern?"/>');
+            $('#desc'+tagid).html('<image src="../pix/i/portfolio.gif" class="save_text" onclick="changetype(\''+newtype+'\', '+tagid+', 0)" title="<?php echo get_string('not_saved_save_now','theme_standard') ?>" alt="<?php echo get_string('not_saved_save_now','theme_standard') ?>"/>');
         }
     }
 }
@@ -261,16 +261,16 @@ function newtagname(tagid, oc) {
             $('#edited'+tagid).html('<image src="../pix/i/ajaxloader.gif" title="loading..." alt="loading..."/>');
             $.ajax({
                 url: '<?php echo $CFG->wwwroot ?>/tag/manage_ajax.php',			
-                data: 'task=editname&tagid='+tagid+'&newname='+escape(newname),
+                data: 'task=editname&tagid='+tagid+'&newname='+encodeURIComponent(newname),
                 dataType: 'xml',
                 cache: false,
                 error: function(exhr, txtStat, errorThrown){log.html(errorThrown); log.attr("class","ajax_failed"); lastaction= '';}, 
                 success: function (xmlResp) {
                     if ($(xmlResp).find('status').eq(0).text() == 'ok') {
-                        log.html('Der neue Tagname \''+$(xmlResp).find('name').eq(0).text()+'\' wurde erfolgreich gespeichert.');
+                        log.html('<?php echo get_string('new_tagname_1','theme_standard') ?>\''+$(xmlResp).find('name').eq(0).text()+'\'<?php echo get_string('new_tagname_2','theme_standard') ?>');
                         log.attr("class","ajax_success");
                         $('#nametag'+tagid).val($(xmlResp).find('name').eq(0).text());
-                        $('#edited'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="Gespeichert" alt="Gespeichert"/>');
+                        $('#edited'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="<?php echo get_string('saved','theme_standard') ?>" alt="<?php echo get_string('saved','theme_standard') ?>"/>');
                     } else {
                         log.html($(xmlResp).find('status').eq(0).text());
                         log.attr("class","ajax_failed");
@@ -299,15 +299,15 @@ function writepredef (tagid, oc) {
             $('#ttsave'+tagid).html('<image src="../pix/i/ajaxloader.gif" title="loading..." alt="loading..."/>');
             $.ajax({
                 url: '<?php echo $CFG->wwwroot ?>/tag/manage_ajax.php',			
-                data: 'task=writepredef&tagid='+tagid+'&newdesc='+escape($('#tagtext'+tagid).val()),
+                data: 'task=writepredef&tagid='+tagid+'&newdesc='+encodeURIComponent($('#tagtext'+tagid).val()),
                 dataType: 'xml',
                 cache: false,
                 error: function(exhr, txtStat, errorThrown){log.html(errorThrown); log.attr("class","ajax_failed");lastaction = '';}, 
                 success: function (xmlResp) {
                     if ($(xmlResp).find('status').eq(0).text() == 'ok') {
-                        log.html('Tag-Standardbelegung für \''+$(xmlResp).find('name').eq(0).text()+'\' erfolgreich aktualisiert. Bitte denken Sie daran bei den Standard-Tags geänderte Ausprägungen dieses Tags zu ändern.');
+                        log.html('<?php echo get_string('tag_std_desc_1','theme_standard') ?>\''+$(xmlResp).find('name').eq(0).text()+'\'<?php echo get_string('tag_std_desc_2','theme_standard') ?>');
                         log.attr("class","ajax_success");
-                        $('#ttsave'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="Gespeichert" alt="Gespeichert"/>');
+                        $('#ttsave'+tagid).html('<image src="../pix/i/tick_green_small.gif" title="<?php echo get_string('saved','theme_standard') ?>" alt="<?php echo get_string('saved','theme_standard') ?>"/>');
                     } else {
                         log.html($(xmlResp).find('status').eq(0).text());
                         log.attr("class","ajax_failed");
@@ -327,12 +327,12 @@ function setinstances(tagid) {
         var standardwert = $('#tagtext'+tagid).val();
     }
     if (standardwert.length == 0) {
-        alert('Es ist kein Standardwert eingetragen.')
+        alert('<?php echo get_string('no_std_desc','theme_standard') ?>')
     } else {
         if (name.length == 0) {
-            alert('Es wurde kein Tagname gefunden.')
+            alert('<?php echo get_string('no_tagname','theme_standard') ?>')
         } else {
-            var writechange = confirm('Soll für alle Fragen eine Instanz des Tags "'+name.toLowerCase()+'='+standardwert+'" zugewiesen werden?\n Fragen die bereits ein Tag mit "'+name.toLowerCase()+'=" haben, bekommen keine Instanz zugewiesen.');
+            var writechange = confirm('<?php echo get_string('set_instance_1','theme_standard') ?>"'+name.toLowerCase()+'='+standardwert+'"<?php echo get_string('set_instance_2','theme_standard') ?>"'+name.toLowerCase()+'="<?php echo get_string('set_instance_3','theme_standard') ?>');
             if(writechange) {
                 var log = $('#log');
                 log.attr("class","");
@@ -340,15 +340,15 @@ function setinstances(tagid) {
                 $('#setallquest'+tagid).html('<image src="../pix/i/ajaxloader.gif" title="loading..." alt="loading..."/>');
                 $.ajax({
                     url: '<?php echo $CFG->wwwroot ?>/tag/manage_ajax.php',			
-                    data: 'task=setinstances&tagid='+tagid+'&newval='+escape(standardwert),
+                    data: 'task=setinstances&tagid='+tagid+'&newval='+encodeURIComponent(standardwert),
                     dataType: 'xml',
                     cache: false,
                     error: function(exhr, txtStat, errorThrown){log.html(errorThrown); log.attr("class","ajax_failed");}, 
                     success: function (xmlResp) {
                         if ($(xmlResp).find('status').eq(0).text() == 'ok') {
-                            log.html('Es wurde zu allen Fragen die keine Instanz des Tags \''+$(xmlResp).find('name').eq(0).text()+'\' hatten ein Tag \''+$(xmlResp).find('instance').eq(0).text()+'\' hinzugefügt. Anzahl geänderter Fragen: '+$(xmlResp).find('created').eq(0).text());
+                            log.html('<?php echo get_string('set_instance_ok_1','theme_standard') ?>\''+$(xmlResp).find('name').eq(0).text()+'\'<?php echo get_string('set_instance_ok_2','theme_standard') ?>\''+$(xmlResp).find('instance').eq(0).text()+'\'<?php echo get_string('set_instance_ok_3','theme_standard') ?>'+$(xmlResp).find('created').eq(0).text());
                             log.attr("class","ajax_success");
-                            $('#setallquest'+tagid).parent().html($(xmlResp).find('newcount').eq(0).text()+'<span style="float:right;"><img src="../pix/i/flagged.png" title="Jede vorkommende Frage besitzt eine Instanz dieses Tags. (Bei korrekter Ausführung der Cron-Jobs!)" /> </span>');
+                            $('#setallquest'+tagid).parent().html($(xmlResp).find('newcount').eq(0).text()+'<span style="float:right;"><img src="../pix/i/flagged.png" title="<?php echo get_string('all_instance_title','theme_standard') ?>" /> </span>');
                         } else {
                             log.html($(xmlResp).find('status').eq(0).text());
                             log.attr("class","ajax_failed");
@@ -365,7 +365,7 @@ function deltag (tagid) {
     if ($('input[name=dwq]').is(':checked')) {
         var writechange = true;
     } else {
-        var writechange = confirm('Tag und jedes Auftreten dieses Tags wirklich löschen?');
+        var writechange = confirm('<?php echo get_string('delete_tag','theme_standard') ?>');
     }
     if(writechange) {
         var log = $('#log');
@@ -380,7 +380,7 @@ function deltag (tagid) {
             error: function(exhr, txtStat, errorThrown){log.html(errorThrown); log.attr("class","ajax_failed");}, 
             success: function (xmlResp) {
                 if ($(xmlResp).find('status').eq(0).text() == 'ok') {
-                    log.html('Tag wurde erfolgreich gelöscht.');
+                    log.html('<?php echo get_string('deleted_tag','theme_standard') ?>');
                     log.attr("class","ajax_success");
                     $('#deltag'+tagid).closest("tr").fadeOut(1000,function(){$('#deltag'+tagid).closest("tr").remove();});
                 } else {
@@ -393,16 +393,16 @@ function deltag (tagid) {
 }
 
 function edittag(edtid) {
-    $('#edit'+edtid).html('<input type="text" size="30" value="'+$('#nametag'+edtid).val()+'" id="tagedit'+edtid+'" title="neuer Tagname (jedes Vorkommen wird damit geändert)" onkeydown="savepic2('+edtid+')" onchange="newtagname('+edtid+', 1)" />');
+    $('#edit'+edtid).html('<input type="text" size="30" value="'+$('#nametag'+edtid).val()+'" id="tagedit'+edtid+'" title="<?php echo get_string('new_tagname','theme_standard') ?>" onkeydown="savepic2('+edtid+')" onchange="newtagname('+edtid+', 1)" />');
 }
 function createInput(ciTagid, ciSize, ciValue, ciTitle) {
     $('#desc'+ciTagid).html('<input type="text" size="'+ciSize+'" value="'+ciValue+'" id="tagtext'+ciTagid+'" title="'+ciTitle+'" onkeydown="savepic('+ciTagid+')" onchange="writepredef('+ciTagid+', 1)" />');
 }
 function savepic(spTagid) {
-    $('#ttsave'+spTagid).html('<image class="save_text" src="../pix/i/portfolio.gif" onclick="writepredef('+spTagid+', 0)" title="Noch nicht gespeichert. Jetzt speichern?" alt="Noch nicht gespeichert. Jetzt speichern?"/>');
+    $('#ttsave'+spTagid).html('<image class="save_text" src="../pix/i/portfolio.gif" onclick="writepredef('+spTagid+', 0)" title="<?php echo get_string('not_saved_save_now','theme_standard') ?>" alt="<?php echo get_string('not_saved_save_now','theme_standard') ?>"/>');
 }
 function savepic2(spTagid) {
-    $('#edited'+spTagid).html('<image class="save_text" src="../pix/i/portfolio.gif" onclick="newtagname('+spTagid+', 0)" title="Noch nicht gespeichert. Jetzt speichern?" alt="Noch nicht gespeichert. Jetzt speichern?"/>');
+    $('#edited'+spTagid).html('<image class="save_text" src="../pix/i/portfolio.gif" onclick="newtagname('+spTagid+', 0)" title="<?php echo get_string('not_saved_save_now','theme_standard') ?>" alt="<?php echo get_string('not_saved_save_now','theme_standard') ?>"/>');
 }
 </script>
 <?php
@@ -414,7 +414,7 @@ if ($tagrecords = $DB->get_records_sql($query, $params, $table->get_page_start()
     foreach ($tagrecords as $tag) {
         $id             =   $tag->id;
         $name           =   '<span id="edit'.$tag->id.'">'.tag_display_name($tag).'</span> <span id="edited'.
-                            $tag->id.'"></span> <img src="../pix/t/edit.gif" title="Tagname ändern" style="cursor:pointer;" onclick="edittag('.
+                            $tag->id.'"></span> <img src="../pix/t/edit.gif" title="'.get_string('change_tagname','theme_standard').'" style="cursor:pointer;" onclick="edittag('.
                             $tag->id.')" /><input type="hidden" id="nametag'.
                             $tag->id.'" value="'.tag_display_name($tag).'" />';
         $tagtype        =   html_writer::select($existing_tagtypes, 'tagtypes['.$tag->id.']', $tag->tagtype, false, 
@@ -429,15 +429,15 @@ if ($tagrecords = $DB->get_records_sql($query, $params, $table->get_page_start()
         if ($tag->tagtype == 'official_select' || $tag->tagtype == 'official_text') {
             $tagcount = $DB->count_records_sql("SELECT COUNT(DISTINCT itemid) FROM {tag_instance} ti WHERE itemtype = 'question' AND ti.tagid IN (SELECT id FROM {tag} WHERE name LIKE ?)", array($tag->name.'=%') );
             if ($tagcount >= $questioncount) {
-                $img = '<img src="../pix/i/flagged.png" title="Jede vorkommende Frage besitzt eine Instanz dieses Tags. (Bei korrekter Ausführung der Cron-Jobs!)" />';
+                $img = '<img src="../pix/i/flagged.png" title="'.get_string('all_instance_title','theme_standard').'" />';
                 $count = $tagcount.' <span style="float:right;">'.$img.'</span>';
             } else {
-                $img = '<img src="../pix/i/unflagged.png" class="save_text" onclick="setinstances('.$tag->id.')" title="Es gibt Fragen ohne eine Instanz dieses Tags. Mit einem Klick wird allen Fragen eine Instanz dieses Tags hinzugefügt." />';
+                $img = '<img src="../pix/i/unflagged.png" class="save_text" onclick="setinstances('.$tag->id.')" title="'.get_string('questions_without_instance','theme_standard').'" />';
                 $count = $tagcount.' <span id="setallquest'.$tag->id.'" style="float:right;">'.$img.'</span>';
             }
         }
         $timemodified   =   format_time(time() - $tag->timemodified).
-                            '<span id="deltag'.$tag->id.'" style="float:right;"> <image class="save_text" src="../pix/i/cross_red_big.gif" title="Diesen Tag löschen" onclick="deltag('.$tag->id.')" /></span>';
+                            '<span id="deltag'.$tag->id.'" style="float:right;"> <image class="save_text" src="../pix/i/cross_red_big.gif" title="'.get_string('del_this_tag','theme_standard').'" onclick="deltag('.$tag->id.')" /></span>';
         $data = array($id,
                       $name,
                       $tagtype,
