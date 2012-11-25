@@ -56,6 +56,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 				// TODO: Abzug für falschen Versuch
 				break;
 		}
+		$mform->getElement('generalfeedback')->setLabel(get_string('generalfeedback', 'format_elatexam'));
 	}
 
 	protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
