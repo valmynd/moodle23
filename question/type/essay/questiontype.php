@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questiontype_base.php');
 
 
 /**
@@ -35,7 +36,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright  2005 Mark Nielsen
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_essay extends question_type {
+class qtype_essay extends elate_questiontype_base {
     public function is_manual_graded() {
         return true;
     }

@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/type/multichoice/question.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questiontype_base.php');
 
 
 /**
@@ -35,7 +36,7 @@ require_once($CFG->dirroot . '/question/type/multichoice/question.php');
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_multianswer extends question_type {
+class qtype_multianswer extends elate_questiontype_base {
 
     public function can_analyse_responses() {
         return false;

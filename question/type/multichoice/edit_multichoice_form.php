@@ -69,21 +69,26 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
     }
 
     // we want the method in the parent class to be used
-    /*protected function get_per_answer_fields($mform, $label, $gradeoptions,
-            &$repeatedoptions, &$answersoption) {
+    protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
+    	$mform = $this->_form;
         $repeated = array();
         $repeated[] = $mform->createElement('header', 'answerhdr', $label);
-        $repeated[] = $mform->createElement('editor', 'answer',
-                get_string('answer', 'question'), array('rows' => 1), $this->editoroptions);
-        $repeated[] = $mform->createElement('select', 'fraction',
-                get_string('grade'), $gradeoptions);
-        $repeated[] = $mform->createElement('editor', 'feedback',
-                get_string('feedback', 'question'), array('rows' => 1), $this->editoroptions);
+        $repeated[] = $mform->createElement('editor', 'answer', get_string('answer', 'question'), array('rows' => 1), $this->editoroptions);
+        // instead of percentages, we only want to know whether an answer is correct (100%) or not (0%)
+		//$repeated[] = $mform->createElement('select', 'fraction', get_string('grade'), $gradeoptions);
+        /*$repeated[] = $mform->createElement('group', '', get_string('grade'), array(
+        		0 => $mform->createElement('radio', 'fraction', '', get_string('right', 'format_elatexam'), 100),
+        		1 => $mform->createElement('radio', 'fraction', '', get_string('wrong', 'format_elatexam'), 0),
+        ));*/
+        $repeated[] = $mform->createElement('advcheckbox', 'fraction', get_string('grade'), get_string('right', 'format_elatexam'), array('group' => 1), array(0, 1));
+		// we don't need the 'feedback' fields;
+        //$repeated[] = $mform->createElement('editor', 'feedback', get_string('feedback', 'question'), array('rows' => 1), $this->editoroptions);
+		$repeated[] = $mform->createElement('hidden', 'feedback', "");
         $repeatedoptions['answer']['type'] = PARAM_RAW;
         $repeatedoptions['fraction']['default'] = 0;
         $answersoption = 'answers';
         return $repeated;
-    }*/
+    }
 
     protected function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);

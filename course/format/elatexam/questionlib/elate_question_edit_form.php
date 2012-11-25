@@ -31,7 +31,12 @@ require_once($CFG->dirroot.'/question/type/edit_question_form.php');
 
 /**
  * Modified Form definition base class for all question used by ElateXam.
-*/
+ * It must be used in conjunction with elate_questiontype_base class,
+ * as we remove thertain fields which result in question_type complaining.
+ *
+ * @author	C.Wilhelm
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 abstract class elate_question_edit_form extends question_edit_form {
 
 	protected function definition() {
@@ -92,6 +97,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 		// we want a textfield instead, the rest ain't needed
 		$mform->addElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
 		$mform->setType('penalty', PARAM_INT);
+		$mform->setDefault('penalty', 0);
 	}
 
 	protected function data_preprocessing_combined_feedback($question,
@@ -101,6 +107,24 @@ abstract class elate_question_edit_form extends question_edit_form {
 
 	protected function data_preprocessing_hints($question, $withclearwrong = false,
 			$withshownumpartscorrect = false) {
+		return $question;
+	}
+
+	/**
+	 * Overridden data_preprocessing_answers() to avoid errors as we removed
+	 * any "Feedback" fields from answers
+	 *
+	 * @see question_edit_form::data_preprocessing_answers()
+	 */
+	protected function data_preprocessing_answers($question, $withanswerfiles = false) {
+		if(!empty($question->options->answers)) {
+			$question = parent::data_preprocessing_answers($question, $withanswerfiles);
+			$key = 0;
+			foreach ($question->options->answers as $answer) {
+				$question->feedback[$key] = "";
+				$key++;
+			}
+		}
 		return $question;
 	}
 
@@ -136,6 +160,9 @@ abstract class elate_question_edit_form extends question_edit_form {
 
 /**
  * Base Class for Addon types using Java Applets
+ *
+ * @author	C.Wilhelm
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class elate_applet_question_edit_form extends elate_question_edit_form {
 

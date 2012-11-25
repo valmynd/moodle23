@@ -23,7 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/course/format/elatexam/questionlib/addon_questiontype_base.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questiontype_base.php');
 
 /**
  * The comparetexttask question type class.
@@ -31,7 +31,7 @@ require_once($CFG->dirroot.'/course/format/elatexam/questionlib/addon_questionty
  * @author	C.Wilhelm
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-class qtype_comparetexttask extends addon_questiontype_base {
+class qtype_comparetexttask extends elate_addon_questiontype_base {
 
 	public function extra_question_fields() {
 		return array('question_comparetexttask', 'correctorfeedback', 'memento');

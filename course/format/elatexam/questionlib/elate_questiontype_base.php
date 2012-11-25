@@ -24,12 +24,44 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/question/type/questiontypebase.php');
 
 /**
- * Question-Type base class that can be used by ElateXam Addon-Question-Types
+ * Modified Question-Type base class for all question used by ElateXam.
  *
  * @author	C.Wilhelm
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-class addon_questiontype_base extends question_type {
+
+class elate_questiontype_base extends question_type {
+
+	public function save_question($question, $form) {
+		// parent::save_question() will call save_question_options(),
+		// making this a good place to prepare some variables
+		return parent::save_question($question, $form);
+	}
+
+	protected function initialise_combined_feedback(question_definition $question, $questiondata, $withparts = false) {
+		foreach(array('correctfeedback','partiallycorrectfeedback','incorrectfeedback') as $fieldname)
+			$question->{$fieldname} = "";
+	}
+
+	protected function import_or_save_files($field, $context, $component, $filearea, $itemid) {
+		// overridden because of missing exception handling in question_type::
+		if(!in_array($filearea, array('answerfeedback','correctfeedback','partiallycorrectfeedback','incorrectfeedback'))) try {
+			return parent::import_or_save_files($field, $context, $component, $filearea, $itemid);
+		} catch(Exception $e) {
+			debugging("problematic: " . $filearea);
+			//debug_print_backtrace();
+		}
+		return "";
+	}
+}
+
+/**
+ * Question-Type base class that can be used by ElateXam Addon-Question-Types
+ *
+ * @author	C.Wilhelm
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class elate_addon_questiontype_base extends question_type {
 	/* extra_question_fields() should be overridden in subtypes
 	 * @see question_type::extra_question_fields() */
 

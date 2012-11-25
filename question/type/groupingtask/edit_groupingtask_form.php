@@ -34,4 +34,8 @@ class qtype_groupingtask_edit_form extends elate_applet_question_edit_form {
 	protected function get_innerpath() {
 		return "com/spiru/dev/groupingTaskProfessor_addon/GroupingTaskAddOnApplet.class";
 	}
+
+	protected function get_jarname() {
+		return "complexTask.jar";
+	}
 }

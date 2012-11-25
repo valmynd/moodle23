@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questiontype_base.php');
 
 
 /**
@@ -36,7 +37,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_multichoice extends question_type {
+class qtype_multichoice extends elate_questiontype_base {
     public function get_question_options($question) {
         global $DB, $OUTPUT;
         $question->options = $DB->get_record('question_multichoice',
@@ -88,9 +89,11 @@ class qtype_multichoice extends question_type {
                     $context, 'question', 'answer', $answer->id);
             $answer->answerformat = $answerdata['format'];
             $answer->fraction = $question->fraction[$key];
-            $answer->feedback = $this->import_or_save_files($question->feedback[$key],
-                    $context, 'question', 'answerfeedback', $answer->id);
-            $answer->feedbackformat = $question->feedback[$key]['format'];
+            // removed
+            //$answer->feedback = $this->import_or_save_files($question->feedback[$key],
+            //        $context, 'question', 'answerfeedback', $answer->id);
+            $answer->feedbackformat = "";//$question->feedback[$key]['format'];
+            $answer->feedback = "";
 
             $DB->update_record('question_answers', $answer);
             $answers[] = $answer->id;

@@ -39,3 +39,5 @@ $string['category'] = 'Kategorie';
 $string['generalfeedback'] = 'Hinweistext';
 $string['correctorfeedback'] = 'Musterlösung';
 $string['penaltyforeachincorrecttry'] = "Punkteabzug für falsche Antworten";
+$string['right'] = "richtig";
+$string['wrong'] = "falsch";
