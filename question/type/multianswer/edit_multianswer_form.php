@@ -25,7 +25,8 @@
 
 
 defined('MOODLE_INTERNAL') || die();
-
+global $CFG;
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_question_edit_form.php');
 
 /**
  * Form for editing multi-answer questions.
@@ -33,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2007 Jamie Pratt me@jamiep.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
-class qtype_multianswer_edit_form extends question_edit_form {
+class qtype_multianswer_edit_form extends elate_question_edit_form {
 
     //  $questiondisplay will contain the qtype_multianswer_extract_question from
     // the questiontext

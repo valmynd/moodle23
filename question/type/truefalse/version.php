@@ -30,4 +30,6 @@ $plugin->version   = 2012061700;
 
 $plugin->requires  = 2012061700;
 
-$plugin->maturity  = MATURITY_STABLE;
+$plugin->dependencies = array(
+		'format_elatexam' => ANY_VERSION,
+);

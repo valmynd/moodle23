@@ -33,6 +33,7 @@ $plugin->dependencies = array(
     'qtype_multichoice' => 2012061700,
     'qtype_numerical'   => 2012061700,
     'qtype_shortanswer' => 2012061700,
+    'format_elatexam' => ANY_VERSION,
 );
 
-$plugin->maturity  = MATURITY_STABLE;
+//$plugin->maturity  = MATURITY_STABLE;

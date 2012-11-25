@@ -25,7 +25,8 @@
 
 
 defined('MOODLE_INTERNAL') || die();
-
+global $CFG;
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_question_edit_form.php');
 
 /**
  * Multiple choice editing form definition.
@@ -33,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2007 Jamie Pratt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_multichoice_edit_form extends question_edit_form {
+class qtype_multichoice_edit_form extends elate_question_edit_form {
     /**
      * Add question-type specific form fields.
      *

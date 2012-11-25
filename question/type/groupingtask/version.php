@@ -29,5 +29,5 @@ $plugin->requires = 2012061700;
 $plugin->component = 'qtype_groupingtask';
 
 $plugin->dependencies = array(
-		'qtype_comparetexttask' => ANY_VERSION,
+		'format_elatexam' => ANY_VERSION,
 );

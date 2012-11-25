@@ -29,6 +29,5 @@ $plugin->requires = 2012061700;
 $plugin->component = 'qtype_rtypetask';
 
 $plugin->dependencies = array(
-		'qtype_multichoice' => ANY_VERSION,
-		'qtype_comparetexttask' => ANY_VERSION,
+		'format_elatexam' => ANY_VERSION,
 );

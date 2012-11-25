@@ -26,9 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
-require_once($CFG->dirroot.'/question/type/edit_question_form.php');
-
+global $CFG;
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_question_edit_form.php');
 
 /**
  * True-false question editing form definition.
@@ -36,7 +35,7 @@ require_once($CFG->dirroot.'/question/type/edit_question_form.php');
  * @copyright  2007 Jamie Pratt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_truefalse_edit_form extends question_edit_form {
+class qtype_truefalse_edit_form extends elate_question_edit_form {
     /**
      * Add question-type specific form fields.
      *
