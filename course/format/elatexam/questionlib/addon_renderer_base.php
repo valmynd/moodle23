@@ -14,26 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot.'/question/type/renderbase.php');
+
 /**
- * Question type class for the comparetexttask question type.
- *
- * @package    qtype
- * @subpackage comparetexttask
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Pseudo renderer class (shall do nothing (yet)).
+ * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/course/format/elatexam/questionlib/addon_questiontype_base.php');
-
-/**
- * The comparetexttask question type class.
- *
- * @author	C.Wilhelm
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-class qtype_comparetexttask extends addon_questiontype_base {
-
-	public function extra_question_fields() {
-		return array('question_comparetexttask', 'correctorfeedback', 'memento');
+class addon_renderer_base extends qtype_renderer {
+	public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
+		return html_writer::tag('div', $qa->get_question()->format_questiontext($qa), array('class' => 'qtext'));
 	}
 }

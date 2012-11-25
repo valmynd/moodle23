@@ -23,9 +23,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/question/type/comparetexttask/questiontype.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/addon_questiontype_base.php');
 
-class qtype_timetask extends qtype_comparetexttask {
+class qtype_timetask extends addon_questiontype_base {
+
 	public function extra_question_fields() {
 		return array('question_timetask', 'correctorfeedback', 'memento');
 	}

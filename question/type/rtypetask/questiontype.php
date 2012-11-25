@@ -23,12 +23,14 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/question/type/comparetexttask/questiontype.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/addon_questiontype_base.php');
 
-class qtype_rtypetask extends qtype_comparetexttask {
+class qtype_rtypetask extends addon_questiontype_base {
+
 	public function extra_question_fields() {
 		return array('question_rtypetask', 'correctorfeedback', 'memento');
 	}
+
 	/**
 	 * will store input (which can be from a web formular or from an XML import)
 	 * @see question_type::save_question_options()

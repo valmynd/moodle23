@@ -68,7 +68,8 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
         $this->add_interactive_settings(true, true);
     }
 
-    protected function get_per_answer_fields($mform, $label, $gradeoptions,
+    // we want the method in the parent class to be used
+    /*protected function get_per_answer_fields($mform, $label, $gradeoptions,
             &$repeatedoptions, &$answersoption) {
         $repeated = array();
         $repeated[] = $mform->createElement('header', 'answerhdr', $label);
@@ -82,7 +83,7 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
         $repeatedoptions['fraction']['default'] = 0;
         $answersoption = 'answers';
         return $repeated;
-    }
+    }*/
 
     protected function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);

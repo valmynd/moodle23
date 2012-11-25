@@ -15,10 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Pseudo renderer class (shall do nothing).
+ * Pseudo renderer class (shall do nothing (yet)).
  *
- * @package	qtype
- * @subpackage comparetexttask
  * @license	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
