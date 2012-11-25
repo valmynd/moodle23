@@ -23,9 +23,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die(); // we define an AJAX interface
-require_once($CFG->dirroot . '/question/type/comparetexttask/edit_comparetexttask_form.php'); // need data_preprocessing()
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_question_edit_form.php');
 
-class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
+class qtype_rtypetask_edit_form extends elate_question_edit_form {
 
 	public function qtype() {
 		return 'rtypetask';
@@ -56,7 +56,7 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 			$this->handle_delete_question_button($i, $num_questions);
 			$mform->addElement('editor', "problem_$i", get_string('questiontext', 'question'), array('rows' => 8), $this->editoroptions);
 			$mform->addRule("problem_$i", null, 'required', null, 'client');
-			$mform->addElement('editor', "hint_$i", get_string('correctorfeedback', 'qtype_comparetexttask'), array('rows' => 4), $this->editoroptions);
+			$mform->addElement('editor', "hint_$i", get_string('correctorfeedback', 'format_elatexam'), array('rows' => 4), $this->editoroptions);
 			//$mform->addElement('html', '<hr style="margin:20px 10px 20px 10px; border: 1px solid lightgrey;"/>'); // Seperator
 			$mform->addElement('html', '<br /><br />');
 			// each answer is a repeated item itself
@@ -196,6 +196,7 @@ class qtype_rtypetask_edit_form extends qtype_comparetexttask_edit_form {
 		// this method is called after definition_inner(), thus too late for things like counting the number of
 		// questions for instance -> take a look at qtype_rtypetask::get_question_options()
 		$question = parent::data_preprocessing($question);
+		$question = parent::data_preprocessing_corrector_feedback($question);
 		for ($i = 1; $i <= $this->get_num_questions(); $i++) {
 			// handle default selection
 			if(!isset($_POST["correct_$i"]) && !isset($question->{"correct_$i"}))

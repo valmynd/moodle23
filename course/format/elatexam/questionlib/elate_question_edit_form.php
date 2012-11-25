@@ -110,7 +110,7 @@ abstract class elate_question_edit_form extends question_edit_form {
     protected function add_corrector_feedback() {
     	// we won't use any applets
     	$element = $this->_form->addElement('editor', 'correctorfeedback',
-    			get_string('correctorfeedback', 'qtype_comparetexttask'),
+    			get_string('correctorfeedback', 'format_elatexam'),
     			array('rows' => 10), $this->editoroptions);
     	$this->_form->setType('correctorfeedback', PARAM_RAW);
     }

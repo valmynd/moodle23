@@ -34,3 +34,7 @@ $string['search_text'] = 'Suchtext (jedes Wort muss für eine Frage in einer der
 $string['search_every_cat'] = ' in allen Kategorien suchen ';
 $string['tags'] = 'Schlagworte';
 $string['category'] = 'Kategorie';
+
+////////// Strings for Questionlib //////////////////////
+$string['generalfeedback'] = 'Hinweistext';
+$string['correctorfeedback'] = 'Musterlösung';

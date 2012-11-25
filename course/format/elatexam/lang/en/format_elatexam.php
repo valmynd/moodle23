@@ -34,3 +34,7 @@ $string['search_text'] = 'search text';
 $string['search_every_cat'] = ' in allen Kategorien suchen ';
 $string['tags'] = 'Schlagworte';
 $string['category'] = 'Kategorie';
+
+////////// Strings for Questionlib //////////////////////
+$string['generalfeedback'] = 'Feedback for Student';
+$string['correctorfeedback'] = 'Sample Solution';

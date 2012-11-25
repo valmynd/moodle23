@@ -28,7 +28,3 @@ $string['pluginname_link'] = 'question/type/comparetexttask';
 $string['pluginnameadding'] = 'Adding a CompareTextTask question';
 $string['pluginnameediting'] = 'Editing a CompareTextTask question';
 $string['pluginnamesummary'] = 'TODO:Summary';
-
-////////// Strings for the Form //////////////////////
-
-$string['correctorfeedback'] = 'Feedback for the Corrector';
