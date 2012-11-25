@@ -77,7 +77,7 @@ class addon_questiontype_base extends question_type {
 		$expout .= "\n    </correctorfeedback>\n";
 		return $expout;
 	}
-	
+
 	public function move_files($questionid, $oldcontextid, $newcontextid) {
 		parent::move_files($questionid, $oldcontextid, $newcontextid);
 		$fs = get_file_storage();

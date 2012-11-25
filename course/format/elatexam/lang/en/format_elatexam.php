@@ -38,3 +38,4 @@ $string['category'] = 'Kategorie';
 ////////// Strings for Questionlib //////////////////////
 $string['generalfeedback'] = 'Feedback for Student';
 $string['correctorfeedback'] = 'Sample Solution';
+$string['penaltyforeachincorrecttry'] = "Penalty for False Answers";
