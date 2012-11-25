@@ -23,8 +23,8 @@
  */
 
 $string['pluginname'] = 'CompareTextTask';
-$string['pluginname_help'] = 'TODO:Zusammenfassung';
+$string['pluginname_help'] = 'In diesem Aufgabentyp lassen sich Textauszeichnungen via XML-Tags vornehmen.';
 $string['pluginname_link'] = 'question/type/comparetexttask';
 $string['pluginnameadding'] = 'Adding a CompareTextTask question';
 $string['pluginnameediting'] = 'Editing a CompareTextTask question';
-$string['pluginnamesummary'] = 'TODO:Zusammenfassung';
+$string['pluginnamesummary'] = 'In diesem Aufgabentyp lassen sich Textauszeichnungen via XML-Tags vornehmen.';
