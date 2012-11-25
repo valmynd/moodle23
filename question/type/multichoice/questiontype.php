@@ -144,11 +144,12 @@ class qtype_multichoice extends elate_questiontype_base {
             }
         } else {
             $totalfraction = round($totalfraction, 2);
-            if ($totalfraction != 1) {
+            // we need to disable those checks, as ElateXam can only handle correct (100%) and incorrect (0%)
+            /*if ($totalfraction != 1) {
                 $result->noticeyesno = get_string('fractionsaddwrong', 'qtype_multichoice',
                         $totalfraction * 100);
                 return $result;
-            }
+            }*/
         }
     }
 

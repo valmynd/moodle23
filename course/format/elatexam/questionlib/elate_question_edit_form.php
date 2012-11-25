@@ -67,12 +67,13 @@ abstract class elate_question_edit_form extends question_edit_form {
 	protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
 		$repeated = array();
 		$repeated[] = $mform->createElement('header', 'answerhdr', $label);
-		if($this->qtype() == 'multichoice') // MC-questions use editor fields
-			$repeated[] = $mform->createElement('editor', 'answer', get_string('answer', 'question'), array('rows' => 1), $this->editoroptions);
-		else $repeated[] = $mform->createElement('text', 'answer', get_string('answer', 'question'), array('size' => 80));
+		// multichoice overrides this method, uses editor fields
+		//-> this is only used by shortanswer!
+		$repeated[] = $mform->createElement('text', 'answer', get_string('answer', 'question'), array('size' => 80));
 		// instead of percentages, we want integers to be entered
 		//$repeated[] = $mform->createElement('select', 'fraction', get_string('grade'), $gradeoptions);
-		$repeated[] = $mform->createElement('text', 'fraction', get_string('grade'), array('size' => 3));
+		//$repeated[] = $mform->createElement('text', 'fraction', get_string('grade'), array('size' => 3));
+		$repeated[] = $mform->createElement('hidden', 'fraction', 1);
 		// we don't need the 'feedback' fields
 		//$repeated[] = $mform->createElement('editor', 'feedback', get_string('feedback', 'question'), array('rows' => 5), $this->editoroptions);
 		$repeated[] = $mform->createElement('hidden', 'feedback', "");

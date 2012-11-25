@@ -50,7 +50,7 @@ class qtype_shortanswer_edit_form extends elate_question_edit_form {
         $mform->closeHeaderBefore('answersinstruct');
 
         $this->add_per_answer_fields($mform, get_string('answerno', 'qtype_shortanswer', '{no}'),
-                question_bank::fraction_options());
+                question_bank::fraction_options(), 1, 1);
 
         $this->add_interactive_settings();
     }

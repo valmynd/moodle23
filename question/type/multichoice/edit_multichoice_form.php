@@ -151,10 +151,11 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
             }
         } else {
             $totalfraction = round($totalfraction, 2);
-            if ($totalfraction != 1) {
+            // we need to disable those checks, as ElateXam can only handle correct (100%) and incorrect (0%)
+            /*if ($totalfraction != 1) {
                 $errors['fraction[0]'] = get_string('errfractionsaddwrong', 'qtype_multichoice',
                         $totalfraction * 100);
-            }
+            }*/
         }
         return $errors;
     }
