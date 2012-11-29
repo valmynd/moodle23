@@ -20,18 +20,29 @@ require_once($CFG->dirroot . '/question/type/rtypetask/questiontype.php');
 require_once($CFG->dirroot . '/question/type/rtypetask/edit_rtypetask_form.php');
 
 // TestURL: http://localhost/moodle23/question/type/rtypetask/ajaxiface.php?json_request_for_subquestion=1
-$qid = optional_param('id', 1, PARAM_INT);
+$qid = optional_param('id', null, PARAM_INT);
 $courseid = optional_param('courseid', 1, PARAM_INT);
+$categoryid = optional_param('category', 0, PARAM_INT);
 $num_questions = optional_param('num_questions', 1, PARAM_INT);
 $currentsubquestion = optional_param('json_request_for_subquestion', 1, PARAM_INT);
 require_login($courseid, false); // does initialize global variable $PAGE
 
 // instantiate question object, @see /question/question.php
 $rtypeobj = new qtype_rtypetask();
-$question = $DB->get_record('question', array('id' => $qid));
-$category = $DB->get_record('question_categories', array('id' => $question->category));
-$rtypeobj->get_question_options($question);
+if($qid) {
+	$question = $DB->get_record('question', array('id' => $qid));
+	$rtypeobj->get_question_options($question);
+} else {
+	$question = new stdClass();
+	$question->category = $categoryid;
+	$question->qtype = $rtypeobj->name();
+	$question->createdby = $USER->id;
+}
 //var_export($question);
+
+// instantiate category object, @see /question/question.php
+$category = $DB->get_record('question_categories', array('id' => $question->category));
+$categorycontext = get_context_instance_by_id($category->contextid);
 
 // handle permissions, exit if editing is not permitted
 $question->formoptions = new stdClass();
@@ -40,13 +51,13 @@ $question->formoptions->canmove = false; // ignore the rest...
 $question->formoptions->cansaveasnew = false;
 $question->formoptions->repeatelements = false;
 $question->formoptions->movecontext = false;
-if(!$question->formoptions->canedit) die();
+//if(!$question->formoptions->canedit) die();
+require_capability('moodle/question:add', $categorycontext);
 
 // instantiate forms object, @see /question/question.php
-$thiscontext = get_context_instance(CONTEXT_COURSE, $courseid);
-$contexts = new question_edit_contexts($thiscontext);
+$coursecontext = get_context_instance(CONTEXT_COURSE, $courseid);
+$contexts = new question_edit_contexts($coursecontext);
 $formobj = new qtype_rtypetask_edit_form("", $question, $category, $contexts);
-//$formobj = new qtype_rtypetask_edit_form();
 
 // add only those fields we need (in this case, one answers block)
 echo $formobj->get_answer_definition_html($currentsubquestion);
