@@ -30,4 +30,5 @@ $plugin->component = 'qtype_rtypetask';
 
 $plugin->dependencies = array(
 		'format_elatexam' => ANY_VERSION,
+		'qtype_multichoice' => ANY_VERSION, // for translations
 );

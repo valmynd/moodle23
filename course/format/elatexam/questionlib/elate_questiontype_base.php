@@ -39,6 +39,7 @@ class elate_questiontype_base extends question_type {
 	}
 
 	protected function initialise_combined_feedback(question_definition $question, $questiondata, $withparts = false) {
+		// @see parent::initialise_combined_feedback($question, $questiondata);
 		foreach(array('correctfeedback','partiallycorrectfeedback','incorrectfeedback') as $fieldname)
 			$question->{$fieldname} = "";
 	}

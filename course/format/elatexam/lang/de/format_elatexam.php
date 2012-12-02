@@ -37,7 +37,19 @@ $string['category'] = 'Kategorie';
 
 ////////// Strings for Questionlib //////////////////////
 $string['generalfeedback'] = 'Hinweistext';
+$string['generalfeedback_help'] = 'Lösungshinweis, der während der Prüfung angezeigt wird (optional).';
 $string['correctorfeedback'] = 'Musterlösung';
-$string['penaltyforeachincorrecttry'] = "Punkteabzug für falsche Antworten";
+$string['penaltyforeachincorrecttry'] = "Negative Punkte für falsche Antworten";
 $string['right'] = "richtig";
 $string['wrong'] = "falsch";
+
+////////// Modified or added Strings for MC //////////////////////
+$string['anz'] = 'Anzahl anzuzeigender Antworten insgesamt';
+$string['anzri'] = 'Anzahl anzuzeigender richtiger Antworten';
+$string['penalty_empty'] = 'Negative Punkte für nicht gewählte richtige Antworten';
+$string['penalty_wrong'] = 'Negative Punkte für gewählte Falschantwort';
+$string['penaltyheader'] = 'Einstellungen für Punkteabzug';
+$string['regular'] = 'Reguläre Bewertung';
+$string['difftly'] = 'Unterschiedliche Bewertung';
+
+

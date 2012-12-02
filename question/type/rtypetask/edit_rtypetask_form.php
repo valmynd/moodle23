@@ -57,9 +57,14 @@ class qtype_rtypetask_edit_form extends elate_question_edit_form {
 			$mform->addElement('editor', "problem_$i", get_string('questiontext', 'question'), array('rows' => 8), $this->editoroptions);
 			$mform->addRule("problem_$i", null, 'required', null, 'client');
 			$mform->addElement('editor', "hint_$i", get_string('correctorfeedback', 'format_elatexam'), array('rows' => 4), $this->editoroptions);
-			//$mform->addElement('html', '<hr style="margin:20px 10px 20px 10px; border: 1px solid lightgrey;"/>'); // Seperator
-			$mform->addElement('html', '<br /><br />');
-			// each answer is a repeated item itself
+			// Ask whether to shuffle answers
+			$mform->addElement('advcheckbox', "shuffleanswers_$i", get_string('shuffleanswers', 'qtype_multichoice'), null, null, array(0, 1));
+			$mform->addHelpButton("shuffleanswers_$i", 'shuffleanswers', 'qtype_multichoice');
+			$mform->setDefault("shuffleanswers_$i", 1);
+			// Add an appropriate Seperator (decision were that some linebreaks were enough)
+			//$mform->addElement('html', '<hr style="margin:20px 10px 20px 10px; border: 1px solid lightgrey;"/>');
+			$mform->addElement('html', '<br />');
+			// Add Answers: each answer is a repeated item itself
 			$this->append_per_question_answers($i);
 		}
 		// store the information about how many question blocks are shown for the next request

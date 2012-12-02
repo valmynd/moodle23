@@ -45,13 +45,13 @@ abstract class elate_question_edit_form extends question_edit_form {
 		// -> unwanted fields can now be removed via $mform->removeElement()
 		$mform = $this->_form;
 		switch($this->qtype()) {
+			// here we remove unwanted fields only, @see self::add_interactive_settings()
 			case 'essay':
 				$mform->removeElement('attachments');
 				$mform->addElement('hidden', 'attachments', 0);
 				break;
 			case 'multichoice':
-				$mform->removeElement('answernumbering');
-				$mform->addElement('hidden', 'answernumbering', 'abc');
+				// TODO: abzug für nicht angekreuzte richtige und abzug für angekreuzte falsche
 				break;
 			case 'truefalse':
 				$mform->removeElement('feedbacktrue');
@@ -61,7 +61,9 @@ abstract class elate_question_edit_form extends question_edit_form {
 				// TODO: Abzug für falschen Versuch
 				break;
 		}
+		// Override some labels (global)
 		$mform->getElement('generalfeedback')->setLabel(get_string('generalfeedback', 'format_elatexam'));
+		$mform->addHelpButton('generalfeedback', 'generalfeedback', 'format_elatexam');
 	}
 
 	protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
@@ -92,13 +94,22 @@ abstract class elate_question_edit_form extends question_edit_form {
 		}
 	}
 
-	protected function add_interactive_settings($withclearwrong = false,
-			$withshownumpartscorrect = false) {
+	/**
+	 * this method was overridden as we want a textfield instead of the default combobox for 'penalty'
+	 * all the other fields that would be added by this method ain't needed at all
+	 * this method is overridden in qtype_multichoice_edit_form::add_interactive_settings() !
+	 * 
+	 * @see question_edit_form::add_interactive_settings()
+	 */
+	protected function add_interactive_settings($withclearwrong = false, $withshownumpartscorrect = false) {
 		$mform = $this->_form;
-		// we want a textfield instead, the rest ain't needed
-		$mform->addElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
+		//$mform->addElement('header', 'multitriesheader', get_string('settingsformultipletries', 'question'));
+		$x = $mform->createElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
+		$mform->insertElementBefore($x, 'generalfeedback'); // we want it at the top
 		$mform->setType('penalty', PARAM_INT);
-		$mform->setDefault('penalty', 0);
+		if($this->qtype() == 'truefalse')
+			$mform->setDefault('penalty', 1);
+		else $mform->setDefault('penalty', 0);
 	}
 
 	protected function data_preprocessing_combined_feedback($question,

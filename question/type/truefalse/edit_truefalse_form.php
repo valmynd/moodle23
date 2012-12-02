@@ -55,14 +55,13 @@ class qtype_truefalse_edit_form extends elate_question_edit_form {
                 get_string('feedbackfalse', 'qtype_truefalse'), array('rows' => 10), $this->editoroptions);
         $mform->setType('feedbackfalse', PARAM_RAW);
 
-        $mform->addElement('header', 'multitriesheader',
+        /*$mform->addElement('header', 'multitriesheader',
                 get_string('settingsformultipletries', 'question'));
-
         $mform->addElement('hidden', 'penalty', 1);
-
         $mform->addElement('static', 'penaltymessage',
                 get_string('penaltyforeachincorrecttry', 'question'), 1);
-        $mform->addHelpButton('penaltymessage', 'penaltyforeachincorrecttry', 'question');
+        $mform->addHelpButton('penaltymessage', 'penaltyforeachincorrecttry', 'question');*/
+        elate_question_edit_form::add_interactive_settings();
     }
 
     public function data_preprocessing($question) {

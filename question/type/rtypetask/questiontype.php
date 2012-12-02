@@ -67,6 +67,9 @@ class qtype_rtypetask extends elate_addon_questiontype_base {
 				$hint->appendChild($dom->createTextNode($hintv));
 				$Question->appendChild($problem);
 				$Question->appendChild($hint);
+				assert(isset($question->{"shuffleanswers_$i"}));
+				$b = $question->{"shuffleanswers_$i"}? "true" : "false";
+				$Question->setAttribute('preserveOrderOfAnswers', $b);
 				//$problem->appendChild($problemCData);
 				//$hint->appendChild($hintCData);
 				for ($j = 1; $j <= 9999; $j++) {
@@ -95,31 +98,35 @@ class qtype_rtypetask extends elate_addon_questiontype_base {
 			//debugging($question->options->memento);
 			$dom = new DomDocument();
 			$dom->loadXML($question->options->memento);
-			$XPath = new DOMXPath($dom);
+			//$XPath = new DOMXPath($dom);
 			// "unpack" Memento, see qtype_rtypetask::save_question_options()
-			$entries = $XPath->query("//question/*");
-			for($i = 0, $j = 1, $q = 0; $q < $entries->length; $q++) {
-				$entry = $entries->item($q);
-				switch($entry->nodeName) {
-					case 'problem':
-						$i++;
-						$question->{"problemtext_$i"} = $entry->nodeValue;
-						$question->{"num_answers_$i"} = 0;
-						$j=1;
-						break;
-					case 'hint':
-						$question->{"hinttext_$i"} = $entry->nodeValue;
-						break;
-					case 'answer':
-						$key = $i.'_'.$j;
-						$question->{"answer_$key"} = $entry->nodeValue;
-						$question->{"num_answers_$i"}++;
-						if($entry->getAttribute('correct') == 'true')
-							$question->{"correct_$i"} = $j;
-						$j++;
-						break;
+			//$entries = $XPath->query("//question/*");
+			$i = 0; $j = 1; // $j will hold the number of subanswers belonging to current subquestion 
+			$Questions = $dom->getElementsByTagName('question');
+			foreach($Questions as $QNode){
+				$i++; // $i holds the number of yet-parsed subquestions
+				$question->{"shuffleanswers_$i"} = $QNode->getAttribute('preserveOrderOfAnswers') == "true"? 1 : 0;
+				// Iterate over Children (which can be either problem, hint or answer fields)
+				foreach($QNode->childNodes as $entry) {
+					switch($entry->nodeName) {
+						case 'problem':
+							$question->{"problemtext_$i"} = $entry->nodeValue;
+							$question->{"num_answers_$i"} = 0;
+							$j=1;
+							break;
+						case 'hint':
+							$question->{"hinttext_$i"} = $entry->nodeValue;
+							break;
+						case 'answer':
+							$key = $i.'_'.$j;
+							$question->{"answer_$key"} = $entry->nodeValue;
+							$question->{"num_answers_$i"}++;
+							if($entry->getAttribute('correct') == 'true')
+								$question->{"correct_$i"} = $j;
+							$j++;
+							break;
+					}
 				}
-				//debugging($i . $entry->nodeName . $entry->nodeValue);
 			}
 			$question->{"num_questions"} = $i;
 			return true;

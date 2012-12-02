@@ -11,6 +11,7 @@ var click_handler = function() {
 	$.post("type/rtypetask/ajaxiface.php", rqparams, function(data, textStatus, jqXHR) {
 		try { // replace section with returned HTML
 			var $section = $(data).find("section");
+			//if(!$section.length) throw"Error:"+data);
 			$('section[id="answers_for_question_'+num_subquestion+'"]').replaceWith($section);
 			// re-Bind action listeners, note that ^ is a "begins with"-selector
 			$('input[name="addanswerbtn_'+num_subquestion+'"]').click(click_handler);
