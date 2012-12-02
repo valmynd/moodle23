@@ -47,11 +47,22 @@ abstract class elate_question_edit_form extends question_edit_form {
 		switch($this->qtype()) {
 			// here we remove unwanted fields only, @see self::add_interactive_settings()
 			case 'essay':
+				$mform->removeElement('responsefieldlines');
+				$height = $mform->createElement('text', 'responsefieldlines', get_string('responsefieldlines', 'format_elatexam'), array('size' => 3));
+				$width = $mform->createElement('text', 'responsefieldwidth', get_string('responsefieldwidth', 'format_elatexam'), array('size' => 3));
+				$mform->insertElementBefore($height, 'attachments');
+				$mform->insertElementBefore($width, 'attachments');
+				$mform->setType('responsefieldlines', PARAM_INT);
+				$mform->setType('responsefieldwidth', PARAM_INT);
+				$mform->setDefault('responsefieldlines', 15);
+				$mform->setDefault('responsefieldwidth', 25);
 				$mform->removeElement('attachments');
+				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
+				$mform->addElement('hidden', 'responseformat', 'editor');
 				break;
 			case 'multichoice':
-				// TODO: abzug für nicht angekreuzte richtige und abzug für angekreuzte falsche
+				// @see qtype_multichoice_edit_form
 				break;
 			case 'truefalse':
 				$mform->removeElement('feedbacktrue');

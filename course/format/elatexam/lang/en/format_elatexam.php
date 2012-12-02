@@ -51,3 +51,8 @@ $string['penalty_wrong'] = 'Negative Punkte für gewählte Falschantwort';
 $string['penaltyheader'] = 'Einstellungen für Punkteabzug';
 $string['regular'] = 'Reguläre Bewertung';
 $string['difftly'] = 'Unterschiedliche Bewertung';
+
+////////// Modified or added Strings for FreeText/Essay //////////////////////
+$string['responsefieldlines'] = 'Höhe des Textfeldes';
+$string['responsefieldwidth'] = 'Breite des Textfeldes';
+
