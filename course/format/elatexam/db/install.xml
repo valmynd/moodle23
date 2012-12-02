@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="course/format/elatexam/db" VERSION="20121003" COMMENT="XMLDB file for Moodle course/format/elatexam"
+<XMLDB PATH="course/format/elatexam/db" VERSION="20121202" COMMENT="XMLDB file for Moodle course/format/elatexam"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -34,7 +34,7 @@
         <KEY NAME="examid" TYPE="foreign" FIELDS="examid" REFTABLE="exam" REFFIELDS="id" COMMENT="Foreign Key references exam.id" PREVIOUS="parent"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="exam_category_question" COMMENT="Map questions to exam_categories (1:1)." PREVIOUS="exam_categories">
+    <TABLE NAME="exam_category_question" COMMENT="Map questions to exam_categories (1:1)." PREVIOUS="exam_categories" NEXT="qtype_enhancements_mc">
       <FIELDS>
         <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references exam_categories.id" NEXT="questionid"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign Key references question.id" PREVIOUS="categoryid"/>
@@ -43,6 +43,20 @@
         <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="exam_categories" REFFIELDS="id" NEXT="questionid"/>
         <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="categoryid" NEXT="primary"/>
         <KEY NAME="primary" TYPE="unique" FIELDS="categoryid, questionid" PREVIOUS="questionid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="qtype_enhancements_mc" COMMENT="Additional Columns for MultipleChoice Questions." PREVIOUS="exam_category_question">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="num_shown"/>
+        <FIELD NAME="num_shown" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Number of visible Answers" PREVIOUS="questionid" NEXT="num_right"/>
+        <FIELD NAME="num_right" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Number of visible correct Answers" PREVIOUS="num_shown" NEXT="penalty_empty"/>
+        <FIELD NAME="penalty_empty" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Negative Points for not chosen correct Answers" PREVIOUS="num_right" NEXT="penalty_wrong"/>
+        <FIELD NAME="penalty_wrong" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Negative Points for chosen wrong Answer" PREVIOUS="penalty_empty"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
   </TABLES>

@@ -44,13 +44,13 @@ $string['right'] = "richtig";
 $string['wrong'] = "falsch";
 
 ////////// Modified or added Strings for MC //////////////////////
-$string['anz'] = 'Anzahl anzuzeigender Antworten insgesamt';
-$string['anzri'] = 'Anzahl anzuzeigender richtiger Antworten';
+$string['num_shown'] = 'Anzahl anzuzeigender Antworten insgesamt';
+$string['num_right'] = 'Anzahl anzuzeigender richtiger Antworten';
 $string['penalty_empty'] = 'Negative Punkte für nicht gewählte richtige Antworten';
 $string['penalty_wrong'] = 'Negative Punkte für gewählte Falschantwort';
 $string['penaltyheader'] = 'Einstellungen für Punkteabzug';
-$string['regular'] = 'Reguläre Bewertung';
-$string['difftly'] = 'Unterschiedliche Bewertung';
+$string['assessment_reg'] = 'Reguläre Bewertung';
+$string['assessment_dif'] = 'Unterschiedliche Bewertung';
 
 ////////// Modified or added Strings for FreeText/Essay //////////////////////
 $string['responsefieldlines'] = 'Höhe des Textfeldes';
