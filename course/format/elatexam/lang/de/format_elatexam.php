@@ -45,6 +45,7 @@ $string['wrong'] = "falsch";
 
 ////////// Modified or added Strings for MC //////////////////////
 $string['num_shown'] = 'Anzahl anzuzeigender Antworten insgesamt';
+$string['num_shown_help'] = 'Der Standardwert (0) bedeutet, dass alle Antwortmöglichkeiten angezeigt werden.';
 $string['num_right_min'] = 'Minimale Anzahl anzuzeigender richtiger Antworten';
 $string['num_right_max'] = 'Maximale Anzahl anzuzeigender richtiger Antworten';
 $string['penalty_empty'] = 'Negative Punkte für nicht gewählte richtige Antworten';

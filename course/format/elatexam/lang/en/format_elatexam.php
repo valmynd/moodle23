@@ -45,6 +45,7 @@ $string['wrong'] = "wrong";
 
 ////////// Modified or added Strings for MC //////////////////////
 $string['num_shown'] = 'Number of visible Answers';
+$string['num_shown_help'] = 'The Default (0) means all Answer options shall be shown.';
 $string['num_right_min'] = 'Minimal visible correct Answers';
 $string['num_right_max'] = 'Maximal visible correct Answers';
 $string['penalty_empty'] = 'Negative Points for not chosen correct Answers';

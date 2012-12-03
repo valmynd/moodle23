@@ -53,10 +53,13 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
     	$mform->addElement('text', 'num_right_min', get_string('num_right_min', 'format_elatexam'), array('size' => 3));
     	$mform->addElement('text', 'num_right_max', get_string('num_right_max', 'format_elatexam'), array('size' => 3));
     	$mform->addElement('text', 'num_shown', get_string('num_shown', 'format_elatexam'), array('size' => 3));
-    	$mform->setType('num_right', PARAM_INT);
+    	$mform->addHelpButton('num_shown', 'num_shown', 'format_elatexam');
+    	$mform->setType('num_right_min', PARAM_INT);
+    	$mform->setType('num_right_max', PARAM_INT);
     	$mform->setType('num_shown', PARAM_INT);
-    	$mform->setDefault('num_right', 1);
-    	$mform->setDefault('num_shown', 3);
+    	$mform->setDefault('num_right_min', 1);
+    	$mform->setDefault('num_right_max', 1);
+    	$mform->setDefault('num_shown', 0); // default(0):all
     	
     	// @see self::add_interactive_settings()
         /*$menu = array(
