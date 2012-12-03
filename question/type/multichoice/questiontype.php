@@ -40,11 +40,13 @@ require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questionty
 class qtype_multichoice extends elate_questiontype_base {
 
 	/**
-	 * overridden
+	 * overridden, thus question_type::save_question_options() and
+	 * question_type::get_question_options() will use it
+	 *
 	 * @see question_type::extra_question_fields()
 	 */
 	public function extra_question_fields() {
-		return array('qtype_enhancements_mc', 'num_shown', 'num_right', 'penalty_empty', 'penalty_wrong');
+		return array('qtype_enhancements_mc', 'num_shown', 'num_right', 'penalty_empty', 'penalty_wrong', 'assessmentmode');
 	}
 
     public function get_question_options($question) {
@@ -160,6 +162,8 @@ class qtype_multichoice extends elate_questiontype_base {
                 return $result;
             }*/
         }
+        /* we need this, it will do the trick regarding extra_question_fields() */
+        parent::save_question_options($question);
     }
 
     protected function make_question_instance($questiondata) {

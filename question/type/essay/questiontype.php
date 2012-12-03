@@ -37,6 +37,17 @@ require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questionty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_essay extends elate_questiontype_base {
+
+	/**
+	 * overridden, thus question_type::save_question_options() and
+	 * question_type::get_question_options() will use it
+	 *
+	 * @see question_type::extra_question_fields()
+	 */
+	public function extra_question_fields() {
+		return array('qtype_enhancements_essay', 'responsefieldwidth');
+	}
+
     public function is_manual_graded() {
         return true;
     }
@@ -70,6 +81,8 @@ class qtype_essay extends elate_questiontype_base {
                 $context, 'qtype_essay', 'graderinfo', $formdata->id);
         $options->graderinfoformat = $formdata->graderinfo['format'];
         $DB->update_record('qtype_essay_options', $options);
+        /* we need this, it will do the trick regarding extra_question_fields() */
+        parent::save_question_options($formdata);
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
