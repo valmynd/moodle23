@@ -45,7 +45,7 @@ class elate_questiontype_base extends question_type {
 	}
 
 	protected function import_or_save_files($field, $context, $component, $filearea, $itemid) {
-		// overridden because of missing exception handling in question_type::
+		// overridden because of missing exception handling in question_type::import_or_save_files()
 		if(!in_array($filearea, array('answerfeedback','correctfeedback','partiallycorrectfeedback','incorrectfeedback'))) try {
 			return parent::import_or_save_files($field, $context, $component, $filearea, $itemid);
 		} catch(Exception $e) {

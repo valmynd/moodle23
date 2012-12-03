@@ -38,6 +38,15 @@ require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questionty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_multichoice extends elate_questiontype_base {
+
+	/**
+	 * overridden
+	 * @see question_type::extra_question_fields()
+	 */
+	public function extra_question_fields() {
+		return array('qtype_enhancements_mc', 'num_shown', 'num_right', 'penalty_empty', 'penalty_wrong');
+	}
+
     public function get_question_options($question) {
         global $DB, $OUTPUT;
         $question->options = $DB->get_record('question_multichoice',
