@@ -47,7 +47,11 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
      */
     protected function definition_inner($mform) {
     	$mform = $this->_form;
-    	$mform->addElement('text', 'num_right', get_string('num_right', 'format_elatexam'), array('size' => 3));
+    	// TODO: min/max
+    	// bei mc fehlt noch: maximal anzuzeigende richtige antwortalternativen,
+    	// minimal anzuzeigende antwortalternativen (default jeweils 1), insgesamt anzuzeigende antwortalternativen (wenn nichts eingetragen alle)
+    	$mform->addElement('text', 'num_right_min', get_string('num_right_min', 'format_elatexam'), array('size' => 3));
+    	$mform->addElement('text', 'num_right_max', get_string('num_right_max', 'format_elatexam'), array('size' => 3));
     	$mform->addElement('text', 'num_shown', get_string('num_shown', 'format_elatexam'), array('size' => 3));
     	$mform->setType('num_right', PARAM_INT);
     	$mform->setType('num_shown', PARAM_INT);

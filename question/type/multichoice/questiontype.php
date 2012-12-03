@@ -46,7 +46,7 @@ class qtype_multichoice extends elate_questiontype_base {
 	 * @see question_type::extra_question_fields()
 	 */
 	public function extra_question_fields() {
-		return array('qtype_enhancements_mc', 'num_shown', 'num_right', 'penalty_empty', 'penalty_wrong', 'assessmentmode');
+		return array('qtype_enhancements_mc', 'num_shown', 'num_right_min', 'num_right_max', 'penalty_empty', 'penalty_wrong', 'assessmentmode');
 	}
 
     public function get_question_options($question) {

@@ -45,7 +45,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 		// -> unwanted fields can now be removed via $mform->removeElement()
 		$mform = $this->_form;
 		switch($this->qtype()) {
-			// here we remove unwanted fields only, @see self::add_interactive_settings()
+			// for assessment options @see self::add_interactive_settings()
 			case 'essay':
 				$mform->removeElement('responsefieldlines');
 				$height = $mform->createElement('text', 'responsefieldlines', get_string('responsefieldlines', 'format_elatexam'), array('size' => 3));
@@ -60,6 +60,12 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
 				$mform->addElement('hidden', 'responseformat', 'editor');
+				break;
+			case 'multianswer':
+				$menu = array(get_string('caseno', 'qtype_shortanswer'), get_string('caseyes', 'qtype_shortanswer'));
+				$case = $mform->createElement('select', 'casesensitivity', get_string('casesensitive', 'qtype_shortanswer'), $menu);
+				$mform->insertElementBefore($case, 'generalfeedback');
+				$mform->setDefault('casesensitivity', 0);
 				break;
 			case 'multichoice':
 				// @see qtype_multichoice_edit_form
@@ -85,12 +91,9 @@ abstract class elate_question_edit_form extends question_edit_form {
 	protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
 		$repeated = array();
 		$repeated[] = $mform->createElement('header', 'answerhdr', $label);
-		// multichoice overrides this method, uses editor fields
-		//-> this is only used by shortanswer!
+		// multichoice overrides this method, uses editor fields -> this is currently only used by shortanswer afaik
 		$repeated[] = $mform->createElement('text', 'answer', get_string('answer', 'question'), array('size' => 80));
 		// instead of percentages, we want integers to be entered
-		//$repeated[] = $mform->createElement('select', 'fraction', get_string('grade'), $gradeoptions);
-		//$repeated[] = $mform->createElement('text', 'fraction', get_string('grade'), array('size' => 3));
 		$repeated[] = $mform->createElement('hidden', 'fraction', 1);
 		// we don't need the 'feedback' fields
 		//$repeated[] = $mform->createElement('editor', 'feedback', get_string('feedback', 'question'), array('rows' => 5), $this->editoroptions);
@@ -126,10 +129,8 @@ abstract class elate_question_edit_form extends question_edit_form {
 		//$mform->addElement('header', 'multitriesheader', get_string('settingsformultipletries', 'question'));
 		$x = $mform->createElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
 		$mform->insertElementBefore($x, 'generalfeedback'); // we want it at the top
-		$mform->setType('penalty', PARAM_INT);
-		if($this->qtype() == 'truefalse')
-			$mform->setDefault('penalty', 1);
-		else $mform->setDefault('penalty', 0);
+		$mform->setType('penalty', PARAM_FLOAT);
+		$mform->setDefault('penalty', 1);
 	}
 
 	/**

@@ -45,7 +45,8 @@ $string['wrong'] = "wrong";
 
 ////////// Modified or added Strings for MC //////////////////////
 $string['num_shown'] = 'Number of visible Answers';
-$string['num_right'] = 'Number of visible correct Answers';
+$string['num_right_min'] = 'Minimal visible correct Answers';
+$string['num_right_max'] = 'Maximal visible correct Answers';
 $string['penalty_empty'] = 'Negative Points for not chosen correct Answers';
 $string['penalty_wrong'] = 'Negative Points for chosen wrong Answer';
 $string['penaltyheader'] = 'Einstellungen für Punkteabzug';
@@ -56,3 +57,5 @@ $string['assessment_dif'] = 'Unterschiedliche Bewertung';
 $string['responsefieldlines'] = 'Höhe des Textfeldes';
 $string['responsefieldwidth'] = 'Breite des Textfeldes';
 
+////////// Modified or added Strings for MultiAnswer/CLOZE //////////////////////
+$string['casesensitivity'] = 'Berücksichtigung von Groß- und Kleinschreibung';

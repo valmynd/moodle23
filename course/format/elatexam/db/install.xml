@@ -49,10 +49,11 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="num_shown"/>
-        <FIELD NAME="num_shown" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Number of visible Answers" PREVIOUS="questionid" NEXT="num_right"/>
-        <FIELD NAME="num_right" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Number of visible correct Answers" PREVIOUS="num_shown" NEXT="penalty_empty"/>
-        <FIELD NAME="penalty_empty" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Negative Points for not chosen correct Answers" PREVIOUS="num_right" NEXT="penalty_wrong"/>
-        <FIELD NAME="penalty_wrong" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Negative Points for chosen wrong Answer" PREVIOUS="penalty_empty" NEXT="assessmentmode"/>
+        <FIELD NAME="num_shown" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Number of visible Answers" PREVIOUS="questionid" NEXT="num_right_min"/>
+        <FIELD NAME="num_right_min" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Minimal visible correct Answers" PREVIOUS="num_shown" NEXT="num_right_max"/>
+        <FIELD NAME="num_right_max" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="Maximal visible correct Answers" PREVIOUS="num_right_min" NEXT="penalty_empty"/>
+        <FIELD NAME="penalty_empty" TYPE="number" LENGTH="12" NOTNULL="false" SEQUENCE="false" DECIMALS="7" COMMENT="Negative Points for not chosen correct Answers" PREVIOUS="num_right_max" NEXT="penalty_wrong"/>
+        <FIELD NAME="penalty_wrong" TYPE="number" LENGTH="12" NOTNULL="false" SEQUENCE="false" DECIMALS="7" COMMENT="Negative Points for chosen wrong Answer" PREVIOUS="penalty_empty" NEXT="assessmentmode"/>
         <FIELD NAME="assessmentmode" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="0...regular (negative Points for False Answers) 1... differently (differentiate between negative Points for not chosen correct Answers and negative Points for chosen wrong Answer)" PREVIOUS="penalty_wrong"/>
       </FIELDS>
       <KEYS>
@@ -60,11 +61,22 @@
         <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="qtype_enhancements_essay" COMMENT="Additional Columns for Essay Questions." PREVIOUS="qtype_enhancements_mc">
+    <TABLE NAME="qtype_enhancements_essay" COMMENT="Additional Columns for Essay Questions." PREVIOUS="qtype_enhancements_mc" NEXT="qtype_enhancements_cloze">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="responsefieldwidth"/>
         <FIELD NAME="responsefieldwidth" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" PREVIOUS="questionid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="qtype_enhancements_cloze" COMMENT="Additional Columns for MultiAnswer Questions." PREVIOUS="qtype_enhancements_essay">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="casesensitivity"/>
+        <FIELD NAME="casesensitivity" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="0... ignore case 1... case sensitive" PREVIOUS="questionid"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionid"/>

@@ -56,7 +56,8 @@ class qtype_rtypetask_edit_form extends elate_question_edit_form {
 			$this->handle_delete_question_button($i, $num_questions);
 			$mform->addElement('editor', "problem_$i", get_string('questiontext', 'question'), array('rows' => 8), $this->editoroptions);
 			$mform->addRule("problem_$i", null, 'required', null, 'client');
-			$mform->addElement('editor', "hint_$i", get_string('correctorfeedback', 'format_elatexam'), array('rows' => 4), $this->editoroptions);
+			//$mform->addElement('editor', "hint_$i", get_string('correctorfeedback', 'format_elatexam'), array('rows' => 4), $this->editoroptions);
+			$mform->addElement('hidden', "hint_$i", '');
 			// Ask whether to shuffle answers
 			$mform->addElement('advcheckbox', "shuffleanswers_$i", get_string('shuffleanswers', 'qtype_multichoice'), null, null, array(0, 1));
 			$mform->addHelpButton("shuffleanswers_$i", 'shuffleanswers', 'qtype_multichoice');

@@ -74,8 +74,8 @@ class qtype_shortanswer extends elate_questiontype_base {
         // Insert all the new answers
         foreach ($question->answer as $key => $answerdata) {
             // Check for, and ignore, completely blank answer from the form.
-            if (trim($answerdata) == '' && $question->fraction[$key] == 0 &&
-                    html_is_blank($question->feedback[$key]['text'])) {
+            if (trim($answerdata) == '')/* && $question->fraction[$key] == 0 &&
+                    html_is_blank($question->feedback[$key]['text']))*/ {
                 continue;
             }
 
@@ -91,9 +91,11 @@ class qtype_shortanswer extends elate_questiontype_base {
 
             $answer->answer   = trim($answerdata);
             $answer->fraction = $question->fraction[$key];
-            $answer->feedback = $this->import_or_save_files($question->feedback[$key],
+            /*$answer->feedback = $this->import_or_save_files($question->feedback[$key],
                     $context, 'question', 'answerfeedback', $answer->id);
-            $answer->feedbackformat = $question->feedback[$key]['format'];
+            $answer->feedbackformat = $question->feedback[$key]['format'];*/
+            $answer->feedback = '';
+            $answer->feedbackformat = '';
             $DB->update_record('question_answers', $answer);
 
             $answers[] = $answer->id;
@@ -119,10 +121,10 @@ class qtype_shortanswer extends elate_questiontype_base {
         $this->save_hints($question);
 
         // Perform sanity checks on fractional grades
-        if ($maxfraction != 1) {
+        /*if ($maxfraction != 1) {
             $result->noticeyesno = get_string('fractionsnomax', 'question', $maxfraction * 100);
             return $result;
-        }
+        }*/
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {

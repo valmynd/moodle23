@@ -38,11 +38,23 @@ require_once($CFG->dirroot.'/course/format/elatexam/questionlib/elate_questionty
  */
 class qtype_multianswer extends elate_questiontype_base {
 
+	/**
+	 * overridden, thus question_type::save_question_options() and
+	 * question_type::get_question_options() will use it
+	 *
+	 * @see question_type::extra_question_fields()
+	 */
+	public function extra_question_fields() {
+		return array('qtype_enhancements_cloze', 'casesensitivity');
+	}
+
     public function can_analyse_responses() {
         return false;
     }
 
     public function get_question_options($question) {
+    	/* we need this, it will do the trick regarding extra_question_fields() */
+    	parent::get_question_options($question);
         global $DB, $OUTPUT;
 
         // Get relevant data indexed by positionkey from the multianswers table
@@ -167,6 +179,8 @@ class qtype_multianswer extends elate_questiontype_base {
         }
 
         $this->save_hints($question);
+        /* we need this, it will do the trick regarding extra_question_fields() */
+        parent::save_question_options($question);
     }
 
     public function save_question($authorizedquestion, $form) {

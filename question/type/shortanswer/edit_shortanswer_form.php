@@ -72,21 +72,21 @@ class qtype_shortanswer_edit_form extends elate_question_edit_form {
             $trimmedanswer = trim($answer);
             if ($trimmedanswer !== '') {
                 $answercount++;
-                if ($data['fraction'][$key] == 1) {
+                /*if ($data['fraction'][$key] == 1) {
                     $maxgrade = true;
-                }
-            } else if ($data['fraction'][$key] != 0 ||
+                }*/
+            }/* else if ($data['fraction'][$key] != 0 ||
                     !html_is_blank($data['feedback'][$key]['text'])) {
                 $errors["answer[$key]"] = get_string('answermustbegiven', 'qtype_shortanswer');
                 $answercount++;
-            }
+            }*/
         }
         if ($answercount==0) {
             $errors['answer[0]'] = get_string('notenoughanswers', 'qtype_shortanswer', 1);
         }
-        if ($maxgrade == false) {
+        /*if ($maxgrade == false) {
             $errors['fraction[0]'] = get_string('fractionsnomax', 'question');
-        }
+        }*/
         return $errors;
     }
 
