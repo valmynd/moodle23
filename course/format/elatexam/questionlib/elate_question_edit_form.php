@@ -126,7 +126,11 @@ abstract class elate_question_edit_form extends question_edit_form {
 	 */
 	protected function add_interactive_settings($withclearwrong = false, $withshownumpartscorrect = false) {
 		$mform = $this->_form;
-		//$mform->addElement('header', 'multitriesheader', get_string('settingsformultipletries', 'question'));
+		// no negative points in truefalse, shortanswer
+		if($this->qtype() == 'truefalse' || $this->qtype() == 'shortanswer') {
+			$mform->addElement('hidden', 'penalty', 0);
+			return;
+		}
 		$x = $mform->createElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
 		$mform->insertElementBefore($x, 'generalfeedback'); // we want it at the top
 		$mform->setType('penalty', PARAM_FLOAT);
