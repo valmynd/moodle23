@@ -55,7 +55,24 @@ class elate_questiontype_base extends question_type {
 		return "";
 	}
 
+	/**
+	 * if question->qtype is one of multianswer/multichoice/essay,
+	 * the question object needs to get finalized here
+	 *
+	 * @see qformat_xml::readquestions() in /question/format/xml/format.php
+	 * @see question_type::import_from_xml()
+	 */
 	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+		$question_type = $data['@']['type'];
+		if($question_type == 'multianswer' || $question_type == 'multichoice' || $question_type == 'essay') {
+			// called from qformat_xml::readquestions(), you shall have a look on what we've modified there
+			$extraquestionfields = $this->extra_question_fields();
+			array_shift($extraquestionfields);
+			foreach ($extraquestionfields as $field) {
+				$default = 0; // currently we have only numbers, TODO: lookup defaults in global assoziative array?
+				$question->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
+			}
+		}
 		return parent::import_from_xml($data, $question, $format, $extra);
 	}
 

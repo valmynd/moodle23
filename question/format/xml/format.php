@@ -911,6 +911,8 @@ class qformat_xml extends qformat_default {
 
             if ($questiontype == 'multichoice') {
                 $qo = $this->import_multichoice($question);
+                // Check if it contains Enhancements for ElateXam:
+                $qo = $this->try_importing_using_qtypes($question, $qo, null, $questiontype);
             } else if ($questiontype == 'truefalse') {
                 $qo = $this->import_truefalse($question);
             } else if ($questiontype == 'shortanswer') {
@@ -923,8 +925,12 @@ class qformat_xml extends qformat_default {
                 $qo = $this->import_match($question);
             } else if ($questiontype == 'cloze' || $questiontype == 'multianswer') {
                 $qo = $this->import_multianswer($question);
+                // Check if it contains Enhancements for ElateXam:
+                $qo = $this->try_importing_using_qtypes($question, $qo, null, $questiontype);
             } else if ($questiontype == 'essay') {
                 $qo = $this->import_essay($question);
+                // Check if it contains Enhancements for ElateXam:
+                $qo = $this->try_importing_using_qtypes($question, $qo, null, $questiontype);
             } else if ($questiontype == 'calculated') {
                 $qo = $this->import_calculated($question);
             } else if ($questiontype == 'calculatedsimple') {
