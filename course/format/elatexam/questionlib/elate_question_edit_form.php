@@ -81,6 +81,11 @@ abstract class elate_question_edit_form extends question_edit_form {
 		// Override some labels (global)
 		$mform->getElement('generalfeedback')->setLabel(get_string('generalfeedback', 'format_elatexam'));
 		$mform->addHelpButton('generalfeedback', 'generalfeedback', 'format_elatexam');
+		// Swap Labels in RType (because current state of ElateXam Import)
+		if($this->qtype() == 'rtypetask') {
+			$mform->getElement('generalfeedback')->setLabel(get_string('correctorfeedback', 'format_elatexam'));
+			$mform->getElement('correctorfeedback')->setLabel(get_string('generalfeedback', 'format_elatexam'));
+		}
 	}
 
 	/**
