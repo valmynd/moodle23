@@ -1171,6 +1171,8 @@ class qformat_xml extends qformat_default {
                         "</answernumbering>\n";
                 $expout .= $this->write_combined_feedback($question->options, $question->id, $question->contextid);
                 $expout .= $this->write_answers($question->options->answers);
+                // Enhancements for ElateXam:
+                $expout .= $this->try_exporting_using_qtypes($question->qtype, $question);
                 break;
 
             case 'shortanswer':
@@ -1246,6 +1248,8 @@ class qformat_xml extends qformat_default {
                 foreach ($question->options->questions as $index => $subq) {
                     $expout = preg_replace('~{#' . $index . '}~', $subq->questiontext, $expout);
                 }
+                // Enhancements for ElateXam:
+                $expout .= $this->try_exporting_using_qtypes($question->qtype, $question);
                 break;
 
             case 'essay':
@@ -1261,6 +1265,8 @@ class qformat_xml extends qformat_default {
                 $expout .= $this->write_files($fs->get_area_files($contextid, 'qtype_essay',
                         'graderinfo', $question->id));
                 $expout .= "    </graderinfo>\n";
+                // Enhancements for ElateXam:
+                $expout .= $this->try_exporting_using_qtypes($question->qtype, $question);
                 break;
 
             case 'calculated':

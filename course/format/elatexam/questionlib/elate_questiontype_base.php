@@ -54,6 +54,25 @@ class elate_questiontype_base extends question_type {
 		}
 		return "";
 	}
+
+	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+		return parent::import_from_xml($data, $question, $format, $extra);
+	}
+
+	public function export_to_xml($question, qformat_xml $format, $extra='') {
+		if($question->qtype == 'multianswer' || $question->qtype == 'multichoice' || $question->qtype == 'essay') {
+			// @see parent::export_to_xml($question, $format, $extra);
+			// @see writequestion() in /question/format/xml/format.php
+			$extraquestionfields = $this->extra_question_fields();
+			array_shift($extraquestionfields);
+			foreach ($extraquestionfields as $field) {
+				$exportedvalue = $format->xml_escape($question->options->$field);
+				$extra .= "    <$field>{$exportedvalue}</$field>\n";
+			}
+			return $extra;
+		}
+		return parent::export_to_xml($question, $format, $extra);
+	}
 }
 
 /**
