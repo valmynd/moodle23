@@ -84,7 +84,6 @@ class elate_questiontype_base extends question_type {
 				$default = 0; // currently we have only numbers, TODO: lookup defaults in global assoziative array?
 				$extra->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
 			}
-			debugging(var_export($extra));
 			return $extra;
 		}
 		return parent::import_from_xml($data, $question, $format, $extra);
