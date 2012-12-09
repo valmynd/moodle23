@@ -39,7 +39,8 @@ class qtype_rtypetask_edit_form extends elate_question_edit_form {
 	
 	protected function definition_inner($mform) {
 		// we won't use any applets
-		$this->add_corrector_feedback();
+		//$this->add_corrector_feedback(); // REMOVED, replaced with hidden fields for compatibility reasons:
+		$this->add_editor_field_replacement('correctorfeedback');
 		$this->add_question_fields();
 		global $PAGE;
 		$PAGE->requires->js("/question/type/rtypetask/module.js");
