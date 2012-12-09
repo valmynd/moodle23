@@ -136,7 +136,8 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
         $repeated[] = $mform->createElement('advcheckbox', 'fraction', get_string('grade'), get_string('right', 'format_elatexam'), array('group' => 1), array(0, 1));
 		// we don't need the 'feedback' fields;
         //$repeated[] = $mform->createElement('editor', 'feedback', get_string('feedback', 'question'), array('rows' => 1), $this->editoroptions);
-		$repeated[] = $mform->createElement('hidden', 'feedback', "");
+		//$repeated[] = $mform->createElement('hidden', 'feedback', "");
+        $this->create_editor_field_replacement('feedback', $repeated);
         $repeatedoptions['answer']['type'] = PARAM_RAW;
         $repeatedoptions['fraction']['default'] = 0;
         $answersoption = 'answers';

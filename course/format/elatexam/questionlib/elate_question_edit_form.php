@@ -39,6 +39,34 @@ require_once($CFG->dirroot.'/question/type/edit_question_form.php');
  */
 abstract class elate_question_edit_form extends question_edit_form {
 
+	/**
+	 * for one Editor field, attributes text, format and itemid must be handled.
+	 * @param string $name of the editor field that would normally be added
+	 */
+	protected function add_editor_field_replacement($name) {
+		$this->_form->addElement('hidden', $name.'[text]');
+		$this->_form->addElement('hidden', $name.'[format]');
+		$this->_form->addElement('hidden', $name.'[itemid]');
+	}
+	/**
+	 * use this in context of repeated elements, e.g. @see self::get_per_answer_fields()
+	 * @param string $name of the editor field that would normally be added
+	 * @param array $repeated
+	 */
+	protected function create_editor_field_replacement($name, array $repeated) {
+		$repeated[] = $this->_form->createElement('hidden', $name.'[text]');
+		$repeated[] = $this->_form->createElement('hidden', $name.'[format]');
+		$repeated[] = $this->_form->createElement('hidden', $name.'[itemid]');
+	}
+	/**
+	 * replace editor field with the appropriate hidden fields
+	 * @param string $name of the editor field you want to replace
+	 */
+	protected function hide_editor_field($name) {
+		$this->_form->removeElement($name);
+		$this->add_editor_field_replacement($name);
+	}
+
 	protected function definition() {
 		parent::definition();
 		// definition_inner(), which is implemented by subclasses, is called by now
@@ -59,7 +87,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$mform->removeElement('attachments');
 				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
-				$mform->addElement('hidden', 'responseformat', 'editor');
+				$mform->addElement('hidden', 'responseformat');
 				break;
 			case 'multianswer':
 				$menu = array(get_string('caseno', 'qtype_shortanswer'), get_string('caseyes', 'qtype_shortanswer'));
@@ -71,11 +99,8 @@ abstract class elate_question_edit_form extends question_edit_form {
 				// @see qtype_multichoice_edit_form
 				break;
 			case 'truefalse':
-				$mform->removeElement('feedbacktrue');
-				$mform->removeElement('feedbackfalse');
-				$mform->addElement('hidden', 'feedbacktrue', '');
-				$mform->addElement('hidden', 'feedbackfalse', '');
-				// TODO: Abzug für falschen Versuch
+				$this->hide_editor_field('feedbacktrue');
+				$this->hide_editor_field('feedbackfalse');
 				break;
 		}
 		// Override some labels (global)
@@ -97,7 +122,8 @@ abstract class elate_question_edit_form extends question_edit_form {
 		$repeated[] = $mform->createElement('hidden', 'fraction', 1);
 		// we don't need the 'feedback' fields
 		//$repeated[] = $mform->createElement('editor', 'feedback', get_string('feedback', 'question'), array('rows' => 5), $this->editoroptions);
-		$repeated[] = $mform->createElement('hidden', 'feedback', "");
+		//$repeated[] = $mform->createElement('hidden', 'feedback', "");
+		$this->create_editor_field_replacement('feedback', $repeated);
 		$repeatedoptions['answer']['type'] = PARAM_RAW;
 		$repeatedoptions['fraction']['default'] = 0;
 		$answersoption = 'answers';
@@ -112,8 +138,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 	protected function add_combined_feedback_fields($withshownumpartscorrect = false) {
 		$mform = $this->_form;
 		foreach (array('correctfeedback', 'partiallycorrectfeedback', 'incorrectfeedback') as $fieldname) {
-			$mform->addElement('hidden', $fieldname, 0);
-			$mform->setType($fieldname, PARAM_RAW);
+			$this->add_editor_field_replacement($fieldname);
 		}
 	}
 
@@ -138,44 +163,9 @@ abstract class elate_question_edit_form extends question_edit_form {
 	}
 
 	/**
-	 * overidden to do nothing
-	 * @see question_edit_form::data_preprocessing_combined_feedback()
-	 */
-	protected function data_preprocessing_combined_feedback($question, $withshownumcorrect = false) {
-		return $question;
-	}
-
-	/**
-	 * overidden to do nothing
-	 * @see question_edit_form::data_preprocessing_hints()
-	 */
-	protected function data_preprocessing_hints($question, $withclearwrong = false, $withshownumpartscorrect = false) {
-		return $question;
-	}
-
-	/**
-	 * Overridden data_preprocessing_answers() to avoid errors as we removed
-	 * any "Feedback" fields from answers
-	 *
-	 * @see question_edit_form::data_preprocessing_answers()
-	 */
-	protected function data_preprocessing_answers($question, $withanswerfiles = false) {
-		if(!empty($question->options->answers)) {
-			$question = parent::data_preprocessing_answers($question, $withanswerfiles);
-			$key = 0;
-			foreach ($question->options->answers as $answer) {
-				$question->feedback[$key] = "";
-				$key++;
-			}
-		}
-		return $question;
-	}
-
-	/**
 	 * Addon types may use the 'Feedback for Corrector' field
 	 */
 	protected function add_corrector_feedback() {
-		// we won't use any applets
 		$element = $this->_form->addElement('editor', 'correctorfeedback',
 				get_string('correctorfeedback', 'format_elatexam'),
 				array('rows' => 10), $this->editoroptions);
