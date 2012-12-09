@@ -53,7 +53,7 @@ $string['tasksperpage_help'] = 'Wie viele Fragen soll ein Prüfling pro Seite an
 $string['tries'] = 'Anzahl Versuche';
 $string['tries_help'] = 'Zahl der möglichen Versuche, um die Aufgaben zu lösen. Jeder neue Versuch führt zu einer Neuanordnung der Fragen.';
 
-$string['showhandlinghintsbeforestart'] = 'Einleitungstext anzeigen';
+$string['showhandlinghintsbeforestart'] = 'Bearbeitungshinweise anzeigen';
 
 $string['numberofcorrectors'] = 'Anzahl Korrektoren';
 $string['numberofcorrectors_help'] = 'Anzahl (menschlicher) Korrektoren, deren Bewertung in das Gesamtergebnis einfließt. Standardwert ist 2 (Bologna), 0 bedeutet unendlich viele Korrektoren.';
