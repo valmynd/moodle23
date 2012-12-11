@@ -81,8 +81,9 @@ class qtype_essay extends elate_questiontype_base {
                 $context, 'qtype_essay', 'graderinfo', $formdata->id);
         $options->graderinfoformat = $formdata->graderinfo['format'];
         $DB->update_record('qtype_essay_options', $options);
-        /* we need this, it will do the trick regarding extra_question_fields() */
-        parent::save_question_options($formdata);
+        /* we need to call question_type::save_question_options(), as it
+         * will do the trick regarding extra_question_fields() */
+        return parent::save_question_options($formdata);
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {

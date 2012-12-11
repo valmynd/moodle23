@@ -100,10 +100,9 @@ class qtype_multichoice extends elate_questiontype_base {
                     $context, 'question', 'answer', $answer->id);
             $answer->answerformat = $answerdata['format'];
             $answer->fraction = $question->fraction[$key];
-            // removed
-            //$answer->feedback = $this->import_or_save_files($question->feedback[$key],
-            //        $context, 'question', 'answerfeedback', $answer->id);
-            $answer->feedbackformat = "";//$question->feedback[$key]['format'];
+            $answer->feedback = $this->import_or_save_files($question->feedback[$key],
+                    $context, 'question', 'answerfeedback', $answer->id);
+            $answer->feedbackformat = $question->feedback[$key]['format'];
             $answer->feedback = "";
 
             $DB->update_record('question_answers', $answer);
@@ -162,8 +161,22 @@ class qtype_multichoice extends elate_questiontype_base {
                 return $result;
             }*/
         }
-        /* we need this, it will do the trick regarding extra_question_fields() */
-        parent::save_question_options($question);
+        /* we need to call question_type::save_question_options(), as it
+         * will do the trick regarding extra_question_fields()
+         *
+         * Note: We have to set some fields to their defaults here, as they
+         * will not be set when this is used by multianswer/cloze
+         * @see qtype_multianswer::save_question_options()
+         *  -> contains a line like this: question_bank::get_qtype($wrapped->qtype)->save_question());
+        **/
+        $extraquestionfields = $this->extra_question_fields();
+        array_shift($extraquestionfields); // only column-names are interesting for us
+        foreach ($extraquestionfields as $field) {
+        	if (!isset($question->$field)) {
+        		$question->$field = 0;
+        	}
+        }
+        return question_type::save_question_options($question);
     }
 
     protected function make_question_instance($questiondata) {
