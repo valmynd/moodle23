@@ -38,7 +38,6 @@ require_once($CFG->dirroot.'/question/type/edit_question_form.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 abstract class elate_question_edit_form extends question_edit_form {
-
 	/**
 	 * for one Editor field, attributes text, format and itemid must be handled.
 	 * @param string $name of the editor field that would normally be added
@@ -70,26 +69,15 @@ abstract class elate_question_edit_form extends question_edit_form {
 	 * @see moodleform::repeat_elements_fix_clone($i, $elementclone, &$namecloned)
 	 */
 	function repeat_elements_fix_clone($i, $elementclone, &$namecloned) {
+		parent::repeat_elements_fix_clone($i, $elementclone, $namecloned);
 		$name = $elementclone->getName();
-		$namecloned[] = $name;
-		if (!empty($name)) {
-			if(!$pos = strpos($name, '[')) // default: no [ in $name
-				$elementclone->setName($name."[$i]");
-			else { // insert "[$i]" on a proper position
-				$resultingname = substr($name, 0, $pos) . "[$i]" . substr($name, $pos);
-				$elementclone->setName($resultingname);
-			}
-		}
-		// the rest should be the same as in moodleform::repeat_elements_fix_clone() -> keep this updated!
-		if (is_a($elementclone, 'HTML_QuickForm_header')) {
-			$value = $elementclone->_text;
-			$elementclone->setValue(str_replace('{no}', ($i+1), $value));
-		} else if (is_a($elementclone, 'HTML_QuickForm_submit') || is_a($elementclone, 'HTML_QuickForm_button')) {
-			$elementclone->setValue(str_replace('{no}', ($i+1), $elementclone->getValue()));
-		} else {
-			$value=$elementclone->getLabel();
-			$elementclone->setLabel(str_replace('{no}', ($i+1), $value));
-		}
+		$pos_last = strrpos($name, '[');
+		$pos_first = strpos($name, '[');
+		if($pos_first == $pos_last) // nothing to do
+			return;
+		// move "[$i]" on a proper position
+		$resultingname = substr($name, 0, $pos_first) . "[$i]" . substr($name, $pos_first, $pos_last-$pos_first);
+		$elementclone->setName($resultingname);
 	}
 	/**
 	 * replace editor field with the appropriate hidden fields
@@ -263,15 +251,15 @@ abstract class elate_applet_question_edit_form extends elate_question_edit_form 
 		$jarpath = $CFG->wwwroot . "/question/type/" . $this->qtype() . "/lib/" . $this->get_jarname();
 		$appletstr = "\n\n<applet "
 				. 'archive="' . $jarpath . '" ' . 'code="'. $this->get_innerpath() . '" '
-						. 'id="appletField" '
-								. 'width="600" height="400">\n'
-										. '<param name="memento" value="' . $this->get_memento() . '">\n'
-												. "</applet>\n\n";
+				. 'id="appletField" '
+				. 'width="600" height="400">\n'
+				. '<param name="memento" value="' . $this->get_memento() . '">\n'
+				. "</applet>\n\n";
 
 		// Trick to place it at the same position as the <input> elements above it (+ nice label)
 		$appletstr = '<div class="fitem fitem_feditor" id="fitem_id_questiontext"><div class="fitemtitle">'
 				.'<label for="appletField">Settings for '. get_string('pluginname', 'qtype_'.$this->qtype()) .'</label></div>'
-						.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
+				.'<div class="felement feditor"><div><div>'.$appletstr.'</div></div></div></div>';
 
 		// Hidden Elements to put in the Applet output via module.js
 		$failstr = "Error: Applet Content was not send!"; // result when javascript didn't execute properly
