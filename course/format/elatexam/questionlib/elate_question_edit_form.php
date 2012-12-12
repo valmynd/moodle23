@@ -73,11 +73,10 @@ abstract class elate_question_edit_form extends question_edit_form {
 		$name = $elementclone->getName();
 		$pos_last = strrpos($name, '[');
 		$pos_first = strpos($name, '[');
-		if($pos_first == $pos_last) // nothing to do
-			return;
-		// move "[$i]" on a proper position
-		$resultingname = substr($name, 0, $pos_first) . "[$i]" . substr($name, $pos_first, $pos_last-$pos_first);
-		$elementclone->setName($resultingname);
+		if($pos_first != $pos_last) { // insert "[$i]" at proper position
+			$resultingname = substr($name, 0, $pos_first) . "[$i]" . substr($name, $pos_first, $pos_last-$pos_first);
+			$elementclone->setName($resultingname);
+		}
 	}
 	/**
 	 * replace editor field with the appropriate hidden fields
@@ -104,7 +103,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$mform->setType('responsefieldlines', PARAM_INT);
 				$mform->setType('responsefieldwidth', PARAM_INT);
 				$mform->setDefault('responsefieldlines', 15);
-				$mform->setDefault('responsefieldwidth', 25);
+				$mform->setDefault('responsefieldwidth', 60);
 				$mform->removeElement('attachments');
 				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
