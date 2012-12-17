@@ -47,13 +47,14 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
      */
     protected function definition_inner($mform) {
     	$mform = $this->_form; // use it because of Eclipse introspection
+    	global $ELATE_DEFAULTS;
         $menu = array(
             get_string('answersingleno', 'qtype_multichoice'),
             get_string('answersingleyes', 'qtype_multichoice'),
         );
         $mform->addElement('select', 'single',
                 get_string('answerhowmany', 'qtype_multichoice'), $menu);
-        $mform->setDefault('single', 1);
+        $mform->setDefault('single', $ELATE_DEFAULTS['multichoice']['single']);
 
         // minimal anzuzeigende antwortalternativen (default jeweils 1), insgesamt anzuzeigende antwortalternativen (wenn nichts eingetragen alle)
         // auswahlfeld ob singlechoice oder multichoice muss rein (der server muss wissen ob er die radiobuttons oder die checkboxen nimmt)
@@ -66,16 +67,16 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
         $mform->setType('num_right_min', PARAM_INT);
         $mform->setType('num_right_max', PARAM_INT);
         $mform->setType('num_shown', PARAM_INT);
-        $mform->setDefault('num_right_min', 1);
-        $mform->setDefault('num_right_max', 1);
-        $mform->setDefault('num_shown', 0); // default(0):all
+        $mform->setDefault('num_right_min', $ELATE_DEFAULTS['multichoice']['num_right_min']);
+        $mform->setDefault('num_right_max', $ELATE_DEFAULTS['multichoice']['num_right_max']);
+        $mform->setDefault('num_shown', $ELATE_DEFAULTS['multichoice']['num_shown']); // default(0):all
         $mform->disabledIf('num_right_min', 'single', 'eq', 1);
         $mform->disabledIf('num_right_max', 'single', 'eq', 1);
 
         $mform->addElement('advcheckbox', 'shuffleanswers',
                 get_string('shuffleanswers', 'qtype_multichoice'), null, null, array(0, 1));
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_multichoice');
-        $mform->setDefault('shuffleanswers', 1);
+        $mform->setDefault('shuffleanswers', $ELATE_DEFAULTS['multichoice']['shuffleanswers']);
 
         // not needed in ElateXam
         /*$mform->addElement('select', 'answernumbering',
@@ -103,6 +104,7 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
      */
     protected function add_interactive_settings($withclearwrong = false, $withshownumpartscorrect = false) {
     	$mform = $this->_form;
+    	global $ELATE_DEFAULTS;
     	$mform->addElement('header', 'penaltyheader', get_string('penaltyheader', 'format_elatexam'));
     	$mform->addElement('radio', 'assessmentmode', get_string('assessment_reg', 'format_elatexam'), '', 0);
     	$mform->addElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
@@ -116,9 +118,10 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
     	$mform->disabledIf('penalty', 'assessmentmode', 'checked');
     	$mform->disabledIf('penalty_empty', 'assessmentmode', 'nonchecked');
     	$mform->disabledIf('penalty_wrong', 'assessmentmode', 'nonchecked');
-    	$mform->setDefault('penalty', 1);
-    	$mform->setDefault('penalty_empty', 0);
-    	$mform->setDefault('penalty_wrong', 0);
+    	$mform->setDefault('assessmentmode', $ELATE_DEFAULTS['multichoice']['assessmentmode']);
+    	$mform->setDefault('penalty', $ELATE_DEFAULTS['multichoice']['penalty']);
+    	$mform->setDefault('penalty_empty', $ELATE_DEFAULTS['multichoice']['penalty_empty']);
+    	$mform->setDefault('penalty_wrong', $ELATE_DEFAULTS['multichoice']['penalty_wrong']);
     }
 
     /**

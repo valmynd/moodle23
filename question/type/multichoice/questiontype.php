@@ -171,11 +171,16 @@ class qtype_multichoice extends elate_questiontype_base {
         **/
         $extraquestionfields = $this->extra_question_fields();
         array_shift($extraquestionfields); // only column-names are interesting for us
+        global $ELATE_DEFAULTS;
+        $fromdefaults = false;
         foreach ($extraquestionfields as $field) {
         	if (!isset($question->$field)) {
-        		$question->$field = 0;
+        		$question->$field = $ELATE_DEFAULTS['multichoice'][$field];
+        		$fromdefaults = true;
         	}
         }
+        if($fromdefaults) // when importing old questions, enforce default penalty
+        	$question->penalty = $ELATE_DEFAULTS['multichoice']['penalty'];
         return question_type::save_question_options($question);
     }
 

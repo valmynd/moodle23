@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot.'/question/type/edit_question_form.php');
+require_once($CFG->dirroot.'/course/format/elatexam/questionlib/defaults.php');
 
 /**
  * Modified Form definition base class for all question used by ElateXam.
@@ -92,6 +93,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 		// definition_inner(), which is implemented by subclasses, is called by now
 		// -> unwanted fields can now be removed via $mform->removeElement()
 		$mform = $this->_form;
+		global $ELATE_DEFAULTS;
 		switch($this->qtype()) {
 			// for assessment options @see self::add_interactive_settings()
 			case 'essay':
@@ -102,8 +104,8 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$mform->insertElementBefore($width, 'attachments');
 				$mform->setType('responsefieldlines', PARAM_INT);
 				$mform->setType('responsefieldwidth', PARAM_INT);
-				$mform->setDefault('responsefieldlines', 15);
-				$mform->setDefault('responsefieldwidth', 60);
+				$mform->setDefault('responsefieldlines', $ELATE_DEFAULTS['essay']['responsefieldlines']);
+				$mform->setDefault('responsefieldwidth', $ELATE_DEFAULTS['essay']['responsefieldwidth']);
 				$mform->removeElement('attachments');
 				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
@@ -113,7 +115,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$menu = array(get_string('caseno', 'qtype_shortanswer'), get_string('caseyes', 'qtype_shortanswer'));
 				$case = $mform->createElement('select', 'casesensitivity', get_string('casesensitive', 'qtype_shortanswer'), $menu);
 				$mform->insertElementBefore($case, 'generalfeedback');
-				$mform->setDefault('casesensitivity', 0);
+				$mform->setDefault('casesensitivity', $ELATE_DEFAULTS['multianswer']['casesensitivity']);
 				break;
 			case 'multichoice':
 				// @see qtype_multichoice_edit_form
