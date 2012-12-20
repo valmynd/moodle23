@@ -69,12 +69,14 @@ class elate_questiontype_base extends question_type {
 	 */
 	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
 		$qtype = $data['@']['type'];
+		if($qtype == 'multichoice') // 'penalty' will not be part of $extraquestionfields
+			$extra->penalty = get_default_for_elatexam('multichoice','penalty');
 		if($qtype == 'multianswer' || $qtype == 'multichoice' || $qtype == 'essay') {
 			// called from qformat_xml::readquestions(), you shall have a look on what we've modified there
 			$extraquestionfields = $this->extra_question_fields();
 			array_shift($extraquestionfields);
 			foreach ($extraquestionfields as $field) {
-				$default = 0; // currently we have only numbers, TODO: lookup defaults in global assoziative array?
+				$default = get_default_for_elatexam($qtype, $field); // lookup defaults
 				$extra->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
 			}
 			return $extra;

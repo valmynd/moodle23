@@ -123,6 +123,10 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$this->hide_editor_field('feedbacktrue');
 				$this->hide_editor_field('feedbackfalse');
 				break;
+			case 'shortanswer':
+				$mform->removeElement('usecase');
+				$mform->addElement('hidden', 'usecase', 'caseno');
+				break;
 		}
 		// Override some labels (global)
 		$mform->getElement('generalfeedback')->setLabel(get_string('generalfeedback', 'format_elatexam'));

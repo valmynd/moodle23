@@ -61,7 +61,7 @@ class qtype_rtypetask_edit_form extends elate_question_edit_form {
 			// Ask whether to shuffle answers
 			$mform->addElement('advcheckbox', "shuffleanswers_$i", get_string('shuffleanswers', 'qtype_multichoice'), null, null, array(0, 1));
 			$mform->addHelpButton("shuffleanswers_$i", 'shuffleanswers', 'qtype_multichoice');
-			$mform->setDefault("shuffleanswers_$i", 1);
+			$mform->setDefault("shuffleanswers_$i", 0);
 			// Add an appropriate Seperator (decision were that some linebreaks were enough)
 			//$mform->addElement('html', '<hr style="margin:20px 10px 20px 10px; border: 1px solid lightgrey;"/>');
 			$mform->addElement('html', '<br />');

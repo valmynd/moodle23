@@ -17,7 +17,7 @@ function get_default_for_elatexam($qtype, $identifier) {
 					'penalty_empty' => 0,
 					'penalty_wrong' => 0,
 					'assessmentmode' => 0,
-					'shuffleanswers' => 0,
+					'shuffleanswers' => 1,
 			),
 			'multianswer' => array(
 					'casesensitivity' => 0,
