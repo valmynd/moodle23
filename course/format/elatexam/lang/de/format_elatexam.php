@@ -57,6 +57,8 @@ $string['assessment_dif'] = 'Unterschiedliche Bewertung';
 ////////// Modified or added Strings for Essay/FreeText //////////////////////
 $string['responsefieldlines'] = 'Höhe des Textfeldes';
 $string['responsefieldwidth'] = 'Breite des Textfeldes';
+$string['initialtextfieldvalue'] = 'Textvorbelegung';
 
 ////////// Modified or added Strings for MultiAnswer/CLOZE //////////////////////
 $string['casesensitivity'] = 'Berücksichtigung von Groß- und Kleinschreibung';
+

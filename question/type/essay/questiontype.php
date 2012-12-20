@@ -45,7 +45,7 @@ class qtype_essay extends elate_questiontype_base {
 	 * @see question_type::extra_question_fields()
 	 */
 	public function extra_question_fields() {
-		return array('qtype_enhancements_essay', 'responsefieldwidth');
+		return array('qtype_enhancements_essay', 'responsefieldwidth', 'initialtextfieldvalue');
 	}
 
     public function is_manual_graded() {

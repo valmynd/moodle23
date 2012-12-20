@@ -109,6 +109,8 @@ abstract class elate_question_edit_form extends question_edit_form {
 				$mform->removeElement('responseformat');
 				$mform->addElement('hidden', 'attachments', 0);
 				$mform->addElement('hidden', 'responseformat');
+				$initialtxt = $mform->createElement('textarea', 'initialtextfieldvalue', get_string('initialtextfieldvalue', 'format_elatexam'), array('rows'=>7,'cols'=>80));
+				$mform->insertElementBefore($initialtxt, 'graderinfo');
 				break;
 			case 'multianswer':
 				$menu = array(get_string('caseno', 'qtype_shortanswer'), get_string('caseyes', 'qtype_shortanswer'));
