@@ -164,10 +164,17 @@ class qtype_multichoice extends elate_questiontype_base {
         /* we need to call question_type::save_question_options(), as it
          * will do the trick regarding extra_question_fields()
          *
+         * Note: We have to set some fields to their defaults here, as they
+         * will not be set when this is used by multianswer/cloze
          * @see qtype_multianswer::save_question_options()
          *  -> contains a line like this: question_bank::get_qtype($wrapped->qtype)->save_question());
-         * Defaults are set within elate_questiontype_base::import_from_xml()
+         * For imports, defaults are handled within elate_questiontype_base::import_from_xml()
         **/
+        $extraquestionfields = $this->extra_question_fields();
+        array_shift($extraquestionfields); // only column-names are interesting for us
+        foreach ($extraquestionfields as $field)
+        	if (!isset($question->$field))
+        		$question->$field = get_default_for_elatexam('multichoice', $field);
         return question_type::save_question_options($question);
     }
 
