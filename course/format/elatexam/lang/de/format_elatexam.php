@@ -40,6 +40,7 @@ $string['generalfeedback'] = 'Hinweistext';
 $string['generalfeedback_help'] = 'Lösungshinweis, der während der Prüfung angezeigt wird (optional).';
 $string['correctorfeedback'] = 'Musterlösung';
 $string['penaltyforeachincorrecttry'] = "Negative Punkte für falsche Antworten";
+$string['penaltyforeachincorrecttry_help'] = "Genauer: Anzahl an Punkten, die bei einer falschen Antwort nicht vergeben werden.";
 $string['right'] = "richtig";
 $string['wrong'] = "falsch";
 

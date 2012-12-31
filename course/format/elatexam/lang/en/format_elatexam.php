@@ -40,6 +40,7 @@ $string['generalfeedback'] = 'Feedback for Student';
 $string['generalfeedback_help'] = 'Hint that is shown to students during the examination (optional).';
 $string['correctorfeedback'] = 'Sample Solution';
 $string['penaltyforeachincorrecttry'] = "Penalty for False Answers";
+$string['penaltyforeachincorrecttry_help'] = "More precise: Number of Points, that are not given when an Answer is wrong.";
 $string['right'] = "right";
 $string['wrong'] = "wrong";
 

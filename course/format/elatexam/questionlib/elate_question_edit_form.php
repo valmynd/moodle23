@@ -185,6 +185,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 		}
 		$x = $mform->createElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
 		$mform->insertElementBefore($x, 'generalfeedback'); // we want it at the top
+		$mform->addHelpButton('penalty', 'penaltyforeachincorrecttry', 'format_elatexam');
 		$mform->setType('penalty', PARAM_FLOAT);
 		$mform->setDefault('penalty', 1);
 	}

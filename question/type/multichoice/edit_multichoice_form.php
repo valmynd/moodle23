@@ -106,6 +106,7 @@ class qtype_multichoice_edit_form extends elate_question_edit_form {
     	$mform->addElement('header', 'penaltyheader', get_string('penaltyheader', 'format_elatexam'));
     	$mform->addElement('radio', 'assessmentmode', get_string('assessment_reg', 'format_elatexam'), '', 0);
     	$mform->addElement('text', 'penalty', get_string('penaltyforeachincorrecttry', 'format_elatexam'), array('size' => 3));
+    	$mform->addHelpButton('penalty', 'penaltyforeachincorrecttry', 'format_elatexam');
     	$mform->addElement('radio', 'assessmentmode', get_string('assessment_dif', 'format_elatexam'), '', 1);
     	$mform->addElement('text', 'penalty_empty', get_string('penalty_empty', 'format_elatexam'), array('size' => 3));
     	$mform->addElement('text', 'penalty_wrong', get_string('penalty_wrong', 'format_elatexam'), array('size' => 3));
