@@ -127,7 +127,7 @@ abstract class elate_question_edit_form extends question_edit_form {
 				break;
 			case 'shortanswer':
 				$mform->removeElement('usecase');
-				$mform->addElement('hidden', 'usecase', 'caseno');
+				$mform->addElement('hidden', 'usecase', 0);
 				break;
 		}
 		// Override some labels (global)
