@@ -70,15 +70,25 @@ class elate_questiontype_base extends question_type {
 	public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
 		$qtype = $data['@']['type'];
 		if($qtype == 'cloze') $qtype = 'multianswer'; // needed for backwards compatibility
-		if($qtype == 'multichoice') // 'penalty' will not be part of $extraquestionfields
-			$extra->penalty = get_default_for_elatexam('multichoice','penalty');
 		if($qtype == 'multianswer' || $qtype == 'multichoice' || $qtype == 'essay') {
 			// called from qformat_xml::readquestions(), you shall have a look on what we've modified there
 			$extraquestionfields = $this->extra_question_fields();
 			array_shift($extraquestionfields);
+			$question_is_from_standard_moodle = false;
 			foreach ($extraquestionfields as $field) {
 				$default = get_default_for_elatexam($qtype, $field); // lookup defaults
-				$extra->$field = $format->getpath($data, array('#', $field, 0, '#'), $default);
+				$extra->$field = $format->getpath($data, array('#', $field, 0, '#'), $default); // last parameter is fallback
+				if(!$question_is_from_standard_moodle) // check if question is from (our) modified moodle
+					$question_is_from_standard_moodle = $format->getpath($data, array('#', $field, 0, '#'), '_empty') === '_empty';
+			}
+			if($qtype == 'multichoice' || $qtype == 'multianswer') { // 'penalty' will not be part of $extraquestionfields
+				$default_penalty = get_default_for_elatexam($qtype, 'penalty'); // lookup default
+				$extra->$field = $format->getpath($data, array('#', 'penalty', 0, '#'), $default_penalty);
+				if($question_is_from_standard_moodle) {
+					// value is floating point, default would be 0.33 what should be 1.0
+					$extra->$field = (float)$extra->$field * 3; // FIXME (dirty hack)
+					//if($extra->$field == "0.33") $extra->$field; // FIXME (even dirtier)
+				}
 			}
 			return $extra;
 		}
