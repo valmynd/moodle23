@@ -7,6 +7,7 @@ function get_default_for_elatexam($qtype, $identifier) {
 			'essay' => array (
 					'responsefieldlines' => 15,
 					'responsefieldwidth' => 60,
+					'initialtextfieldvalue' => '',
 			),
 			'multichoice' => array (
 					'num_shown' => 0,

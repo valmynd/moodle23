@@ -157,7 +157,8 @@ class qtype_rtypetask extends elate_addon_questiontype_base {
 			$tag = $relevanttags->item($i-1);
 			$files = $fs->get_area_files($question->contextid, $this->plugin_name(), $tagname.'_'.$i, $question->id);
 			foreach ($files as $file) {
-				$filename = $file->get_filename();
+				$fn = $file->get_filename();
+				$filename = str_replace(" ", "%20", $fn);
 				if($filename == '.') continue;
 				$base64str = base64_encode($file->get_content());
 				$needle = '@@PLUGINFILE@@/' . $filename;
