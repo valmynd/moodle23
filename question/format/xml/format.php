@@ -926,7 +926,7 @@ class qformat_xml extends qformat_default {
             } else if ($questiontype == 'cloze' || $questiontype == 'multianswer') {
                 $qo = $this->import_multianswer($question);
                 // Check if it contains Enhancements for ElateXam:
-                $qo = $this->try_importing_using_qtypes($question, null, $qo, $questiontype);
+                $qo = $this->try_importing_using_qtypes($question, null, $qo, 'multianswer'); // would fail for 'cloze'
             } else if ($questiontype == 'essay') {
                 $qo = $this->import_essay($question);
                 // Check if it contains Enhancements for ElateXam:
